@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Reminder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: {{branding.colors.textPrimary}};
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .logo {
+            max-width: 150px;
+            height: auto;
+        }
+        .content {
+            background-color: {{branding.colors.backgroundPrimary}};
+            padding: 30px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: {{branding.colors.accent}};
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: {{branding.colors.textSecondary}};
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{branding.logo.src}}" alt="{{branding.logo.altText}}" class="logo">
+        </div>
+        
+        <div class="content">
+            <h2>Action Required: Team Reminder</h2>
+            
+            <p>Hello {{memberName}},</p>
+            
+            <p>This is a friendly reminder that you have pending actions in the team <strong>{{teamName}}</strong> on Jobready.</p>
+            
+            <p>Please take a moment to review and complete any pending tasks or updates required for your team.</p>
+            
+            <div style="text-align: center;">
+                <a href="{{actionUrl}}" class="button">Go to Team Page</a>
+            </div>
+            
+            <p>If you have any questions or need assistance, please don't hesitate to contact your team administrator.</p>
+            
+            <p>Best regards,<br>The Jobready Team</p>
+        </div>
+        
+        <div class="footer">
+            <p>This reminder was sent on {{formatDate reminderDate}}</p>
+            <p>&copy; {{currentYear}} {{companyName}}. All rights reserved.</p>
+            <p>
+                <a href="{{branding.websiteUrl}}">Visit our website</a> |
+                <a href="{{branding.socialLinks.twitter}}">Twitter</a> |
+                <a href="{{branding.socialLinks.linkedin}}">LinkedIn</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html> 
