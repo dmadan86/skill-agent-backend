@@ -100,17 +100,8 @@ app.use(
     origin: [
       "http://localhost:3000",
       "http://localhost:3001",
-      "https://digitalagents-coach.vercel.app",
-      "https://digitalagents-coach-frontend.vercel.app",
-      "https://digitalagents-coach.onrender.com",
-      "https://sidekick.digitalagents.io",
-      "https://sidekickagents.io",
-      "https://app.digitalagents.io",
-      "https://app.sidekickagents.io",
-      "https://digitalagents-coach-staging.vercel.app",
-      "https://staging.job-ready.ai",
-      "https://app.job-ready.ai",
-      "https://app.jobready.co"
+      "https://skill-agent-backend.onrender.com",
+      "https://api.skillagent.dmadan.com"
     ],
     credentials: true,
   })
