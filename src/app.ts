@@ -68,6 +68,7 @@ const connectDB = async () => {
       message: "MongoDB connection established",
     });
   } catch (error) {
+    console.log(error);
     dbLogger.connectionError(error);
     await SystemLogService.logSystemStatus("down", "database", {
       message: "MongoDB connection failed",
@@ -104,7 +105,7 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3001",
       "https://skill-agent-backend.onrender.com",
-      "https://api.skillagent.dmadan.com",
+      "https://skillagent.dmadan.com",
     ],
     credentials: true,
   }),
