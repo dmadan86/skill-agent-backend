@@ -1,4 +1,4 @@
-import express, { Express } from "express";
+import express, { Express, Request, Response } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import helmet from "helmet";
@@ -138,6 +138,11 @@ app.use("/api/analytics", analyticsRoutes);
 app.use("/api/billing", billingRoutes);
 app.use("/api/api-key", apiKeyRoutes);
 app.use('/api/endpoint', webhookRouter);
+
+app.set('trust proxy', true)
+app.get('/x-forwarded-for', (req: Request, res: Response) => {
+  res.send(req.headers['x-forwarded-for'])
+});
 
 // Health check endpoint
 app.get("/health", async (req, res) => {
