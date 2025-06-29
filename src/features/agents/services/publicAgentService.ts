@@ -139,7 +139,8 @@ Tailor rewrites for different goals: job search, freelance visibility, thought l
   {
     name: "Dating Coach",
     type: "SERVICE",
-    description: "Dating Coach is your personal AI-powered wingperson, designed to make online and offline dating smoother, smarter, and way more fun.",
+    description:
+      "Dating Coach is your personal AI-powered wingperson, designed to make online and offline dating smoother, smarter, and way more fun.",
     industry: "Dating",
     content: `Agent Name: Dating Coach
 
@@ -286,7 +287,8 @@ This AI isn’t just a message generator — it’s a mindset shift tool that tu
   {
     name: "HustleBot",
     type: "SERVICE",
-    description: "Coach designed to help users discover, validate, and launch income-generating side hustles tailored to their personal interests, skills, and available time.",
+    description:
+      "Coach designed to help users discover, validate, and launch income-generating side hustles tailored to their personal interests, skills, and available time.",
     industry: "Lifestyle",
     content: `Agent Name: HustleBot
 Description:
@@ -421,7 +423,8 @@ Offer to simulate a 7-day or 30-day launch plan to show how fast and practical i
   {
     name: "Salary Negotiator – Your Personal Raise Coach",
     type: "SERVICE",
-    description: "Prepare for salary negotiations by generating personalized scripts, simulating scenarios, and providing salary benchmarks by job title and location.",
+    description:
+      "Prepare for salary negotiations by generating personalized scripts, simulating scenarios, and providing salary benchmarks by job title and location.",
     industry: "Career",
     content: `The Salary Negotiator is an AI-powered coach designed to help professionals master the art of salary negotiation. It guides users through every step of the negotiation process—from understanding market compensation benchmarks by role and location, to crafting personalized negotiation scripts tailored to their tone and context (email, in-person, recruiter calls). The agent simulates real-life negotiation scenarios with managers or HR reps, teaching users how to respond to common objections, handle pushback, and communicate value confidently.
 
@@ -582,7 +585,8 @@ Tone & Style: Supportive, non-judgmental, and clear. Designed to feel like a kno
   {
     name: "MoneyBuddy",
     type: "SERVICE",
-    description: "Your AI-powered weekly financial wellness coach, designed to help users build mindful money habits.",
+    description:
+      "Your AI-powered weekly financial wellness coach, designed to help users build mindful money habits.",
     industry: "Financial",
     content: `🧠 Description:
 MoneyBuddy is your AI-powered weekly financial wellness coach, designed to help users build mindful money habits. Instead of overwhelming users with spreadsheets or complex budgeting tools, it takes a conversational, bite-sized approach. Each week, MoneyBuddy checks in with light-touch questions like:
@@ -705,14 +709,14 @@ Gamified experience to make saving enjoyable, not stressful.
 Demo Flow Tip: Start the demo with a weekly check-in question (“What’s one impulse purchase you made this week?”) to engage users instantly. Show how MoneyBuddy celebrates small wins (like skipping a latte or making a ₹1000 transfer to savings).
 `,
     isPublic: true,
-  }
+  },
 ];
 
 /**
  * Create public agents for a user if they don't already exist
  */
 export const createPublicAgentsForUser = async (
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<IAgent[]> => {
   logger.info(`Creating public agents for user: ${userId}`);
   const createdAgents: IAgent[] = [];
@@ -725,7 +729,7 @@ export const createPublicAgentsForUser = async (
     });
 
     const existingAgentNames = new Set(
-      existingAgents.map((agent) => agent.name)
+      existingAgents.map((agent) => agent.name),
     );
 
     // Create each public agent if it doesn't already exist for this user
@@ -764,7 +768,7 @@ export const createPublicAgentsForUser = async (
             trainingSessionId: trainingSession._id,
             evaluationSessionId: evaluationSession._id,
           },
-          { new: true }
+          { new: true },
         );
 
         if (updatedAgent) {
@@ -790,7 +794,7 @@ export const getPublicAgentsForUser = async (
     limit?: number;
     type?: string;
     industry?: string;
-  } = {}
+  } = {},
 ): Promise<{
   agents: IAgent[];
   total: number;
@@ -831,14 +835,14 @@ export const getPublicAgentsForUser = async (
       agents.map(async (agent: any) => {
         const trainingProgress = await getIndividualUserTrainingProgress(
           userId,
-          agent._id as mongoose.Types.ObjectId
+          agent._id as mongoose.Types.ObjectId,
         );
         const evaluationProgress = await getIndividualUserEvaluationProgress(
           userId,
-          agent._id
+          agent._id,
         );
         return { ...agent._doc, trainingProgress, evaluationProgress };
-      })
+      }),
     );
 
     return {
@@ -855,18 +859,18 @@ export const getPublicAgentsForUser = async (
 };
 
 export const assignUserToAgent = async (
-  userId: mongoose.Types.ObjectId | string
+  userId: mongoose.Types.ObjectId | string,
 ) => {
   const publicAgents = await Agent.find({ isPublic: true });
 
   for (const agent of publicAgents) {
     await assignIndividualTrainees(
       agent.trainingSessionId as string,
-      userId as mongoose.Types.ObjectId
+      userId as mongoose.Types.ObjectId,
     );
     await assignIndividualUsersToEvaluation(
       agent.evaluationSessionId as string,
-      userId as mongoose.Types.ObjectId
+      userId as mongoose.Types.ObjectId,
     );
   }
 

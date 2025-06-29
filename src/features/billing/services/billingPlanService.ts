@@ -6,7 +6,10 @@ import {
 } from "../../../shared/errors/BillingErrors";
 import { AppError } from "../../../shared/errors/AppError";
 import { dbLogger } from "../../../shared/utils/loggerUtils";
-import { CreateBillingPlanInput, UpdateBillingPlanInput } from "../validation/billingSchema";
+import {
+  CreateBillingPlanInput,
+  UpdateBillingPlanInput,
+} from "../validation/billingSchema";
 
 interface ListBillingPlansOptions {
   page?: number;
@@ -18,7 +21,7 @@ interface ListBillingPlansOptions {
  */
 export const createBillingPlan = async (
   data: CreateBillingPlanInput,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<IBillingPlan> => {
   try {
     const existingPlan = await BillingPlan.findOne({ name: data.name });
@@ -29,9 +32,9 @@ export const createBillingPlan = async (
     const plan = new BillingPlan(data);
     const savedPlan = await plan.save();
 
-    dbLogger.query("BillingPlan", "create", { 
-      planId: savedPlan._id, 
-      createdBy: userId
+    dbLogger.query("BillingPlan", "create", {
+      planId: savedPlan._id,
+      createdBy: userId,
     });
 
     return savedPlan;
@@ -43,7 +46,7 @@ export const createBillingPlan = async (
     throw new AppError(
       "Failed to create billing plan",
       "BILLING_PLAN_CREATE_ERROR",
-      500
+      500,
     );
   }
 };
@@ -54,7 +57,7 @@ export const createBillingPlan = async (
 export const updateBillingPlan = async (
   id: string,
   data: UpdateBillingPlanInput,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<IBillingPlan> => {
   try {
     // Check if the plan exists
@@ -75,9 +78,9 @@ export const updateBillingPlan = async (
     Object.assign(plan, data);
     const updatedPlan = await plan.save();
 
-    dbLogger.query("BillingPlan", "update", { 
-      planId: updatedPlan._id, 
-      updatedBy: userId
+    dbLogger.query("BillingPlan", "update", {
+      planId: updatedPlan._id,
+      updatedBy: userId,
     });
 
     return updatedPlan;
@@ -89,7 +92,7 @@ export const updateBillingPlan = async (
     throw new AppError(
       "Failed to update billing plan",
       "BILLING_PLAN_UPDATE_ERROR",
-      500
+      500,
     );
   }
 };
@@ -97,9 +100,7 @@ export const updateBillingPlan = async (
 /**
  * Get a billing plan by ID
  */
-export const getBillingPlanById = async (
-  id: string
-): Promise<IBillingPlan> => {
+export const getBillingPlanById = async (id: string): Promise<IBillingPlan> => {
   try {
     const plan = await BillingPlan.findById(id);
     if (!plan) {
@@ -116,7 +117,7 @@ export const getBillingPlanById = async (
     throw new AppError(
       "Failed to get billing plan",
       "BILLING_PLAN_GET_ERROR",
-      500
+      500,
     );
   }
 };
@@ -126,7 +127,7 @@ export const getBillingPlanById = async (
  */
 export const deleteBillingPlan = async (
   id: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<void> => {
   try {
     const plan = await BillingPlan.findById(id);
@@ -137,9 +138,9 @@ export const deleteBillingPlan = async (
     // Delete the plan
     await BillingPlan.findByIdAndDelete(id);
 
-    dbLogger.query("BillingPlan", "delete", { 
-      planId: id, 
-      deletedBy: userId
+    dbLogger.query("BillingPlan", "delete", {
+      planId: id,
+      deletedBy: userId,
     });
   } catch (error) {
     dbLogger.error("BillingPlan", "delete", error);
@@ -149,7 +150,7 @@ export const deleteBillingPlan = async (
     throw new AppError(
       "Failed to delete billing plan",
       "BILLING_PLAN_DELETE_ERROR",
-      500
+      500,
     );
   }
 };
@@ -158,7 +159,7 @@ export const deleteBillingPlan = async (
  * List billing plans with pagination and filtering
  */
 export const listBillingPlans = async (
-  options: ListBillingPlansOptions = {}
+  options: ListBillingPlansOptions = {},
 ): Promise<{
   plans: IBillingPlan[];
   total: number;
@@ -179,8 +180,10 @@ export const listBillingPlans = async (
 
     const totalPages = Math.ceil(total / limit);
 
-    dbLogger.query("BillingPlan", "list", { 
-      page, limit, total 
+    dbLogger.query("BillingPlan", "list", {
+      page,
+      limit,
+      total,
     });
 
     return {
@@ -195,7 +198,7 @@ export const listBillingPlans = async (
     throw new AppError(
       "Failed to list billing plans",
       "BILLING_PLAN_LIST_ERROR",
-      500
+      500,
     );
   }
-}; 
+};

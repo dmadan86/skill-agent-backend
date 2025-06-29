@@ -22,21 +22,23 @@ const googleClient = new OAuth2Client(config.google);
 export const register = async (
   req: Request<{}, {}, RegisterInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    const userData: RegisterInput & { profilePicture?: string } = { ...req.body };
-    
+    const userData: RegisterInput & { profilePicture?: string } = {
+      ...req.body,
+    };
+
     if (req.file) {
       userData.profilePicture = req.file.filename;
     }
-    
+
     const user = await authService.register(userData);
-    
+
     await authService.initializeFreemiumTrial(user._id.toString());
-    
+
     authLogger.register(user._id.toString());
-    
+
     sendSuccess(
       res,
       {
@@ -47,7 +49,7 @@ export const register = async (
         role: user.role,
         profilePicture: user.profilePicture,
       },
-      201
+      201,
     );
   } catch (error) {
     apiLogger.error("POST", "/api/auth/register", error);
@@ -58,7 +60,7 @@ export const register = async (
 export const completeOnboarding = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -76,7 +78,7 @@ export const completeOnboarding = async (
 export const login = async (
   req: Request<{}, {}, LoginInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email, password, isPilot } = req.body;
@@ -92,7 +94,10 @@ export const login = async (
     });
     // }
 
-    authLogger.login(result.user?._id.toString() ?? '', isPilot ? 'pilot' : 'email');
+    authLogger.login(
+      result.user?._id.toString() ?? "",
+      isPilot ? "pilot" : "email",
+    );
 
     sendSuccess(res, {
       user: result.user,
@@ -100,7 +105,10 @@ export const login = async (
     });
   } catch (error) {
     if (req.body.email) {
-      authLogger.loginFailed(req.body.email, error instanceof Error ? error.message : 'Unknown error');
+      authLogger.loginFailed(
+        req.body.email,
+        error instanceof Error ? error.message : "Unknown error",
+      );
     }
     apiLogger.error("POST", "/api/auth/login", error);
     next(error);
@@ -110,7 +118,7 @@ export const login = async (
 export const refreshToken = async (
   req: Request<{}, {}, RefreshTokenInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     // Get token from cookies or request body
@@ -120,7 +128,7 @@ export const refreshToken = async (
       throw new AppError(
         "Refresh token is required",
         "AUTH_REFRESH_TOKEN_REQUIRED",
-        400
+        400,
       );
     }
 
@@ -146,7 +154,7 @@ export const refreshToken = async (
 export const logout = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -158,7 +166,7 @@ export const logout = async (
 
     // Clear the refresh token cookie
     res.clearCookie("refreshToken");
-    
+
     authLogger.logout(req.user.userId);
 
     sendSuccess(res, { message: "Logged out successfully" });
@@ -175,7 +183,7 @@ export const logout = async (
 export const getUser = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -216,7 +224,7 @@ export const getUser = async (
 export const getAllUsers = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -226,7 +234,7 @@ export const getAllUsers = async (
     if (req.user.role !== "admin") {
       throw new AppError("Unauthorized", "UNAUTHORIZED", 403);
     }
-    
+
     apiLogger.request("GET", "/api/auth/users", req.user.userId);
     const users = await authService.getAllUsers();
     sendSuccess(res, users);
@@ -243,7 +251,7 @@ export const getAllUsers = async (
 export const googleAuth = async (
   req: Request<{}, {}, GoogleAuthInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     apiLogger.request("POST", "/api/auth/google");
@@ -273,7 +281,7 @@ export const googleAuth = async (
       email,
       firstName,
       lastName,
-      req
+      req,
     );
 
     if (result.user) {
@@ -287,8 +295,8 @@ export const googleAuth = async (
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    
-    authLogger.login(result.user?._id.toString() ?? '', 'google');
+
+    authLogger.login(result.user?._id.toString() ?? "", "google");
 
     sendSuccess(res, {
       user: result.user,
@@ -304,11 +312,11 @@ export const googleAuth = async (
 export const updateProfile = async (
   req: AuthenticatedRequest<{}, {}, UpdateProfileInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
-      throw new AppError('Authentication required', 'AUTH_REQUIRED', 401);
+      throw new AppError("Authentication required", "AUTH_REQUIRED", 401);
     }
 
     const userData: {
@@ -321,9 +329,9 @@ export const updateProfile = async (
     if (req.file) {
       userData.profilePicture = req.file.filename;
     }
-    
+
     const user = await authService.updateUserProfile(req.user.userId, userData);
-    
+
     sendSuccess(res, {
       _id: user._id,
       email: user.email,
@@ -342,21 +350,21 @@ export const updateProfile = async (
 export const facebookAuth = async (
   req: Request<{}, {}, FacebookAuthInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { accessToken } = req.body;
     const result = await authService.facebookAuth(accessToken, req);
-    
+
     // Set refresh token in HTTP-only cookie
-    res.cookie('refreshToken', result.refreshToken, {
+    res.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    
-    authLogger.login(result.user?._id.toString() ?? '', 'facebook');
+
+    authLogger.login(result.user?._id.toString() ?? "", "facebook");
 
     sendSuccess(res, {
       user: result.user,
@@ -364,7 +372,7 @@ export const facebookAuth = async (
       refreshToken: result.refreshToken,
     });
   } catch (error) {
-    apiLogger.error('POST', '/api/auth/facebook', error);
+    apiLogger.error("POST", "/api/auth/facebook", error);
     next(error);
   }
 };
@@ -372,7 +380,7 @@ export const facebookAuth = async (
 export const createOnboarding = async (
   req: AuthenticatedRequest<{}, {}, CreateOnboardingInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -380,21 +388,30 @@ export const createOnboarding = async (
     }
 
     const { type, onboardingStep, interests } = req.body;
-    const user = await authService.createOnboarding(req.user.userId, { type, onboardingStep, interests });
+    const user = await authService.createOnboarding(req.user.userId, {
+      type,
+      onboardingStep,
+      interests,
+    });
     if (user.type === "individual" && user.onboardingSteps.length === 3) {
       await assignUserToAgent(req.user.userId);
     }
     sendSuccess(res, user, 201);
   } catch (error) {
-    apiLogger.error("PUT", "/api/auth/complete-onboarding", error, req.user?.userId);
+    apiLogger.error(
+      "PUT",
+      "/api/auth/complete-onboarding",
+      error,
+      req.user?.userId,
+    );
     next(error);
   }
-}
+};
 
 export const getUsageLogs = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {

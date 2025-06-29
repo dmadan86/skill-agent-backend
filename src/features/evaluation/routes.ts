@@ -1,10 +1,10 @@
 // src/features/evaluation/routes.ts
-import { Router } from 'express';
-import * as evaluationController from './controllers/evaluationController';
-import * as evaluationProgressController from './controllers/evalutionProgressController';
-import { validate } from '../../shared/middleware/validate';
-import { authenticate } from '../../shared/middleware/authenticate';
-import { evaluationSchemas } from './validation/evaluationSchema';
+import { Router } from "express";
+import * as evaluationController from "./controllers/evaluationController";
+import * as evaluationProgressController from "./controllers/evalutionProgressController";
+import { validate } from "../../shared/middleware/validate";
+import { authenticate } from "../../shared/middleware/authenticate";
+import { evaluationSchemas } from "./validation/evaluationSchema";
 
 const router = Router();
 
@@ -13,76 +13,76 @@ router.use(authenticate);
 
 // Evaluation Routes
 router.post(
-  '/',
+  "/",
   validate(evaluationSchemas.createEvaluationSchema),
-  evaluationController.createEvaluation
+  evaluationController.createEvaluation,
 );
 
 router.get(
-  '/',
+  "/",
   validate(evaluationSchemas.listEvaluationsSchema),
-  evaluationController.listEvaluations
+  evaluationController.listEvaluations,
 );
 
 router.get(
-  '/progress',
-  evaluationProgressController.listUserEvaluationProgress
+  "/progress",
+  evaluationProgressController.listUserEvaluationProgress,
 );
 
 router.put(
-  '/:id',
+  "/:id",
   validate(evaluationSchemas.updateEvaluationSchema),
-  evaluationController.updateEvaluation
+  evaluationController.updateEvaluation,
 );
 
 router.get(
-  '/:id',
+  "/:id",
   validate(evaluationSchemas.getEvaluationSchema),
-  evaluationController.getEvaluation
+  evaluationController.getEvaluation,
 );
 
 router.delete(
-  '/:id',
+  "/:id",
   validate(evaluationSchemas.deleteEvaluationSchema),
-  evaluationController.deleteEvaluation
+  evaluationController.deleteEvaluation,
 );
 
 router.post(
-  '/:id/assign',
+  "/:id/assign",
   validate(evaluationSchemas.assignUsersSchema),
-  evaluationController.assignUsers
+  evaluationController.assignUsers,
 );
 
 router.delete(
-  '/:evaluationId/assignees/:userId',
+  "/:evaluationId/assignees/:userId",
   validate(evaluationSchemas.removeAssigneeSchema),
-  evaluationController.removeAssignee
+  evaluationController.removeAssignee,
 );
 
 router.put(
-  '/progress/:evaluationId',
+  "/progress/:evaluationId",
   validate(evaluationSchemas.updateEvaluationProgressSchema),
-  evaluationProgressController.updateProgress
+  evaluationProgressController.updateProgress,
 );
 
 router.get(
-  '/progress/:evaluationId',
-  evaluationProgressController.getEvaluationProgress
+  "/progress/:evaluationId",
+  evaluationProgressController.getEvaluationProgress,
 );
 
 router.get(
-  '/:evaluationId/report/:userId',
-  evaluationController.downloadEvaluationReport
+  "/:evaluationId/report/:userId",
+  evaluationController.downloadEvaluationReport,
 );
 
 router.get(
-  '/employee/progress/:progressId',
-  evaluationProgressController.getEvaluationProgressByProgressId
+  "/employee/progress/:progressId",
+  evaluationProgressController.getEvaluationProgressByProgressId,
 );
 
 router.post(
-  '/progress/:evaluationId/reset',
-  evaluationProgressController.resetProgress
+  "/progress/:evaluationId/reset",
+  evaluationProgressController.resetProgress,
 );
 
 export default router;

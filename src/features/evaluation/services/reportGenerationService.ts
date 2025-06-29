@@ -1,13 +1,13 @@
 // src/features/evaluation/services/reportGenerationService.ts
-import fs from 'fs';
-import path from 'path';
-import { v4 as uuidv4 } from 'uuid';
-import puppeteer from 'puppeteer';
-import Handlebars from 'handlebars';
-import { IEvaluationProgress } from '../../../shared/models/EvaluationProgress';
-import { ReportGenerationError } from '../../../shared/errors/EvaluationErrors';
-import config from '../../../shared/config';
-import { IEvaluation } from '../../../shared/models/Evaluation';
+import fs from "fs";
+import path from "path";
+import { v4 as uuidv4 } from "uuid";
+import puppeteer from "puppeteer";
+import Handlebars from "handlebars";
+import { IEvaluationProgress } from "../../../shared/models/EvaluationProgress";
+import { ReportGenerationError } from "../../../shared/errors/EvaluationErrors";
+import config from "../../../shared/config";
+import { IEvaluation } from "../../../shared/models/Evaluation";
 
 /**
  * Generate a PDF evaluation report for a specific assignee
@@ -16,7 +16,7 @@ export const generateEvaluationReport = async (
   evaluationProgress: IEvaluationProgress,
   evaluation: IEvaluation,
   userData: any,
-  agentData: any
+  agentData: any,
 ): Promise<Buffer> => {
   try {
     // Create unique filename for this report
@@ -24,12 +24,12 @@ export const generateEvaluationReport = async (
     const tempDir = config.pdf.tempDir;
     const htmlPath = path.join(tempDir, `${reportId}.html`);
     const pdfPath = path.join(tempDir, `${reportId}.pdf`);
-    
+
     // Create temp directory if it doesn't exist
     if (!fs.existsSync(tempDir)) {
       fs.mkdirSync(tempDir, { recursive: true });
     }
-    
+
     // Prepare data for the report template
     const reportData = {
       title: evaluation.title,
@@ -37,31 +37,31 @@ export const generateEvaluationReport = async (
       reportId,
       user: userData,
       agent: agentData,
-      description: evaluation.description ?? '',
+      description: evaluation.description ?? "",
       overallScore: evaluationProgress.overallScore ?? 0,
       skillAssessments: evaluationProgress.skillAssessments ?? [],
       strengths: evaluationProgress.strengths ?? [],
       improvementAreas: evaluationProgress.improvementAreas ?? [],
-      recommendation: evaluationProgress.recommendation ?? '',
+      recommendation: evaluationProgress.recommendation ?? "",
       nextSteps: evaluationProgress.nextSteps ?? [],
-    //   logoPath: config.pdf.logoPath,
+      //   logoPath: config.pdf.logoPath,
     };
-    
+
     // Generate HTML using a template
     const html = await generateReportHtml(reportData);
-    
+
     // Write HTML to temporary file
     fs.writeFileSync(htmlPath, html);
-    
+
     // Convert HTML to PDF using Puppeteer
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
-    
+
     const page = await browser.newPage();
-    await page.goto(`file://${htmlPath}`, { waitUntil: 'networkidle0' });
-    
+    await page.goto(`file://${htmlPath}`, { waitUntil: "networkidle0" });
+
     // Add custom styles for PDF
     await page.addStyleTag({
       content: `
@@ -72,33 +72,37 @@ export const generateEvaluationReport = async (
         body {
           font-family: 'Arial', sans-serif;
         }
-      `
+      `,
     });
-    
+
     // Generate PDF
     const pdfBuffer = await page.pdf({
-      format: 'A4',
+      format: "A4",
       printBackground: true,
       displayHeaderFooter: true,
-      headerTemplate: '<div style="font-size: 8px; width: 100%; text-align: right; padding-right: 20px;">Evaluation Report</div>',
-      footerTemplate: '<div style="font-size: 8px; width: 100%; text-align: center;">Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>',
+      headerTemplate:
+        '<div style="font-size: 8px; width: 100%; text-align: right; padding-right: 20px;">Evaluation Report</div>',
+      footerTemplate:
+        '<div style="font-size: 8px; width: 100%; text-align: center;">Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>',
       margin: {
-        top: '30px',
-        right: '20px',
-        bottom: '30px',
-        left: '20px',
-      }
+        top: "30px",
+        right: "20px",
+        bottom: "30px",
+        left: "20px",
+      },
     });
-    
+
     await browser.close();
-    
+
     // Clean up temporary files
     if (fs.existsSync(htmlPath)) fs.unlinkSync(htmlPath);
     if (fs.existsSync(pdfPath)) fs.unlinkSync(pdfPath);
-    
+
     return Buffer.from(pdfBuffer);
   } catch (error) {
-    throw new ReportGenerationError(`Failed to generate PDF report: ${(error as Error).message}`);
+    throw new ReportGenerationError(
+      `Failed to generate PDF report: ${(error as Error).message}`,
+    );
   }
 };
 
@@ -335,28 +339,34 @@ async function generateReportHtml(data: any): Promise<string> {
       </body>
       </html>
     `;
-    
+
     // Register handlebars helpers
-    Handlebars.registerHelper('scoreColor', function(score) {
-      if (score >= 90) return '#4CAF50'; // Green
-      if (score >= 75) return '#8BC34A'; // Light green
-      if (score >= 60) return '#FFC107'; // Amber
-      if (score >= 40) return '#FF9800'; // Orange
-      return '#F44336'; // Red
+    Handlebars.registerHelper("scoreColor", function (score) {
+      if (score >= 90) return "#4CAF50"; // Green
+      if (score >= 75) return "#8BC34A"; // Light green
+      if (score >= 60) return "#FFC107"; // Amber
+      if (score >= 40) return "#FF9800"; // Orange
+      return "#F44336"; // Red
     });
-    
-    Handlebars.registerHelper('overallAssessment', function(score) {
-      if (score >= 90) return 'Exceptional performance demonstrating mastery of required skills.';
-      if (score >= 75) return 'Strong performance exceeding expectations in most areas.';
-      if (score >= 60) return 'Satisfactory performance meeting core expectations.';
-      if (score >= 40) return 'Developing performance with several areas needing improvement.';
-      return 'Performance requiring significant improvement across multiple areas.';
+
+    Handlebars.registerHelper("overallAssessment", function (score) {
+      if (score >= 90)
+        return "Exceptional performance demonstrating mastery of required skills.";
+      if (score >= 75)
+        return "Strong performance exceeding expectations in most areas.";
+      if (score >= 60)
+        return "Satisfactory performance meeting core expectations.";
+      if (score >= 40)
+        return "Developing performance with several areas needing improvement.";
+      return "Performance requiring significant improvement across multiple areas.";
     });
-    
+
     // Compile and render the template
     const compiledTemplate = Handlebars.compile(template);
     return compiledTemplate(data);
   } catch (error) {
-    throw new ReportGenerationError(`Failed to generate report HTML: ${(error as Error).message}`);
+    throw new ReportGenerationError(
+      `Failed to generate report HTML: ${(error as Error).message}`,
+    );
   }
 }

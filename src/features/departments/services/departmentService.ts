@@ -22,7 +22,7 @@ interface UpdateDepartmentData {
  * Create a new department
  */
 export const createDepartment = async (
-  data: CreateDepartmentData
+  data: CreateDepartmentData,
 ): Promise<IDepartment> => {
   // Check if department with same name already exists
   // const existingDepartment = await Department.findOne({ name: data.name });
@@ -51,7 +51,11 @@ export const createDepartment = async (
   });
 
   const departmentSaved = await department.save();
-  await useWebhookTrigger("team.created", departmentSaved, data.manager.toString());
+  await useWebhookTrigger(
+    "team.created",
+    departmentSaved,
+    data.manager.toString(),
+  );
   return departmentSaved;
 };
 
@@ -61,7 +65,7 @@ export const createDepartment = async (
 export const updateDepartment = async (
   id: string,
   userId: mongoose.Types.ObjectId,
-  data: UpdateDepartmentData
+  data: UpdateDepartmentData,
 ): Promise<IDepartment> => {
   const department = await Department.findById(id);
 
@@ -72,7 +76,7 @@ export const updateDepartment = async (
   // Check if user is the manager
   if (!department.manager.equals(userId)) {
     throw new ForbiddenError(
-      "Only the department manager can update the department"
+      "Only the department manager can update the department",
     );
   }
 
@@ -115,7 +119,7 @@ export const getDepartmentById = async (id: string): Promise<IDepartment> => {
  */
 export const deleteDepartment = async (
   id: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<void> => {
   const department = await Department.findById(id);
 
@@ -126,7 +130,7 @@ export const deleteDepartment = async (
   // Check if user is the manager
   if (!department.manager.equals(userId)) {
     throw new ForbiddenError(
-      "Only the department manager can delete the department"
+      "Only the department manager can delete the department",
     );
   }
 
@@ -138,11 +142,11 @@ export const deleteDepartment = async (
  * List all departments accessible to a user
  */
 export const listDepartments = async (
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<IDepartment[]> => {
   // Get departments where user is manager
   const user = await User.findById(userId);
-      
+
   if (!user) {
     throw new AppError("User not found", "USER_NOT_FOUND", 404);
   }
@@ -159,7 +163,6 @@ export const listDepartments = async (
     .sort({ name: 1 });
 
   const allDepartments = ownedDepartments;
-
 
   // If user is superadmin, return all departments
   if (user.role === "superadmin") {
@@ -179,7 +182,7 @@ export const listDepartments = async (
 export const addDepartmentMembers = async (
   id: string,
   userId: mongoose.Types.ObjectId,
-  memberIds: string[]
+  memberIds: string[],
 ): Promise<IDepartment> => {
   const department = await Department.findById(id);
 
@@ -199,7 +202,7 @@ export const addDepartmentMembers = async (
       throw new AppError(
         `User with ID ${memberId} not found`,
         "USER_NOT_FOUND",
-        404
+        404,
       );
     }
   }
@@ -210,7 +213,7 @@ export const addDepartmentMembers = async (
 
   if (newMembers.length > 0) {
     department.members.push(
-      ...newMembers.map((id) => new mongoose.Types.ObjectId(id))
+      ...newMembers.map((id) => new mongoose.Types.ObjectId(id)),
     );
     await department.save();
   }
@@ -224,7 +227,7 @@ export const addDepartmentMembers = async (
 export const removeDepartmentMembers = async (
   id: string,
   userId: mongoose.Types.ObjectId,
-  memberIds: string[]
+  memberIds: string[],
 ): Promise<IDepartment> => {
   const department = await Department.findById(id);
 
@@ -242,13 +245,13 @@ export const removeDepartmentMembers = async (
     throw new AppError(
       "Cannot remove the department manager from members",
       "CANNOT_REMOVE_MANAGER",
-      400
+      400,
     );
   }
 
   // Remove specified members
   department.members = department.members.filter(
-    (memberId) => !memberIds.includes(memberId.toString())
+    (memberId) => !memberIds.includes(memberId.toString()),
   );
 
   await department.save();
@@ -262,7 +265,7 @@ export const removeDepartmentMembers = async (
 export const getDepartmentMembers = async (id: string): Promise<any[]> => {
   const department = await Department.findById(id).populate(
     "members",
-    "firstName lastName email position department role"
+    "firstName lastName email position department role",
   );
 
   if (!department) {

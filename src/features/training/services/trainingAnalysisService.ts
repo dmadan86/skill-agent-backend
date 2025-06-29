@@ -50,7 +50,7 @@ export const analyzeTrainingTranscript = async (
   transcript: string,
   agentContent: string,
   previousSummary: string | null = null,
-  progressPercentage: number = 0
+  progressPercentage: number = 0,
 ): Promise<AnalysisResult> => {
   try {
     // First, check if transcript has enough content for analysis
@@ -90,7 +90,7 @@ export const analyzeTrainingTranscript = async (
     ];
 
     const containsKnowledgeClaims = knowledgeClaimPatterns.some((pattern) =>
-      pattern.test(transcript)
+      pattern.test(transcript),
     );
 
     // Check for verification of claimed knowledge
@@ -103,7 +103,7 @@ export const analyzeTrainingTranscript = async (
     ];
 
     const containsVerificationRequests = verificationPatterns.some((pattern) =>
-      pattern.test(transcript)
+      pattern.test(transcript),
     );
 
     const transcriptBase64 = Buffer.from(transcript).toString("base64");
@@ -226,7 +226,9 @@ Remember, honest assessment protects the integrity of our training platform. Onl
 
     // Code-level safeguards: transcript length enforcement
     const wordCount = transcript.split(/\s+/).length;
-    logger.debug(`wordcount: ${wordCount}, progressPercentage: ${result.progressPercentage}`)
+    logger.debug(
+      `wordcount: ${wordCount}, progressPercentage: ${result.progressPercentage}`,
+    );
     // Calculate maximum allowed progress increase
     let maxProgressIncrease = 100;
     if (wordCount < 100) {
@@ -247,8 +249,8 @@ Remember, honest assessment protects the integrity of our training platform. Onl
       progressPercentage,
       Math.min(
         result.progressPercentage,
-        progressPercentage + maxProgressIncrease
-      )
+        progressPercentage + maxProgressIncrease,
+      ),
     );
 
     // Normalize and return result with enforced progress cap
@@ -258,7 +260,7 @@ Remember, honest assessment protects the integrity of our training platform. Onl
       topicsCovered: (result.topicsCovered ?? []).map((topic: any) => ({
         name: topic.name,
         comprehensionLevel: ["basic", "intermediate", "advanced"].includes(
-          topic.comprehensionLevel
+          topic.comprehensionLevel,
         )
           ? topic.comprehensionLevel
           : "basic",
@@ -269,7 +271,7 @@ Remember, honest assessment protects the integrity of our training platform. Onl
           name: concept.name ?? concept,
           evidence: concept.evidence ?? "",
           applicationContext: concept.applicationContext ?? undefined,
-        })
+        }),
       ),
       learningGaps: (result.learningGaps ?? []).map((gap: any) => ({
         topic: gap.topic,
@@ -327,7 +329,7 @@ Remember, honest assessment protects the integrity of our training platform. Onl
  * This provides backward compatibility with existing frontend components
  */
 export const convertToLegacyFormat = (
-  analysisResult: AnalysisResult
+  analysisResult: AnalysisResult,
 ): {
   summary: string;
   progressPercentage: number;
@@ -339,7 +341,7 @@ export const convertToLegacyFormat = (
     progressPercentage: analysisResult.progressPercentage,
     topicsCovered: analysisResult.topicsCovered.map((topic) => topic.name),
     conceptsUnderstood: analysisResult.conceptsUnderstood.map((concept) =>
-      typeof concept === "string" ? concept : concept.name
+      typeof concept === "string" ? concept : concept.name,
     ),
   };
 };
@@ -349,11 +351,11 @@ export const convertToLegacyFormat = (
  */
 export const calculateProgressFallback = (
   currentProgress: number,
-  transcriptLength: number
+  transcriptLength: number,
 ): number => {
   const progressIncrement = Math.min(
     Math.floor(transcriptLength / 500), // About 1% per 500 characters
-    20 // Cap at 20% increment per session
+    20, // Cap at 20% increment per session
   );
 
   return Math.min(currentProgress + progressIncrement, 100);

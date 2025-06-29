@@ -22,14 +22,14 @@ const retellClient = new Retell({
  */
 export const createRetellAgent = async (
   agent: IAgent,
-  agentType: string
-): Promise<{ retellAgentId: string; retellLlmId: string, prompt: string }> => {
+  agentType: string,
+): Promise<{ retellAgentId: string; retellLlmId: string; prompt: string }> => {
   try {
     logger.debug(
       "Creating Retell agent for agent: " +
         agent.name +
         " and agentType: " +
-        agentType
+        agentType,
     );
     const generalPrompt = generateAgentPrompt(agent, agentType);
     const llmParams: Retell.Llm.LlmCreateParams = {
@@ -47,7 +47,11 @@ export const createRetellAgent = async (
 
     const retellAgent = await retellClient.agent.create(agentParams);
 
-    return { retellAgentId: retellAgent.agent_id, retellLlmId: llm.llm_id , prompt: generalPrompt };
+    return {
+      retellAgentId: retellAgent.agent_id,
+      retellLlmId: llm.llm_id,
+      prompt: generalPrompt,
+    };
   } catch (error) {
     console.log(error);
     throw new RetellAgentCreationError(error);
@@ -61,7 +65,7 @@ export const updateRetellAgent = async (
   llmId: string,
   agentId: string,
   agent: IAgent,
-  agentType: string
+  agentType: string,
 ): Promise<{ retellAgentId: string; retellLlmId: string; prompt: string }> => {
   try {
     const generalPrompt = generateAgentPrompt(agent, agentType);
@@ -79,7 +83,11 @@ export const updateRetellAgent = async (
     };
 
     const retellAgent = await retellClient.agent.update(agentId, agentParams);
-    return { retellAgentId: retellAgent.agent_id, retellLlmId: llm.llm_id , prompt: generalPrompt };
+    return {
+      retellAgentId: retellAgent.agent_id,
+      retellLlmId: llm.llm_id,
+      prompt: generalPrompt,
+    };
   } catch (error) {
     throw new RetellAgentUpdateError(error);
   }
@@ -106,7 +114,7 @@ const generateAgentPrompt = (agent: IAgent, agentType: string): string => {
  */
 export const deleteRetellAgent = async (
   agentId: string,
-  llmId: string
+  llmId: string,
 ): Promise<void> => {
   try {
     await retellClient.llm.delete(llmId);
@@ -120,7 +128,7 @@ export const deleteRetellAgent = async (
  * Get the details of a call
  */
 export const getCallDetails = async (
-  callId: string
+  callId: string,
 ): Promise<{ transcript: string; timeSpent: number }> => {
   try {
     logger.debug(`Retrieving call details for callId: ${callId}`);
@@ -143,7 +151,7 @@ export const getCallDetails = async (
 
       if (!retryResponse || !retryResponse.transcript) {
         logger.error(
-          `Failed to get transcript after retry for callId: ${callId}`
+          `Failed to get transcript after retry for callId: ${callId}`,
         );
         throw new Error("Failed to retrieve transcript after retry");
       }
@@ -157,7 +165,7 @@ export const getCallDetails = async (
     const timeSpent =
       callResponse.end_timestamp && callResponse.start_timestamp
         ? Math.floor(
-            (callResponse.end_timestamp - callResponse.start_timestamp) / 60
+            (callResponse.end_timestamp - callResponse.start_timestamp) / 60,
           ) // Convert to minutes
         : 0;
 
@@ -166,7 +174,7 @@ export const getCallDetails = async (
   } catch (error: unknown) {
     logger.error("Error getting call details:", error);
     throw new Error(
-      `Failed to get call details: ${error instanceof Error ? error.message : "Unknown error"}`
+      `Failed to get call details: ${error instanceof Error ? error.message : "Unknown error"}`,
     );
   }
 };
@@ -179,7 +187,7 @@ export const startWebCall = async (
   userName: string,
   userPosition: string,
   userDepartment: string,
-  previousSessionSummary: string | undefined
+  previousSessionSummary: string | undefined,
 ): Promise<{ call_id: string; access_token: string }> => {
   try {
     const { call_id, access_token } = await retellClient.call.createWebCall({
@@ -198,7 +206,7 @@ export const startWebCall = async (
     throw new AppError(
       "Failed to start web call",
       "FAILED_TO_START_WEB_CALL",
-      500
+      500,
     );
   }
 };

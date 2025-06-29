@@ -7,7 +7,7 @@ export interface IUsageLogs extends Document {
   subscription_expiry?: Date;
   customer_id?: string;
   stripe_price_id?: string;
-  plan_status?: string;      
+  plan_status?: string;
   cancellation_date?: Date;
   cancelled_in_trial?: boolean;
   trial_start_date?: Date;
@@ -160,13 +160,13 @@ const UsageLogsSchema = new Schema<IUsageLogs>(
     },
     trial_end_notification_sent: {
       type: Boolean,
-      default: false, 
+      default: false,
     },
     trial_end_notification_date: {
       type: Date,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 UsageLogsSchema.index({ userId: 1, date: -1 });
@@ -176,5 +176,5 @@ UsageLogsSchema.index({ plan_status: 1 });
 
 export const UsageLogs = mongoose.model<IUsageLogs>(
   "UsageLogs",
-  UsageLogsSchema
+  UsageLogsSchema,
 );

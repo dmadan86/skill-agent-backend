@@ -17,7 +17,7 @@ import {
 export const createDepartment = async (
   req: AuthenticatedRequest<{}, {}, CreateDepartmentInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -49,7 +49,7 @@ export const createDepartment = async (
         message: "Department created successfully",
         data: department,
       },
-      201
+      201,
     );
   } catch (error) {
     next(error);
@@ -62,7 +62,7 @@ export const createDepartment = async (
 export const updateDepartment = async (
   req: AuthenticatedRequest<{ id: string }, {}, UpdateDepartmentInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -75,7 +75,7 @@ export const updateDepartment = async (
     const department = await departmentService.updateDepartment(
       id,
       userId,
-      req.body
+      req.body,
     );
 
     sendSuccess(res, {
@@ -93,7 +93,7 @@ export const updateDepartment = async (
 export const getDepartment = async (
   req: AuthenticatedRequest<{ id: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -118,7 +118,7 @@ export const getDepartment = async (
 export const deleteDepartment = async (
   req: AuthenticatedRequest<{ id: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -144,7 +144,7 @@ export const deleteDepartment = async (
 export const listDepartments = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -168,7 +168,7 @@ export const listDepartments = async (
 export const addMembers = async (
   req: AuthenticatedRequest<{ id: string }, {}, MemberManagementInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -182,7 +182,7 @@ export const addMembers = async (
     const department = await departmentService.addDepartmentMembers(
       id,
       userId,
-      userIds
+      userIds,
     );
 
     sendSuccess(res, {
@@ -200,7 +200,7 @@ export const addMembers = async (
 export const removeMembers = async (
   req: AuthenticatedRequest<{ id: string }, {}, MemberManagementInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -214,7 +214,7 @@ export const removeMembers = async (
     const department = await departmentService.removeDepartmentMembers(
       id,
       userId,
-      userIds
+      userIds,
     );
 
     sendSuccess(res, {

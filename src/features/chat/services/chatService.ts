@@ -31,7 +31,7 @@ export const createChatSession = async (
   userId: mongoose.Types.ObjectId,
   agentId: string,
   sessionType: "TRAINING" | "EVALUATION" | "QUICK_PREP",
-  sessionId?: string
+  sessionId?: string,
 ): Promise<IChatSession> => {
   try {
     const agent = await Agent.findById(agentId);
@@ -39,7 +39,7 @@ export const createChatSession = async (
       throw new AppError(
         `Agent not found with id: ${agentId}`,
         "AGENT_NOT_FOUND",
-        404
+        404,
       );
     }
 
@@ -48,7 +48,7 @@ export const createChatSession = async (
       throw new AppError(
         `User not found with id: ${userId}`,
         "USER_NOT_FOUND",
-        404
+        404,
       );
     }
 
@@ -81,7 +81,7 @@ export const createChatSession = async (
     throw new AppError(
       "Failed to create chat session",
       "CHAT_SESSION_ERROR",
-      500
+      500,
     );
   }
 };
@@ -94,25 +94,25 @@ export const getInitialGreeting = async (
   userId: mongoose.Types.ObjectId,
   userName: string,
   userPosition: string,
-  userDepartment: string
+  userDepartment: string,
 ): Promise<{ messageId: string; content: string; stream?: any }> => {
   try {
     const session = await ChatSession.findById(sessionId);
-    console.log("session", session)
+    console.log("session", session);
     if (!session) {
       throw new AppError(
         `Session not found with id: ${sessionId}`,
         "SESSION_NOT_FOUND",
-        404
+        404,
       );
     }
 
-    const user = await User.findById(userId).populate('department');
+    const user = await User.findById(userId).populate("department");
     if (!user) {
       throw new AppError(
         `User not found with id: ${userId}`,
         "USER_NOT_FOUND",
-        404
+        404,
       );
     }
 
@@ -121,12 +121,11 @@ export const getInitialGreeting = async (
       throw new AppError(
         `Agent not found with id: ${session.agentId}`,
         "AGENT_NOT_FOUND",
-        404
+        404,
       );
     }
 
     const systemPrompt = await getSystemPrompt(agent, session, user);
-
 
     const systemMessage: IChatMessage = {
       role: "system",
@@ -159,58 +158,67 @@ export const getInitialGreeting = async (
 export const getSystemPrompt = async (
   agent: IAgent,
   session: IChatSession,
-  user: IUser
+  user: IUser,
 ): Promise<string> => {
   try {
-
     const sessionType = session.sessionType.toUpperCase();
     const sessionId = session.sessionId;
-    console.log("sessionId", sessionId, sessionType, user._id)
+    console.log("sessionId", sessionId, sessionType, user._id);
 
-    if((sessionType === "TRAINING" || sessionType === "EVALUATION") && !sessionId){
+    if (
+      (sessionType === "TRAINING" || sessionType === "EVALUATION") &&
+      !sessionId
+    ) {
       throw new AppError("Session id not found", "SESSION_NOT_FOUND", 404);
     }
 
     let systemPrompt = "";
-    if(sessionType.toUpperCase() === "TRAINING") {
-      if(!sessionId){
+    if (sessionType.toUpperCase() === "TRAINING") {
+      if (!sessionId) {
         throw new AppError("Session id not found", "SESSION_NOT_FOUND", 404);
       }
-      const progress = await getTrainingProgress(sessionId, new mongoose.Types.ObjectId(user._id.toString()));
-      console.log("progress", progress)
+      const progress = await getTrainingProgress(
+        sessionId,
+        new mongoose.Types.ObjectId(user._id.toString()),
+      );
+      console.log("progress", progress);
       const length = progress?.summaries.length;
       let lastSummary = "";
-      if(length > 0){
+      if (length > 0) {
         lastSummary = progress?.summaries[length - 1]?.content ?? "";
       }
-      systemPrompt = agent.trainingPrompt?.replace("{{user_name}}", `${user.firstName} ${user.lastName}`)
-      ?.replace("{{user_position}}", user.position ?? "")
-      ?.replace("{{user_department}}", (user.department as any)?.name ?? "")
-      ?.replace("{{previous_session_summary}}", lastSummary)
-    }
-    else if(sessionType.toUpperCase() === "EVALUATION") {
-      if(!sessionId){
+      systemPrompt = agent.trainingPrompt
+        ?.replace("{{user_name}}", `${user.firstName} ${user.lastName}`)
+        ?.replace("{{user_position}}", user.position ?? "")
+        ?.replace("{{user_department}}", (user.department as any)?.name ?? "")
+        ?.replace("{{previous_session_summary}}", lastSummary);
+    } else if (sessionType.toUpperCase() === "EVALUATION") {
+      if (!sessionId) {
         throw new AppError("Session id not found", "SESSION_NOT_FOUND", 404);
       }
-      const progress = await getEvaluationProgress(sessionId, new mongoose.Types.ObjectId(user._id.toString()));
+      const progress = await getEvaluationProgress(
+        sessionId,
+        new mongoose.Types.ObjectId(user._id.toString()),
+      );
       const length = progress.summaries.length;
       let lastSummary = "";
-      if(length > 0){
+      if (length > 0) {
         lastSummary = progress.summaries[length - 1].content;
       }
-      systemPrompt = agent.evaluationPrompt.replace("{{user_name}}", `${user.firstName} ${user.lastName}`)
-      .replace("{{user_position}}", user.position ?? "")
-      .replace("{{user_department}}", (user.department as any)?.name ?? "")
-      .replace("{{previous_session_summary}}", lastSummary)
-    }else{
-      systemPrompt = agent.quickPrepPrompt.replace("{{user_name}}", `${user.firstName} ${user.lastName}`)
-      .replace("{{user_position}}", user.position ?? "")
-      .replace("{{user_department}}", (user.department as any)?.name ?? "");
+      systemPrompt = agent.evaluationPrompt
+        .replace("{{user_name}}", `${user.firstName} ${user.lastName}`)
+        .replace("{{user_position}}", user.position ?? "")
+        .replace("{{user_department}}", (user.department as any)?.name ?? "")
+        .replace("{{previous_session_summary}}", lastSummary);
+    } else {
+      systemPrompt = agent.quickPrepPrompt
+        .replace("{{user_name}}", `${user.firstName} ${user.lastName}`)
+        .replace("{{user_position}}", user.position ?? "")
+        .replace("{{user_department}}", (user.department as any)?.name ?? "");
     }
 
     return systemPrompt;
-  }
-  catch (error) {
+  } catch (error) {
     logger.info(`error:  ${error}`);
     throw new AppError("Error fetching system prompt", "SERVER_ERROR", 500);
   }
@@ -220,7 +228,7 @@ export const getSystemPrompt = async (
  */
 export const processChatMessage = async (
   sessionId: string,
-  content: string
+  content: string,
 ): Promise<{ messageId: string }> => {
   try {
     const session = await ChatSession.findById(sessionId);
@@ -228,7 +236,7 @@ export const processChatMessage = async (
       throw new AppError(
         `Session not found with id: ${sessionId}`,
         "SESSION_NOT_FOUND",
-        404
+        404,
       );
     }
 
@@ -255,7 +263,7 @@ export const processChatMessage = async (
     throw new AppError(
       "Failed to process chat message",
       "CHAT_MESSAGE_ERROR",
-      500
+      500,
     );
   }
 };
@@ -264,7 +272,7 @@ export const processChatMessage = async (
  * Generate assistant response
  */
 export const generateAssistantResponse = async (
-  sessionId: string
+  sessionId: string,
 ): Promise<{ messageId: string; content: string; stream?: any }> => {
   try {
     const session = await ChatSession.findById(sessionId);
@@ -272,7 +280,7 @@ export const generateAssistantResponse = async (
       throw new AppError(
         `Session not found with id: ${sessionId}`,
         "SESSION_NOT_FOUND",
-        404
+        404,
       );
     }
 
@@ -293,7 +301,7 @@ export const generateAssistantResponse = async (
     throw new AppError(
       "Failed to generate assistant response",
       "ASSISTANT_RESPONSE_ERROR",
-      500
+      500,
     );
   }
 };
@@ -303,7 +311,7 @@ export const generateAssistantResponse = async (
  */
 export const saveAssistantMessage = async (
   sessionId: string,
-  content: string
+  content: string,
 ): Promise<{ messageId: string }> => {
   try {
     const session = await ChatSession.findById(sessionId);
@@ -311,7 +319,7 @@ export const saveAssistantMessage = async (
       throw new AppError(
         `Session not found with id: ${sessionId}`,
         "SESSION_NOT_FOUND",
-        404
+        404,
       );
     }
 
@@ -333,7 +341,7 @@ export const saveAssistantMessage = async (
     throw new AppError(
       "Failed to save assistant message",
       "SAVE_MESSAGE_ERROR",
-      500
+      500,
     );
   }
 };
@@ -342,7 +350,7 @@ export const saveAssistantMessage = async (
  * End a chat session and generate summary
  */
 export const endChatSession = async (
-  sessionId: string
+  sessionId: string,
 ): Promise<IEvaluationProgress | ITrainingProgress | undefined> => {
   try {
     const session = await getChatSessionWithAgent(sessionId);
@@ -360,9 +368,12 @@ export const endChatSession = async (
 
     const timeSpentSeconds = endTimeSeconds - startTimeSeconds;
 
-
     if (session.sessionType === "EVALUATION") {
-      return await handleEvaluationSession(session, transcript, timeSpentSeconds);
+      return await handleEvaluationSession(
+        session,
+        transcript,
+        timeSpentSeconds,
+      );
     } else if (session.sessionType === "TRAINING") {
       return await handleTrainingSession(session, transcript, timeSpentSeconds);
     }
@@ -385,7 +396,7 @@ const getChatSessionWithAgent = async (sessionId: string) => {
     throw new AppError(
       `Session not found with id: ${sessionId}`,
       "SESSION_NOT_FOUND",
-      404
+      404,
     );
   }
 
@@ -398,7 +409,11 @@ const generateTranscript = (session: any): string => {
     .join("\n");
 };
 
-const handleEvaluationSession = async (session: any, transcript: string, timeSpent: number) => {
+const handleEvaluationSession = async (
+  session: any,
+  transcript: string,
+  timeSpent: number,
+) => {
   const progress = await EvaluationProgress.findOne({
     evaluationId: session.sessionId,
     userId: session.userId,
@@ -410,22 +425,25 @@ const handleEvaluationSession = async (session: any, transcript: string, timeSpe
 
   let previousSummary = "";
   const length = progress.summaries.length;
-  if(length > 0) {
-    previousSummary =
-    progress.summaries[length - 1].content;
+  if (length > 0) {
+    previousSummary = progress.summaries[length - 1].content;
   }
   const agent = session.agentId;
-  
+
   const analysisResult = await analyzeEvaluationTranscript(
     transcript,
     agent.content,
-    previousSummary
+    previousSummary,
   );
 
-  logger.debug(`analysisResult: ${JSON.stringify(analysisResult)}`)
+  logger.debug(`analysisResult: ${JSON.stringify(analysisResult)}`);
 
-  const updatePayload = updateChatEvaluationProgress(progress, analysisResult, session, transcript);
-
+  const updatePayload = updateChatEvaluationProgress(
+    progress,
+    analysisResult,
+    session,
+    transcript,
+  );
 
   const updatedProgress = await EvaluationProgress.findOneAndUpdate(
     {
@@ -435,10 +453,12 @@ const handleEvaluationSession = async (session: any, transcript: string, timeSpe
     {
       $set: updatePayload,
     },
-    { new: true } // optional: returns the updated document
+    { new: true }, // optional: returns the updated document
   );
 
-  logger.debug(`updatedProgress: ${updatedProgress?.overallScore}, ${updatedProgress?.progress}`)
+  logger.debug(
+    `updatedProgress: ${updatedProgress?.overallScore}, ${updatedProgress?.progress}`,
+  );
 
   // Update assignee progress in the evaluation
   updateEvaluationProgress(
@@ -456,7 +476,7 @@ const updateChatEvaluationProgress = (
   progress: any,
   analysisResult: any,
   session: any,
-  transcript: string
+  transcript: string,
 ) => {
   const updatedSummaries = [
     ...(progress.summaries ?? []),
@@ -470,7 +490,8 @@ const updateChatEvaluationProgress = (
 
   const updatedProgress = analysisResult.progressPercentage;
   const updatedTimeSpent =
-    (new Date().getTime() - session.startTime.getTime()) / 1000 + (progress.timeSpent || 0);
+    (new Date().getTime() - session.startTime.getTime()) / 1000 +
+    (progress.timeSpent || 0);
 
   const updatePayload: any = {
     summaries: updatedSummaries,
@@ -480,7 +501,7 @@ const updateChatEvaluationProgress = (
     status: updatedProgress >= 100 ? "Completed" : "In Progress",
   };
 
-  if(analysisResult.overallScore){
+  if (analysisResult.overallScore) {
     updatePayload.overallScore = analysisResult.overallScore;
   }
 
@@ -503,8 +524,12 @@ const updateChatEvaluationProgress = (
   return updatePayload;
 };
 
-const handleTrainingSession = async (session: any, transcript: string, timeSpent: number) => {
-  logger.debug(`session: ${session}`)
+const handleTrainingSession = async (
+  session: any,
+  transcript: string,
+  timeSpent: number,
+) => {
+  logger.debug(`session: ${session}`);
   const progress = await TrainingProgress.findOne({
     sessionId: session.sessionId?.toString(),
     userId: session.userId?.toString(),
@@ -515,17 +540,16 @@ const handleTrainingSession = async (session: any, transcript: string, timeSpent
   }
   let previousSummary = "";
   const length = progress.summaries.length;
-  if(length > 0) {
-    previousSummary =
-    progress.summaries[length - 1].content;
+  if (length > 0) {
+    previousSummary = progress.summaries[length - 1].content;
   }
-  
+
   const agent = session.agentId;
 
   const analysisResult = await analyzeTrainingTranscript(
     transcript,
     agent.content,
-    previousSummary
+    previousSummary,
   );
 
   updateChatTrainingProgress(progress, analysisResult, session, transcript);
@@ -535,7 +559,7 @@ const handleTrainingSession = async (session: any, transcript: string, timeSpent
     session.sessionId.toString(),
     session.userId,
     progress.progress,
-    progress.timeSpent
+    progress.timeSpent,
   );
 
   return progress;
@@ -545,7 +569,7 @@ const updateChatTrainingProgress = (
   progress: any,
   analysisResult: any,
   session: any,
-  transcript: string
+  transcript: string,
 ) => {
   progress.summaries.push({
     content: analysisResult.summary,
@@ -577,7 +601,7 @@ const updateChatTrainingProgress = (
  * Get a specific chat session by ID
  */
 export const getChatSession = async (
-  sessionId: string
+  sessionId: string,
 ): Promise<IChatSession> => {
   try {
     const session = await ChatSession.findById(sessionId);
@@ -585,7 +609,7 @@ export const getChatSession = async (
       throw new AppError(
         `Session not found with id: ${sessionId}`,
         "SESSION_NOT_FOUND",
-        404
+        404,
       );
     }
 
@@ -603,7 +627,7 @@ export const getChatSession = async (
 export const listUserChatSessions = async (
   userId: mongoose.Types.ObjectId,
   page = 1,
-  limit = 10
+  limit = 10,
 ): Promise<{
   sessions: IChatSession[];
   total: number;
@@ -631,7 +655,7 @@ export const listUserChatSessions = async (
     throw new AppError(
       "Failed to list chat sessions",
       "LIST_SESSIONS_ERROR",
-      500
+      500,
     );
   }
 };

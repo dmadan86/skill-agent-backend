@@ -21,7 +21,10 @@ import { EvaluationProgress } from "../../../shared/models/EvaluationProgress";
 import { sendEvaluationAssignmentEmail } from "../../../shared/services/emailService";
 import config from "../../../shared/config";
 import logger from "../../../shared/utils/logger";
-import { IActivityData, createActivityRecord } from "../../../shared/services/activityService";
+import {
+  IActivityData,
+  createActivityRecord,
+} from "../../../shared/services/activityService";
 import { UserMetricActivityService } from "../../../shared/services/userMetricActivityService";
 
 interface CreateEvaluationData {
@@ -54,7 +57,7 @@ interface ListEvaluationsOptions {
  * Create a new evaluation
  */
 export const createEvaluation = async (
-  data: CreateEvaluationData
+  data: CreateEvaluationData,
 ): Promise<IEvaluation> => {
   const { userIds, departmentIds, ...evaluationData } = data;
 
@@ -82,30 +85,31 @@ export const createEvaluation = async (
       userId: assignee.userId,
       createdBy: data.createdBy,
     });
-    
+
     // Update the assignee with the progressId
-    const assigneeIndex = savedEvaluation.assignees.findIndex(a => 
-      a.userId.equals(assignee.userId)
+    const assigneeIndex = savedEvaluation.assignees.findIndex((a) =>
+      a.userId.equals(assignee.userId),
     );
     if (assigneeIndex !== -1 && progress._id) {
-      savedEvaluation.assignees[assigneeIndex].progressId = progress._id as mongoose.Types.ObjectId;
+      savedEvaluation.assignees[assigneeIndex].progressId =
+        progress._id as mongoose.Types.ObjectId;
     }
-    
+
     const user = await User.findById(assignee.userId);
     if (user) {
       await sendEvaluationAssignmentEmail(
         user.email,
         savedEvaluation.title,
-        `${config.frontendUrl}/dashboard/my-evaluation/${savedEvaluation._id}`
+        `${config.frontendUrl}/dashboard/my-evaluation/${savedEvaluation._id}`,
       );
     }
   }
-  
+
   // Save the evaluation with updated progressIds
   savedEvaluation = await savedEvaluation.save();
 
   agent.evaluationSessionsUsingAgent.push(
-    savedEvaluation._id as mongoose.Types.ObjectId
+    savedEvaluation._id as mongoose.Types.ObjectId,
   );
   await agent.save();
 
@@ -115,7 +119,7 @@ export const createEvaluation = async (
     .populate("createdBy", "firstName lastName email")
     .populate(
       "assignees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!populatedEvaluation) {
@@ -131,7 +135,7 @@ export const createEvaluation = async (
 export const updateEvaluation = async (
   id: string,
   userId: mongoose.Types.ObjectId,
-  data: UpdateEvaluationData
+  data: UpdateEvaluationData,
 ): Promise<IEvaluation> => {
   const evaluation = await Evaluation.findById(id);
 
@@ -156,7 +160,7 @@ export const updateEvaluation = async (
     .populate("createdBy", "firstName lastName email")
     .populate(
       "assignees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!populatedEvaluation) {
@@ -171,14 +175,14 @@ export const updateEvaluation = async (
  */
 export const getEvaluationById = async (
   id: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<IEvaluation> => {
   const evaluation = await Evaluation.findById(id)
     .populate("agentId", "name type description industry")
     .populate("createdBy", "firstName lastName email")
     .populate(
       "assignees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!evaluation) {
@@ -187,7 +191,7 @@ export const getEvaluationById = async (
 
   const isCreator = evaluation.createdBy._id.equals(userId);
   const isAssignee = evaluation.assignees.some((a) =>
-    a.userId._id.equals(userId)
+    a.userId._id.equals(userId),
   );
 
   if (!isCreator && !isAssignee) {
@@ -202,7 +206,7 @@ export const getEvaluationById = async (
  */
 export const deleteEvaluation = async (
   id: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<void> => {
   const evaluation = await Evaluation.findById(id);
 
@@ -225,7 +229,7 @@ export const deleteEvaluation = async (
 export const assignUsers = async (
   id: string,
   userId: mongoose.Types.ObjectId,
-  data: AssignUsersData
+  data: AssignUsersData,
 ): Promise<IEvaluation> => {
   const evaluation = await Evaluation.findById(id);
 
@@ -246,7 +250,7 @@ export const assignUsers = async (
   // Get new assignees
   const newAssignees = await getAssigneesFromInputs(
     data.userIds,
-    data.departmentIds
+    data.departmentIds,
   );
 
   if (newAssignees.length === 0) {
@@ -264,7 +268,7 @@ export const assignUsers = async (
   }
 
   let savedEvaluation = await evaluation.save();
-  
+
   // Create evaluation progress for each new assignee
   for (const assignee of newAssignees) {
     const assigneeId = assignee.userId.toString();
@@ -276,8 +280,8 @@ export const assignUsers = async (
       });
 
       // Update the assignee with the progressId
-      const assigneeIndex = savedEvaluation.assignees.findIndex(
-        (a) => a.userId.equals(assignee.userId)
+      const assigneeIndex = savedEvaluation.assignees.findIndex((a) =>
+        a.userId.equals(assignee.userId),
       );
 
       if (assigneeIndex !== -1 && progress._id) {
@@ -296,7 +300,7 @@ export const assignUsers = async (
     .populate("createdBy", "firstName lastName email")
     .populate(
       "assignees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!populatedEvaluation) {
@@ -308,7 +312,7 @@ export const assignUsers = async (
 
 export const assignIndividualUsersToEvaluation = async (
   id: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<IEvaluation> => {
   const evaluation = await Evaluation.findById(id);
 
@@ -322,10 +326,7 @@ export const assignIndividualUsersToEvaluation = async (
   }
 
   // Get new assignees
-  const newAssignees = await getAssigneesFromInputs(
-    [userId.toString()],
-    []
-  );
+  const newAssignees = await getAssigneesFromInputs([userId.toString()], []);
 
   if (newAssignees.length === 0) {
     throw new Error("No assignees specified");
@@ -342,23 +343,24 @@ export const assignIndividualUsersToEvaluation = async (
   }
 
   let savedEvaluation = await evaluation.save();
-  
+
   // Only create progress for newly added assignees
   for (const assignee of newAssignees) {
     const assigneeId = assignee.userId.toString();
     if (!existingUserIds.includes(assigneeId)) {
-      const progress = await createEvaluationProgress({ 
+      const progress = await createEvaluationProgress({
         evaluationId: savedEvaluation._id as mongoose.Types.ObjectId,
         userId: assignee.userId,
         createdBy: userId,
       });
-      
+
       // Update the assignee with the progressId
-      const assigneeIndex = savedEvaluation.assignees.findIndex(a => 
-        a.userId.equals(assignee.userId)
+      const assigneeIndex = savedEvaluation.assignees.findIndex((a) =>
+        a.userId.equals(assignee.userId),
       );
       if (assigneeIndex !== -1 && progress._id) {
-        savedEvaluation.assignees[assigneeIndex].progressId = progress._id as mongoose.Types.ObjectId;
+        savedEvaluation.assignees[assigneeIndex].progressId =
+          progress._id as mongoose.Types.ObjectId;
       }
     }
   }
@@ -372,7 +374,7 @@ export const assignIndividualUsersToEvaluation = async (
     .populate("createdBy", "firstName lastName email")
     .populate(
       "assignees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!populatedEvaluation) {
@@ -388,7 +390,7 @@ export const assignIndividualUsersToEvaluation = async (
 export const removeAssignee = async (
   evaluationId: string,
   assigneeId: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<IEvaluation> => {
   const evaluation = await Evaluation.findById(evaluationId);
 
@@ -401,7 +403,7 @@ export const removeAssignee = async (
   }
 
   const assigneeIndex = evaluation.assignees.findIndex(
-    (a) => a.userId.toString() === assigneeId
+    (a) => a.userId.toString() === assigneeId,
   );
 
   if (assigneeIndex === -1) {
@@ -428,7 +430,7 @@ export const removeAssignee = async (
     .populate("createdBy", "firstName lastName email")
     .populate(
       "assignees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!populatedEvaluation) {
@@ -442,7 +444,7 @@ export const removeAssignee = async (
  * List evaluations with pagination and filtering
  */
 export const listEvaluations = async (
-  options: ListEvaluationsOptions
+  options: ListEvaluationsOptions,
 ): Promise<{
   evaluations: IEvaluation[];
   total: number;
@@ -456,9 +458,9 @@ export const listEvaluations = async (
 
   // Add filters if provided
   if (status) query["assignees.status"] = status;
-  if (userId){
+  if (userId) {
     const user = await User.findById(userId);
-    if(user?.role === 'manager' || user?.role === 'admin') {
+    if (user?.role === "manager" || user?.role === "admin") {
       query.createdBy = userId;
     } else {
       query["assignees.userId"] = userId;
@@ -473,13 +475,13 @@ export const listEvaluations = async (
     .populate("createdBy", "firstName lastName email")
     .populate(
       "assignees.userId",
-      "firstName lastName email position department progressId"
+      "firstName lastName email position department progressId",
     )
     .sort({ updatedAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
 
-  logger.debug("evaluations: "+JSON.stringify(evaluations));
+  logger.debug("evaluations: " + JSON.stringify(evaluations));
   return {
     evaluations,
     total,
@@ -509,7 +511,7 @@ export const updateEvaluationProgress = async (
 
   // Find the assignee
   const assigneeIndex = evaluation.assignees.findIndex((a) =>
-    a.userId.equals(userId)
+    a.userId.equals(userId),
   );
 
   if (assigneeIndex === -1) {
@@ -540,7 +542,7 @@ export const updateEvaluationProgress = async (
     .populate("createdBy", "firstName lastName email")
     .populate(
       "assignees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!populatedEvaluation) {
@@ -563,18 +565,25 @@ export const updateEvaluationProgress = async (
   // Track user metric activity
   await UserMetricActivityService.createActivity({
     userId: userId.toString(),
-    activityType: progress >= 100 ? 'evaluation_completed' : progress > 0 ? 'evaluation_progress' : 'evaluation_started',
-    feature: 'evaluation',
+    activityType:
+      progress >= 100
+        ? "evaluation_completed"
+        : progress > 0
+          ? "evaluation_progress"
+          : "evaluation_started",
+    feature: "evaluation",
     metadata: {
-      evaluationId: (populatedEvaluation as IEvaluation & { _id: mongoose.Types.ObjectId })._id.toString(),
+      evaluationId: (
+        populatedEvaluation as IEvaluation & { _id: mongoose.Types.ObjectId }
+      )._id.toString(),
       evaluationTitle: populatedEvaluation.title,
       progress,
       timeSpent,
       overallScore,
-      previousProgress: assignee.progress
+      previousProgress: assignee.progress,
     },
-    status: 'success',
-    duration: timeSpent
+    status: "success",
+    duration: timeSpent,
   });
 
   return populatedEvaluation;
@@ -585,7 +594,7 @@ export const updateEvaluationProgress = async (
  */
 export const getEvaluationOverview = async (
   evaluationId: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<{
   evaluation: any;
   assignee: IEvaluationAssignee | null;
@@ -597,7 +606,7 @@ export const getEvaluationOverview = async (
     .populate("createdBy", "firstName lastName email")
     .populate(
       "assignees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!evaluation) {
@@ -607,7 +616,7 @@ export const getEvaluationOverview = async (
   // Check if user is the creator or an assignee
   const isCreator = evaluation.createdBy._id.equals(userId);
   const assigneeIndex = evaluation.assignees.findIndex((a) =>
-    a.userId._id.equals(userId)
+    a.userId._id.equals(userId),
   );
   const isAssignee = assigneeIndex !== -1;
 
@@ -636,7 +645,7 @@ export const getEvaluationOverview = async (
  */
 const getAssigneesFromInputs = async (
   userIds?: string[],
-  departmentIds?: string[]
+  departmentIds?: string[],
 ): Promise<IEvaluationAssignee[]> => {
   const uniqueUserIds = new Set<string>();
 
@@ -649,7 +658,7 @@ const getAssigneesFromInputs = async (
 
 const addIndividualUsers = (
   uniqueUserIds: Set<string>,
-  userIds?: string[]
+  userIds?: string[],
 ): void => {
   if (userIds?.length) {
     userIds.forEach((id) => uniqueUserIds.add(id));
@@ -658,7 +667,7 @@ const addIndividualUsers = (
 
 const addDepartmentMembers = async (
   uniqueUserIds: Set<string>,
-  departmentIds?: string[]
+  departmentIds?: string[],
 ): Promise<void> => {
   if (!departmentIds?.length) return;
 
@@ -669,7 +678,7 @@ const addDepartmentMembers = async (
       throw new AppError(
         `Department with ID ${depId} not found`,
         "DEPARTMENT_NOT_FOUND",
-        404
+        404,
       );
     }
 
@@ -680,7 +689,7 @@ const addDepartmentMembers = async (
 };
 
 const createAssigneeEntries = async (
-  uniqueUserIds: Set<string>
+  uniqueUserIds: Set<string>,
 ): Promise<IEvaluationAssignee[]> => {
   const assignees: IEvaluationAssignee[] = [];
 

@@ -63,7 +63,7 @@
  *           format: date-time
  *           description: The date and time when the plan was last updated.
  *           example: "2023-10-01T12:00:00Z"
- * 
+ *
  *   securitySchemes:
  *     bearerAuth:
  *       type: http

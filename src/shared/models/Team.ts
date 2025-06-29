@@ -1,5 +1,5 @@
 // src/shared/models/Team.ts
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface ITeam extends Document {
   name: string;
@@ -21,21 +21,23 @@ const TeamSchema = new Schema<ITeam>(
       type: String,
       trim: true,
     },
-    members: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    }],
+    members: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     owner: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Create indexes for efficient queries
 TeamSchema.index({ owner: 1 });
 TeamSchema.index({ members: 1 });
 
-export const Team = mongoose.model<ITeam>('Team', TeamSchema);
+export const Team = mongoose.model<ITeam>("Team", TeamSchema);

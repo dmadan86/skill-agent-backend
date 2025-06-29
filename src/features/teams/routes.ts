@@ -14,7 +14,7 @@ router.post(
   "/",
   authenticate,
   validate(teamSchemas.createTeamSchema),
-  teamController.createTeam
+  teamController.createTeam,
 );
 
 router.get("/", authenticate, teamController.getAllTeams);
@@ -27,13 +27,13 @@ router.get("/bulk-import/template", teamController.downloadImportTemplate);
 router.post(
   "/invites/accept",
   validate(teamSchemas.acceptInviteSchema),
-  teamController.acceptInvite
+  teamController.acceptInvite,
 );
 
 router.post(
   "/invites/reject",
   validate(teamSchemas.acceptInviteSchema),
-  teamController.rejectInvite
+  teamController.rejectInvite,
 );
 
 router.delete("/invites/:inviteId", authenticate, teamController.cancelInvite);
@@ -44,7 +44,7 @@ router.put(
   "/:teamId",
   authenticate,
   validate(teamSchemas.updateTeamSchema),
-  teamController.updateTeam
+  teamController.updateTeam,
 );
 
 router.delete("/:teamId", authenticate, teamController.deleteTeam);
@@ -54,13 +54,13 @@ router.post(
   "/:teamId/members",
   authenticate,
   validate(teamSchemas.addTeamMemberSchema),
-  teamController.addTeamMembers
+  teamController.addTeamMembers,
 );
 
 router.delete(
   "/:teamId/members",
   authenticate,
-  teamController.removeTeamMembers
+  teamController.removeTeamMembers,
 );
 
 // Team invitation routes
@@ -68,7 +68,7 @@ router.post(
   "/:teamId/invites",
   authenticate,
   validate(teamSchemas.inviteToTeamSchema),
-  teamController.inviteToTeam
+  teamController.inviteToTeam,
 );
 
 router.get("/:teamId/invites", authenticate, teamController.getTeamInvites);
@@ -78,7 +78,7 @@ router.post(
   "/:teamId/bulk-import",
   authenticate,
   upload.single("file"),
-  teamController.bulkImportMembers
+  teamController.bulkImportMembers,
 );
 
 export default router;

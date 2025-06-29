@@ -20,7 +20,7 @@ const PaymentSchema = new Schema<IPayment>(
       required: true,
     },
     subscriptionId: {
-      type: String
+      type: String,
     },
     email: {
       type: String,
@@ -50,7 +50,7 @@ const PaymentSchema = new Schema<IPayment>(
       type: Object,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 PaymentSchema.index({ userId: 1, subscriptionId: 1 }, { unique: true });

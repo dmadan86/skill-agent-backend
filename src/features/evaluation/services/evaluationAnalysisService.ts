@@ -32,7 +32,7 @@ export const analyzeEvaluationTranscript = async (
   agentContent: string,
   previousSummary: string | null = null,
   skillsToEvaluate: string[] = [],
-  progressPercentage: number = 0
+  progressPercentage: number = 0,
 ): Promise<AnalysisResult> => {
   try {
     // First, check if transcript has enough content for analysis
@@ -222,8 +222,8 @@ Remember: Honest assessment maintains the integrity of our evaluation platform.
       progressPercentage,
       Math.min(
         result.progressPercentage,
-        progressPercentage + maxProgressIncrease
-      )
+        progressPercentage + maxProgressIncrease,
+      ),
     );
 
     return {
@@ -239,7 +239,7 @@ Remember: Honest assessment maintains the integrity of our evaluation platform.
           score: Math.min(Math.max(s.score, 0), 100),
           weight: Math.min(Math.max(s.weight || 1, 1), 10),
           evidence: s.evidence,
-        })
+        }),
       ),
       strengths: result.strengths ?? [
         {
@@ -310,11 +310,11 @@ Remember: Honest assessment maintains the integrity of our evaluation platform.
  */
 export const calculateProgressFallback = (
   currentProgress: number,
-  transcriptLength: number
+  transcriptLength: number,
 ): number => {
   const progressIncrement = Math.min(
     Math.floor(transcriptLength / 500), // ~1% per 500 chars
-    25 // cap per session
+    25, // cap per session
   );
 
   return Math.min(currentProgress + progressIncrement, 100);

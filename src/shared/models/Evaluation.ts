@@ -1,9 +1,9 @@
 // src/shared/models/Evaluation.ts
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IEvaluationAssignee {
   userId: mongoose.Types.ObjectId;
-  status: 'Pending' | 'In Progress' | 'Completed';
+  status: "Pending" | "In Progress" | "Completed";
   startDate?: Date;
   completedDate?: Date;
   progressId: mongoose.Types.ObjectId;
@@ -19,24 +19,24 @@ export interface IEvaluation extends Document {
   description?: string;
   createdBy: mongoose.Types.ObjectId;
   assignees: IEvaluationAssignee[];
-  status: 'Pending' | 'In Progress' | 'Completed';
+  status: "Pending" | "In Progress" | "Completed";
   createdAt: Date;
   updatedAt: Date;
 }
 const EvaluationAssigneeSchema = new Schema<IEvaluationAssignee>({
   userId: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
   },
   status: {
     type: String,
-    enum: ['Pending', 'In Progress', 'Completed'],
-    default: 'Pending',
+    enum: ["Pending", "In Progress", "Completed"],
+    default: "Pending",
   },
   progressId: {
     type: Schema.Types.ObjectId,
-    ref: 'EvaluationProgress',
+    ref: "EvaluationProgress",
     required: true,
   },
   startDate: {
@@ -75,7 +75,7 @@ const EvaluationSchema = new Schema<IEvaluation>(
     },
     agentId: {
       type: Schema.Types.ObjectId,
-      ref: 'Agent',
+      ref: "Agent",
       required: true,
     },
     description: {
@@ -84,24 +84,27 @@ const EvaluationSchema = new Schema<IEvaluation>(
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     assignees: [EvaluationAssigneeSchema],
     status: {
       type: String,
-      enum: ['Pending', 'In Progress', 'Completed'],
-      default: 'Pending',
+      enum: ["Pending", "In Progress", "Completed"],
+      default: "Pending",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Create indexes for efficient queries
 EvaluationSchema.index({ createdBy: 1 });
 EvaluationSchema.index({ agentId: 1 });
-EvaluationSchema.index({ 'assignees.userId': 1 });
+EvaluationSchema.index({ "assignees.userId": 1 });
 EvaluationSchema.index({ status: 1 });
 EvaluationSchema.index({ departmentIds: 1 });
 
-export const Evaluation = mongoose.model<IEvaluation>('Evaluation', EvaluationSchema);
+export const Evaluation = mongoose.model<IEvaluation>(
+  "Evaluation",
+  EvaluationSchema,
+);

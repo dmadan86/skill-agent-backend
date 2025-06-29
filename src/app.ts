@@ -15,7 +15,7 @@ import dashboardRoutes from "./features/dashboard/routes";
 import analyticsRoutes from "./features/analytics/routes";
 import billingRoutes from "./features/billing/routes";
 import apiKeyRoutes from "./features/apikey/routes";
-import webhookRouter from './features/webhook/routes';
+import webhookRouter from "./features/webhook/routes";
 import { errorHandler } from "./shared/middleware/errorHandler";
 import { httpLogger, requestBodyLogger } from "./shared/middleware/httpLogger";
 import config from "./shared/config";
@@ -28,7 +28,7 @@ import { dbLogger } from "./shared/utils/loggerUtils";
 import path from "path";
 import fs from "fs";
 import { schedulerService } from "./shared/services/schedulerService";
-import { SystemLogService } from './shared/services/systemLogService';
+import { SystemLogService } from "./shared/services/systemLogService";
 
 // Create Express app
 const app: Express = express();
@@ -64,25 +64,28 @@ const connectDB = async () => {
     // Initialize scheduler service after DB connection
     schedulerService.initialize();
 
-    await SystemLogService.logSystemStatus('up', 'database', {
-      message: 'MongoDB connection established'
+    await SystemLogService.logSystemStatus("up", "database", {
+      message: "MongoDB connection established",
     });
   } catch (error) {
     dbLogger.connectionError(error);
-    await SystemLogService.logSystemStatus('down', 'database', {
-      message: 'MongoDB connection failed',
-      error: error instanceof Error ? error.message : 'Unknown error'
+    await SystemLogService.logSystemStatus("down", "database", {
+      message: "MongoDB connection failed",
+      error: error instanceof Error ? error.message : "Unknown error",
     });
     process.exit(1);
   }
 };
 
 // stripe signature parse
-app.use("/api/billing/stripe/webhook", express.raw({ type: "application/json" }));
+app.use(
+  "/api/billing/stripe/webhook",
+  express.raw({ type: "application/json" }),
+);
 
 // Middleware
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
 app.use(helmet());
 app.use(httpLogger);
@@ -101,10 +104,10 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3001",
       "https://skill-agent-backend.onrender.com",
-      "https://api.skillagent.dmadan.com"
+      "https://api.skillagent.dmadan.com",
     ],
     credentials: true,
-  })
+  }),
 );
 
 // Rate limiting
@@ -137,11 +140,11 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/billing", billingRoutes);
 app.use("/api/api-key", apiKeyRoutes);
-app.use('/api/endpoint', webhookRouter);
+app.use("/api/endpoint", webhookRouter);
 
-app.set('trust proxy', true)
-app.get('/x-forwarded-for', (req: Request, res: Response) => {
-  res.send(req.headers['x-forwarded-for'])
+app.set("trust proxy", true);
+app.get("/x-forwarded-for", (req: Request, res: Response) => {
+  res.send(req.headers["x-forwarded-for"]);
 });
 
 // Health check endpoint
@@ -149,16 +152,21 @@ app.get("/health", async (req, res) => {
   const startTime = Date.now();
   try {
     const responseTime = Date.now() - startTime;
-    await SystemLogService.logPerformance('health_check', responseTime, 'system', {
-      path: req.path,
-      method: req.method
-    });
+    await SystemLogService.logPerformance(
+      "health_check",
+      responseTime,
+      "system",
+      {
+        path: req.path,
+        method: req.method,
+      },
+    );
     res.status(200).json({ status: "ok" });
   } catch (error) {
-    logger.error('Health check failed:', error);
-    await SystemLogService.logError(error as Error, 'health-check', {
+    logger.error("Health check failed:", error);
+    await SystemLogService.logError(error as Error, "health-check", {
       path: req.path,
-      method: req.method
+      method: req.method,
     });
     res.status(500).json({ status: "error" });
   }
@@ -168,19 +176,19 @@ app.get("/health", async (req, res) => {
 app.use(errorHandler);
 
 // Handle uncaught exceptions
-process.on('uncaughtException', async (error) => {
-  logger.error('Uncaught Exception:', error);
-  await SystemLogService.logError(error, 'system', {
-    type: 'uncaught_exception'
+process.on("uncaughtException", async (error) => {
+  logger.error("Uncaught Exception:", error);
+  await SystemLogService.logError(error, "system", {
+    type: "uncaught_exception",
   });
   process.exit(1);
 });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', async (reason) => {
-  logger.error('Unhandled Rejection:', reason);
-  await SystemLogService.logError(reason as Error, 'system', {
-    type: 'unhandled_rejection'
+process.on("unhandledRejection", async (reason) => {
+  logger.error("Unhandled Rejection:", reason);
+  await SystemLogService.logError(reason as Error, "system", {
+    type: "unhandled_rejection",
   });
   process.exit(1);
 });

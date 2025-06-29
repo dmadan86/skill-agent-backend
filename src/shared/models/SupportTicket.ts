@@ -1,10 +1,10 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface ISupportTicket extends Document {
   userId: mongoose.Types.ObjectId;
-  type: 'support' | 'feedback' | 'bug';
-  status: 'open' | 'in_progress' | 'resolved' | 'closed';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  type: "support" | "feedback" | "bug";
+  status: "open" | "in_progress" | "resolved" | "closed";
+  priority: "low" | "medium" | "high" | "urgent";
   title: string;
   content: string;
   category?: string;
@@ -19,49 +19,52 @@ const supportTicketSchema = new Schema<ISupportTicket>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true
+      ref: "User",
+      required: true,
     },
     type: {
       type: String,
-      enum: ['support', 'feedback', 'bug'],
-      required: true
+      enum: ["support", "feedback", "bug"],
+      required: true,
     },
     status: {
       type: String,
-      enum: ['open', 'in_progress', 'resolved', 'closed'],
-      default: 'open'
+      enum: ["open", "in_progress", "resolved", "closed"],
+      default: "open",
     },
     priority: {
       type: String,
-      enum: ['low', 'medium', 'high', 'urgent'],
-      default: 'medium'
+      enum: ["low", "medium", "high", "urgent"],
+      default: "medium",
     },
     title: {
       type: String,
-      required: true
+      required: true,
     },
     content: {
       type: String,
-      required: true
+      required: true,
     },
     category: {
-      type: String
+      type: String,
     },
     assignedTo: {
       type: Schema.Types.ObjectId,
-      ref: 'User'
+      ref: "User",
     },
     resolution: {
-      type: String
+      type: String,
     },
     resolvedAt: {
-      type: Date
-    }
+      type: Date,
+    },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
-export const SupportTicket = mongoose.model<ISupportTicket>('SupportTicket', supportTicketSchema); 
+export const SupportTicket = mongoose.model<ISupportTicket>(
+  "SupportTicket",
+  supportTicketSchema,
+);

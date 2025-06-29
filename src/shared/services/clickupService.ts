@@ -59,7 +59,7 @@ export class ClickUpService {
         }
         return value;
       },
-      indent
+      indent,
     );
   }
 
@@ -68,8 +68,8 @@ export class ClickUpService {
       const response = await axios.get<ClickUpResponse>(
         `${this.baseUrl}/list/${this.config.listId}/task?include_closed=true`,
         {
-          headers: this.getHeaders()
-        }
+          headers: this.getHeaders(),
+        },
       );
       console.log("tasks length: " + response.data.tasks.length);
       return response.data.tasks;
@@ -85,7 +85,7 @@ export class ClickUpService {
 
     const tasks = clickupTasks.map((task) => {
       const customTypeField = task.custom_fields.find(
-        (field) => field.name === "Ticket Type"
+        (field) => field.name === "Ticket Type",
       );
       const type = customTypeField
         ? customTypeField.type_config.options[
@@ -110,10 +110,10 @@ export class ClickUpService {
       tasks,
       stats: {
         open: clickupTasks.filter(
-          (task) => task.status.type.toLowerCase() !== "closed"
+          (task) => task.status.type.toLowerCase() !== "closed",
         ).length,
         closed: clickupTasks.filter(
-          (task) => task.status.type.toLowerCase() === "closed"
+          (task) => task.status.type.toLowerCase() === "closed",
         ).length,
         total: clickupTasks.length,
       },

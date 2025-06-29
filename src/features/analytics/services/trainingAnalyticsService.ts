@@ -27,7 +27,7 @@ interface LearningTrends {
 export const getTrainingAgentTypeMetrics = async (
   teamId: string,
   timeRange: string | { startDate: string; endDate: string },
-  userId: string
+  userId: string,
 ): Promise<{
   categories: TrainingCategoryMetric[];
 }> => {
@@ -38,7 +38,7 @@ export const getTrainingAgentTypeMetrics = async (
     const aggregatedData = await getAggregatedAnalytics(
       teamId,
       timeRange,
-      "trainingCategoryMetrics"
+      "trainingCategoryMetrics",
     );
     if (aggregatedData) {
       return aggregatedData;
@@ -53,14 +53,14 @@ export const getTrainingAgentTypeMetrics = async (
   const { trainingSessions, progressData } = await fetchTrainingData(
     uniqueMemberIds,
     startDate,
-    endDate
+    endDate,
   );
 
   // Process data by category
   const categoryMap = processCategoryData(
     trainingSessions,
     progressData,
-    uniqueMemberIds
+    uniqueMemberIds,
   );
 
   // Convert to metrics array and sort
@@ -89,7 +89,7 @@ async function getTeamMemberIds(teamId: string): Promise<string[]> {
 async function fetchTrainingData(
   uniqueMemberIds: string[],
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ) {
   // Get all training sessions assigned to team members
   const trainingSessions = await TrainingSession.find({
@@ -112,7 +112,7 @@ async function fetchTrainingData(
 function processCategoryData(
   trainingSessions: any[],
   progressData: any[],
-  uniqueMemberIds: string[]
+  uniqueMemberIds: string[],
 ) {
   const categoryMap = new Map<
     string,
@@ -130,7 +130,7 @@ function processCategoryData(
   for (const session of trainingSessions) {
     if (!session.agentId || typeof session.agentId !== "object") continue;
 
-    const agentType = (session.agentId).type ?? "Unknown";
+    const agentType = session.agentId.type ?? "Unknown";
 
     if (!categoryMap.has(agentType)) {
       categoryMap.set(agentType, {
@@ -163,7 +163,7 @@ function processSessionData(
     totalTimeSpent: number;
     userIds: Set<string>;
   },
-  uniqueMemberIds: string[]
+  uniqueMemberIds: string[],
 ) {
   // Count trainees from this team in the session
   for (const trainee of session.trainees) {
@@ -182,7 +182,7 @@ function processSessionData(
 function processProgressData(
   progressData: any[],
   trainingSessions: any[],
-  categoryMap: Map<string, any>
+  categoryMap: Map<string, any>,
 ) {
   // Create a map of session IDs to agent types for faster lookup
   const sessionToAgentType = new Map<string, string>();
@@ -208,7 +208,7 @@ function processProgressData(
       const avgScore =
         progress.evaluations.reduce(
           (sum: number, evaluation: any) => sum + evaluation.score,
-          0
+          0,
         ) / progress.evaluations.length;
       categoryData.totalScore += avgScore;
       categoryData.scoreCount++;
@@ -218,11 +218,11 @@ function processProgressData(
 
 // Helper function to format category metrics
 function formatCategoryMetrics(
-  categoryMap: Map<string, any>
+  categoryMap: Map<string, any>,
 ): TrainingCategoryMetric[] {
   // Convert to metrics array
   const categories: TrainingCategoryMetric[] = Array.from(
-    categoryMap.entries()
+    categoryMap.entries(),
   ).map(([categoryName, data]) => {
     const completionRate =
       data.totalCount > 0
@@ -235,7 +235,7 @@ function formatCategoryMetrics(
         : 0;
 
     const timeSpent = parseFloat(
-      (data.totalTimeSpent / Math.max(1, data.userIds.size)).toFixed(1)
+      (data.totalTimeSpent / Math.max(1, data.userIds.size)).toFixed(1),
     );
 
     return {
@@ -257,7 +257,7 @@ function formatCategoryMetrics(
 export const getLearningTrends = async (
   teamId: string,
   timeRange: string | { startDate: string; endDate: string },
-  userId: string
+  userId: string,
 ): Promise<{
   trends: LearningTrends;
 }> => {
@@ -268,7 +268,7 @@ export const getLearningTrends = async (
     const aggregatedData = await getAggregatedAnalytics(
       teamId,
       timeRange,
-      "learningTrends"
+      "learningTrends",
     );
     if (aggregatedData) {
       return aggregatedData;
@@ -325,7 +325,7 @@ export const getLearningTrends = async (
 
         conceptCounter.set(
           conceptName,
-          (conceptCounter.get(conceptName) ?? 0) + 1
+          (conceptCounter.get(conceptName) ?? 0) + 1,
         );
       });
     }
@@ -409,7 +409,7 @@ export const calculateAgentTypeCompletionRate = async (
   sessionIds: mongoose.Types.ObjectId[],
   memberIds: string[],
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> => {
   if (sessionIds.length === 0) {
     return 0;
@@ -451,7 +451,7 @@ export const calculateAgentTypeTimeSpent = async (
   sessionIds: mongoose.Types.ObjectId[],
   memberIds: string[],
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> => {
   if (sessionIds.length === 0) {
     return 0;
@@ -471,7 +471,7 @@ export const calculateAgentTypeTimeSpent = async (
   // Calculate total time spent (in hours)
   const totalMinutes = progressRecords.reduce(
     (sum, record) => sum + record.timeSpent,
-    0
+    0,
   );
   return parseFloat((totalMinutes / 60).toFixed(1));
 };
@@ -482,7 +482,7 @@ export const calculateAgentTypeTimeSpent = async (
 export const calculateAvgTrainingSessions = async (
   memberIds: string[],
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> => {
   // Count training sessions accessed in the period
   const sessions = await TrainingProgress.find({
@@ -498,8 +498,8 @@ export const calculateAvgTrainingSessions = async (
   const weeks = Math.max(
     1,
     Math.ceil(
-      (endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000)
-    )
+      (endDate.getTime() - startDate.getTime()) / (7 * 24 * 60 * 60 * 1000),
+    ),
   );
 
   // Calculate average sessions per user per week
@@ -512,7 +512,7 @@ export const calculateAvgTrainingSessions = async (
 export const calculateAvgCompletionTime = async (
   memberIds: string[],
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> => {
   // Get completed training sessions
   const completedTrainees = await TrainingSession.aggregate([
@@ -548,7 +548,7 @@ export const calculateAvgCompletionTime = async (
   // Calculate average time spent (in hours)
   const totalMinutes = progressRecords.reduce(
     (sum, record) => sum + record.timeSpent,
-    0
+    0,
   );
   return parseFloat((totalMinutes / 60 / progressRecords.length).toFixed(1));
 };
@@ -559,14 +559,14 @@ export const calculateAvgCompletionTime = async (
 export const calculateEngagementScore = async (
   memberIds: string[],
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> => {
   // This is a composite score based on several engagement factors
   // 1. Session frequency
   const avgSessions = await calculateAvgTrainingSessions(
     memberIds,
     startDate,
-    endDate
+    endDate,
   );
   const sessionScore = Math.min(100, avgSessions * 25); // 4 sessions/week = 100%
 
@@ -588,7 +588,7 @@ export const calculateEngagementScore = async (
   const completionRate = await calculateCompletionRateForUsers(
     memberIds,
     startDate,
-    endDate
+    endDate,
   );
 
   // Combine scores with weights
@@ -603,7 +603,7 @@ export const calculateEngagementScore = async (
 export const calculateCompletionRateForUsers = async (
   userIds: string[],
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<number> => {
   // Get all training sessions assigned to these users
   const trainingSessions = await TrainingSession.find({

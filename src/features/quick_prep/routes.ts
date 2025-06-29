@@ -5,8 +5,10 @@ import { quickPrepSchemas } from "./validation/quickPrepSchema";
 
 const router = Router();
 
-router.post('/', validate(quickPrepSchemas.updateUsageSchema), quickPrepController.updateUsage);
+router.post(
+  "/",
+  validate(quickPrepSchemas.updateUsageSchema),
+  quickPrepController.updateUsage,
+);
 
 export default router;
-
-

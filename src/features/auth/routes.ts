@@ -1,8 +1,11 @@
-import { Router } from 'express';
-import * as authController from './controllers/authController';
-import * as userManagementController from './controllers/userManagementController';
-import { authenticate, requireRole } from '../../shared/middleware/authenticate';
-import { validate } from '../../shared/middleware/validate';
+import { Router } from "express";
+import * as authController from "./controllers/authController";
+import * as userManagementController from "./controllers/userManagementController";
+import {
+  authenticate,
+  requireRole,
+} from "../../shared/middleware/authenticate";
+import { validate } from "../../shared/middleware/validate";
 import {
   registerSchema,
   loginSchema,
@@ -11,194 +14,189 @@ import {
   updateProfileSchema,
   facebookAuthSchema,
   createOnboardingSchema,
-} from './validation/authSchema';
-import { userManagementSchemas } from './validation/userManagementSchema';
-import { profilePictureUpload } from '../../shared/middleware/fileUpload';
+} from "./validation/authSchema";
+import { userManagementSchemas } from "./validation/userManagementSchema";
+import { profilePictureUpload } from "../../shared/middleware/fileUpload";
 
 const router = Router();
 
 // Public auth routes
 router.post(
-  '/register',
-  profilePictureUpload.single('profilePicture'),
+  "/register",
+  profilePictureUpload.single("profilePicture"),
   validate({ body: registerSchema }),
-  authController.register
+  authController.register,
 );
 
-router.post(
-  '/login',
-  validate({ body: loginSchema }),
-  authController.login
-);
+router.post("/login", validate({ body: loginSchema }), authController.login);
 
 router.post(
-  '/refresh-token',
+  "/refresh-token",
   validate({ body: refreshTokenSchema }),
-  authController.refreshToken
+  authController.refreshToken,
 );
 
 router.post(
-  '/google',
+  "/google",
   validate({ body: googleAuthSchema }),
-  authController.googleAuth
+  authController.googleAuth,
 );
 
 // Add Facebook auth route
 router.post(
-  '/facebook',
+  "/facebook",
   validate({ body: facebookAuthSchema }),
-  authController.facebookAuth
+  authController.facebookAuth,
 );
 
 // Protected auth routes
-router.post('/logout', authenticate, authController.logout);
-router.get('/me', authenticate, authController.getUser);
+router.post("/logout", authenticate, authController.logout);
+router.get("/me", authenticate, authController.getUser);
 
 // Public user management routes
 // Email verification
 router.post(
-  '/verify-email',
+  "/verify-email",
   validate(userManagementSchemas.emailVerificationSchema),
-  userManagementController.verifyEmail
+  userManagementController.verifyEmail,
 );
 
 router.get(
-  '/complete-onboarding',
+  "/complete-onboarding",
   authenticate,
-  authController.completeOnboarding
+  authController.completeOnboarding,
 );
-
 
 // Request email verification link
 router.post(
-  '/send-verification',
+  "/send-verification",
   validate(userManagementSchemas.sendVerificationEmailSchema),
-  userManagementController.sendVerificationEmail
+  userManagementController.sendVerificationEmail,
 );
 
 // Request password reset
 router.post(
-  '/request-password-reset',
+  "/request-password-reset",
   validate(userManagementSchemas.passwordResetRequestSchema),
-  userManagementController.requestPasswordReset
+  userManagementController.requestPasswordReset,
 );
 
 // Reset password with token
 router.post(
-  '/reset-password',
+  "/reset-password",
   validate(userManagementSchemas.passwordResetSchema),
-  userManagementController.resetPassword
+  userManagementController.resetPassword,
 );
 
 // Magic link verification and password setup
 router.post(
-  '/verify-magic-link',
+  "/verify-magic-link",
   validate(userManagementSchemas.magicLinkVerificationSchema),
-  userManagementController.verifyMagicLinkAndSetupPassword
+  userManagementController.verifyMagicLinkAndSetupPassword,
 );
 
 // Check password set status
 router.post(
-  '/check-password-set-status',
+  "/check-password-set-status",
   validate(userManagementSchemas.checkPasswordSetStatusSchema),
-  userManagementController.checkPasswordSetStatus
+  userManagementController.checkPasswordSetStatus,
 );
 
 // Authenticated user management routes
 // Change password (requires authentication)
 router.post(
-  '/change-password',
+  "/change-password",
   authenticate,
   validate(userManagementSchemas.changePasswordSchema),
-  userManagementController.changePassword
+  userManagementController.changePassword,
 );
 
 // Admin routes (requires admin role)
 // Get all users
 router.get(
-  '/users',
+  "/users",
   authenticate,
-  requireRole(['admin']),
-  userManagementController.getAllUsers
+  requireRole(["admin"]),
+  userManagementController.getAllUsers,
 );
 
 // Get user by ID
 router.get(
-  '/users/:userId',
+  "/users/:userId",
   authenticate,
-  requireRole(['admin']),
+  requireRole(["admin"]),
   validate(userManagementSchemas.userIdSchema),
-  userManagementController.getUserById
+  userManagementController.getUserById,
 );
 
 // Create new user
 router.post(
-  '/users',
+  "/users",
   authenticate,
-  requireRole(['admin']),
+  requireRole(["admin"]),
   validate(userManagementSchemas.createUserSchema),
-  userManagementController.createUser
+  userManagementController.createUser,
 );
 
 // Update user
 router.put(
-  '/users/:userId',
+  "/users/:userId",
   authenticate,
-  requireRole(['admin']),
+  requireRole(["admin"]),
   validate(userManagementSchemas.updateUserSchema),
-  userManagementController.updateUser
+  userManagementController.updateUser,
 );
 
 // Delete user
 router.delete(
-  '/users/:userId',
+  "/users/:userId",
   authenticate,
-  requireRole(['admin']),
+  requireRole(["admin"]),
   validate(userManagementSchemas.userIdSchema),
-  userManagementController.deleteUser
+  userManagementController.deleteUser,
 );
 
 // Lock user account
 router.post(
-  '/users/:userId/lock',
+  "/users/:userId/lock",
   authenticate,
-  requireRole(['admin']),
+  requireRole(["admin"]),
   validate(userManagementSchemas.lockUserAccountSchema),
-  userManagementController.lockUserAccount
+  userManagementController.lockUserAccount,
 );
 
 // Unlock user account
 router.post(
-  '/users/:userId/unlock',
+  "/users/:userId/unlock",
   authenticate,
-  requireRole(['admin']),
+  requireRole(["admin"]),
   validate(userManagementSchemas.userIdSchema),
-  userManagementController.unlockUserAccount
+  userManagementController.unlockUserAccount,
 );
 
 // Reset user password (generate temporary password)
 router.post(
-  '/users/:userId/reset-password',
+  "/users/:userId/reset-password",
   authenticate,
-  requireRole(['admin']),
+  requireRole(["admin"]),
   validate(userManagementSchemas.userIdSchema),
-  userManagementController.resetUserPassword
+  userManagementController.resetUserPassword,
 );
 
 // User profile routes (requires authentication)
 router.put(
-  '/profile',
+  "/profile",
   authenticate,
-  profilePictureUpload.single('profilePicture'),
+  profilePictureUpload.single("profilePicture"),
   validate({ body: updateProfileSchema }),
-  authController.updateProfile
+  authController.updateProfile,
 );
 
 router.put(
-  '/complete-onboarding',
+  "/complete-onboarding",
   authenticate,
   validate({ body: createOnboardingSchema }),
-  authController.createOnboarding
+  authController.createOnboarding,
 );
 
 router.get("/usage-logs", authenticate, authController.getUsageLogs);

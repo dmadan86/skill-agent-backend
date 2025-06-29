@@ -1,6 +1,9 @@
 // src/features/agents/services/quickPrepAgentService.ts
-import { IAgent } from '../../../shared/models/Agent';
-import { commonConversationStyle, getTypeSpecificContent } from './commonPromptHelpers';
+import { IAgent } from "../../../shared/models/Agent";
+import {
+  commonConversationStyle,
+  getTypeSpecificContent,
+} from "./commonPromptHelpers";
 
 /**
  * Generate a Retell AI compatible quick prep agent prompt template
@@ -8,7 +11,7 @@ import { commonConversationStyle, getTypeSpecificContent } from './commonPromptH
  */
 export const generateQuickPrepAgentPrompt = (agent: IAgent): string => {
   // Get type-specific quick prep content
-  const typeSpecificContent = getTypeSpecificContent(agent, 'QUICK_PREP');
+  const typeSpecificContent = getTypeSpecificContent(agent, "QUICK_PREP");
 
   // Construct the full template
   return `# ${agent.name} - Quick Prep Agent for ${agent.industry}
@@ -24,7 +27,7 @@ You are currently speaking with {{user_name}}, a {{user_position}} in the {{user
 ${typeSpecificContent}
 
 ## Quick Prep Approach
-${agent.instructions ?? 'Provide concise, targeted information on specific topics from the training content. Focus on clarity and immediate applicability rather than comprehensive coverage.'}
+${agent.instructions ?? "Provide concise, targeted information on specific topics from the training content. Focus on clarity and immediate applicability rather than comprehensive coverage."}
 
 ${commonConversationStyle}
 

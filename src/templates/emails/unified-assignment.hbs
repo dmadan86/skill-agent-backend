@@ -1,90 +1,203 @@
-<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="light">
-  <meta name="supported-color-schemes" content="light">
-  <title>Your New Assignments</title>
-  <style>
-    :root { color-scheme: light; supported-color-schemes: light; }
-    body { margin: 0; padding: 0; width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #111827; background-color: #f3f4f6; }
-    table { border-spacing: 0; border-collapse: collapse; table-layout: fixed; margin: 0 auto; }
-    img { -ms-interpolation-mode: bicubic; max-width: 100%; border: 0; }
-    a { color: #2563EB; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    .wrapper { width: 100%; background-color: #f3f4f6; padding: 40px 10px; }
-    .container { width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
-    .header { padding: 24px; background-color: #000000; text-align: center; }
-    .header-title { color: #ffffff; font-size: 22px; font-weight: 600; margin: 0; }
-    .content { padding: 32px 24px; background-color: #ffffff; }
-    .content p { font-size: 16px; font-weight: normal; margin: 0 0 16px; }
-    .footer { background-color: #f9fafb; color: #6b7280; font-size: 13px; text-align: center; padding: 24px; border-top: 1px solid #e5e7eb; }
-    .footer p { margin: 0 0 8px; }
-    .footer a { color: #4b5563; }
-    .btn { display: inline-block; padding: 12px 28px; background-color: #000000; color: #ffffff !important; text-decoration: none; font-weight: 600; border-radius: 6px; }
-    .btn:hover { background-color: #1f2937; }
-    .btn-container { text-align: center; margin: 30px 0; }
-    .assignment-box { background-color: #f9fafb; border-radius: 6px; padding: 20px; margin-bottom: 20px; border: 1px solid #e5e7eb; }
-    .assignment-title { font-size: 18px; font-weight: 600; margin: 0 0 10px; }
-  </style>
-</head>
-<body>
-  <div class="wrapper">
-    <table width="100%" border="0" cellspacing="0" cellpadding="0">
-      <tr>
-        <td align="center">
-          <table class="container" border="0" cellspacing="0" cellpadding="0">
-            <tr>
-              <td class="header">
-                <a href="{{branding.websiteUrl}}" target="_blank">
-                  <img src="https://digital-agents.s3.amazonaws.com/logo_long_white.png" alt="{{branding.logo.altText}}" width="120" style="display: block; margin: 0 auto;">
-                </a>
-              </td>
-            </tr>
-            <tr>
-              <td class="content">
-                <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 20px; text-align: center;">You Have New Assignments</h1>
-                <p>Hello,</p>
-                <p>You have been assigned new tasks by your coach. Please see the details below and complete them at your earliest convenience.</p>
-                
-                {{#if trainingTitle}}
-                <div class="assignment-box">
-                  <h2 class="assignment-title">Training: {{trainingTitle}}</h2>
-                  <p>A new training session is ready for you. Click the button below to get started.</p>
-                  <div class="btn-container">
-                    <a href="{{trainingLink}}" class="btn">Start Training</a>
-                  </div>
-                </div>
-                {{/if}}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <meta name="supported-color-schemes" content="light" />
+    <title>Your New Assignments</title>
+    <style>
+      :root {
+        color-scheme: light;
+        supported-color-schemes: light;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100% !important;
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        line-height: 1.6;
+        color: #111827;
+        background-color: #f3f4f6;
+      }
+      table {
+        border-spacing: 0;
+        border-collapse: collapse;
+        table-layout: fixed;
+        margin: 0 auto;
+      }
+      img {
+        -ms-interpolation-mode: bicubic;
+        max-width: 100%;
+        border: 0;
+      }
+      a {
+        color: #2563eb;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .wrapper {
+        width: 100%;
+        background-color: #f3f4f6;
+        padding: 40px 10px;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+      .header {
+        padding: 24px;
+        background-color: #000000;
+        text-align: center;
+      }
+      .header-title {
+        color: #ffffff;
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0;
+      }
+      .content {
+        padding: 32px 24px;
+        background-color: #ffffff;
+      }
+      .content p {
+        font-size: 16px;
+        font-weight: normal;
+        margin: 0 0 16px;
+      }
+      .footer {
+        background-color: #f9fafb;
+        color: #6b7280;
+        font-size: 13px;
+        text-align: center;
+        padding: 24px;
+        border-top: 1px solid #e5e7eb;
+      }
+      .footer p {
+        margin: 0 0 8px;
+      }
+      .footer a {
+        color: #4b5563;
+      }
+      .btn {
+        display: inline-block;
+        padding: 12px 28px;
+        background-color: #000000;
+        color: #ffffff !important;
+        text-decoration: none;
+        font-weight: 600;
+        border-radius: 6px;
+      }
+      .btn:hover {
+        background-color: #1f2937;
+      }
+      .btn-container {
+        text-align: center;
+        margin: 30px 0;
+      }
+      .assignment-box {
+        background-color: #f9fafb;
+        border-radius: 6px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #e5e7eb;
+      }
+      .assignment-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0 0 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="center">
+            <table class="container" border="0" cellspacing="0" cellpadding="0">
+              <tr>
+                <td class="header">
+                  <a href="{{branding.websiteUrl}}" target="_blank">
+                    <img
+                      src="https://digital-agents.s3.amazonaws.com/logo_long_white.png"
+                      alt="{{branding.logo.altText}}"
+                      width="120"
+                      style="display: block; margin: 0 auto;"
+                    />
+                  </a>
+                </td>
+              </tr>
+              <tr>
+                <td class="content">
+                  <h1
+                    style="font-size: 24px; font-weight: 600; margin-bottom: 20px; text-align: center;"
+                  >You Have New Assignments</h1>
+                  <p>Hello,</p>
+                  <p>You have been assigned new tasks by your coach. Please see
+                    the details below and complete them at your earliest
+                    convenience.</p>
 
-                {{#if evaluationTitle}}
-                <div class="assignment-box">
-                  <h2 class="assignment-title">Evaluation: {{evaluationTitle}}</h2>
-                  <p>A new evaluation is ready for you. Click the button below to begin.</p>
-                  <div class="btn-container">
-                    <a href="{{evaluationLink}}" class="btn">Start Evaluation</a>
-                  </div>
-                </div>
-                {{/if}}
+                  {{#if trainingTitle}}
+                    <div class="assignment-box">
+                      <h2 class="assignment-title">Training:
+                        {{trainingTitle}}</h2>
+                      <p>A new training session is ready for you. Click the
+                        button below to get started.</p>
+                      <div class="btn-container">
+                        <a href="{{trainingLink}}" class="btn">Start Training</a>
+                      </div>
+                    </div>
+                  {{/if}}
 
-                <p>If you have any questions, please reach out to your manager.</p>
-                <p>Best regards,<br>The {{branding.name}} Team</p>
-              </td>
-            </tr>
-            <tr>
-              <td class="footer">
-                <p>&copy; {{currentYear}} {{branding.name}}. All rights reserved.</p>
-                <p>
-                  {{#if branding.socialLinks.twitter}}<a href="{{branding.socialLinks.twitter}}" style="margin: 0 8px;">Twitter</a>{{/if}}
-                  {{#if branding.socialLinks.linkedin}}<a href="{{branding.socialLinks.linkedin}}" style="margin: 0 8px;">LinkedIn</a>{{/if}}
-                </p>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </div>
-</body>
-</html> 
+                  {{#if evaluationTitle}}
+                    <div class="assignment-box">
+                      <h2 class="assignment-title">Evaluation:
+                        {{evaluationTitle}}</h2>
+                      <p>A new evaluation is ready for you. Click the button
+                        below to begin.</p>
+                      <div class="btn-container">
+                        <a href="{{evaluationLink}}" class="btn">Start
+                          Evaluation</a>
+                      </div>
+                    </div>
+                  {{/if}}
+
+                  <p>If you have any questions, please reach out to your
+                    manager.</p>
+                  <p>Best regards,<br />The {{branding.name}} Team</p>
+                </td>
+              </tr>
+              <tr>
+                <td class="footer">
+                  <p>&copy;
+                    {{currentYear}}
+                    {{branding.name}}. All rights reserved.</p>
+                  <p>
+                    {{#if branding.socialLinks.twitter}}<a
+                        href="{{branding.socialLinks.twitter}}"
+                        style="margin: 0 8px;"
+                      >Twitter</a>{{/if}}
+                    {{#if branding.socialLinks.linkedin}}<a
+                        href="{{branding.socialLinks.linkedin}}"
+                        style="margin: 0 8px;"
+                      >LinkedIn</a>{{/if}}
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>

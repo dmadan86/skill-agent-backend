@@ -64,7 +64,7 @@
  *           type: string
  *           format: date-time
  *           description: When the session was last updated
- *          
+ *
  *     TrainingProgress:
  *       type: object
  *       required:
@@ -150,12 +150,12 @@
  * tags:
  *   name: Training
  *   description: Training session management
- * 
+ *
  * @swagger
  * tags:
  *   name: Progress
  *   description: Training progress tracking
- * 
+ *
  */
 
 /**

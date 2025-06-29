@@ -1,8 +1,8 @@
-import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
-import { InvalidTokenError, TokenExpiredError } from '../errors/AppError';
-import config from '../config';
-import logger from '../utils/logger';
+import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
+import { InvalidTokenError, TokenExpiredError } from "../errors/AppError";
+import config from "../config";
+import logger from "../utils/logger";
 
 export interface TokenPayload {
   userId: string;
@@ -20,7 +20,7 @@ export interface DecodedToken extends TokenPayload {
 export interface EmailVerificationPayload {
   userId: string;
   email: string;
-  action: 'email_verification' | 'password_reset' | 'magic_link_setup';
+  action: "email_verification" | "password_reset" | "magic_link_setup";
   jti: string;
 }
 
@@ -32,7 +32,7 @@ export interface DecodedEmailToken extends EmailVerificationPayload {
 export const generateAccessToken = (
   userId: string,
   email: string,
-  role: string
+  role: string,
 ): string => {
   const payload: TokenPayload = {
     userId,
@@ -49,7 +49,7 @@ export const generateAccessToken = (
 export const generateRefreshToken = (
   userId: string,
   email: string,
-  role: string
+  role: string,
 ): string => {
   const payload: TokenPayload = {
     userId,
@@ -73,7 +73,7 @@ export const verifyAccessToken = (token: string): TokenPayload => {
       jti: decoded.jti,
     };
   } catch (error) {
-    if ((error as Error).name === 'TokenExpiredError') {
+    if ((error as Error).name === "TokenExpiredError") {
       throw new TokenExpiredError();
     }
     throw new InvalidTokenError();
@@ -90,7 +90,7 @@ export const verifyRefreshToken = (token: string): TokenPayload => {
       jti: decoded.jti,
     };
   } catch (error) {
-    if ((error as Error).name === 'TokenExpiredError') {
+    if ((error as Error).name === "TokenExpiredError") {
       throw new TokenExpiredError();
     }
     throw new InvalidTokenError();
@@ -121,7 +121,7 @@ export const getTokenExpirationDate = (token: string): Date => {
 export const generateEmailToken = (
   userId: string,
   email: string,
-  action: 'email_verification' | 'password_reset' | 'magic_link_setup'
+  action: "email_verification" | "password_reset" | "magic_link_setup",
 ): string => {
   const payload: EmailVerificationPayload = {
     userId,
@@ -131,7 +131,7 @@ export const generateEmailToken = (
   };
 
   // Short expiration for security
-  const expiresIn = action === 'email_verification' ? '48h' : '2h';
+  const expiresIn = action === "email_verification" ? "48h" : "2h";
 
   return jwt.sign(payload, config.jwt.accessSecret, {
     expiresIn,
@@ -146,14 +146,17 @@ export const generateEmailToken = (
  */
 export const verifyEmailToken = (
   token: string,
-  action: 'email_verification' | 'password_reset' | 'magic_link_setup'
+  action: "email_verification" | "password_reset" | "magic_link_setup",
 ): EmailVerificationPayload => {
   try {
-    const decoded = jwt.verify(token, config.jwt.accessSecret) as DecodedEmailToken;
-    
+    const decoded = jwt.verify(
+      token,
+      config.jwt.accessSecret,
+    ) as DecodedEmailToken;
+
     // Verify action matches to prevent token reuse for different purposes
     if (decoded.action !== action) {
-      throw new InvalidTokenError({ message: 'Invalid token action' });
+      throw new InvalidTokenError({ message: "Invalid token action" });
     }
 
     return {
@@ -163,7 +166,7 @@ export const verifyEmailToken = (
       jti: decoded.jti,
     };
   } catch (error) {
-    if ((error as Error).name === 'TokenExpiredError') {
+    if ((error as Error).name === "TokenExpiredError") {
       throw new TokenExpiredError();
     }
     throw new InvalidTokenError();

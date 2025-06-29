@@ -3,12 +3,15 @@ import { AuthenticatedRequest } from "../../../shared/middleware/authenticate";
 import { sendSuccess } from "../../../shared/utils/response.utils";
 import { AppError } from "../../../shared/errors/AppError";
 import mongoose from "mongoose";
-import { createPublicAgentsForUser, getPublicAgentsForUser } from "../services/publicAgentService";
+import {
+  createPublicAgentsForUser,
+  getPublicAgentsForUser,
+} from "../services/publicAgentService";
 
 export const createPublicAgents = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -16,10 +19,10 @@ export const createPublicAgents = async (
     }
 
     const userId = new mongoose.Types.ObjectId(req.user.userId);
-    
+
     // Create public agents for the user
     const agents = await createPublicAgentsForUser(userId);
-    
+
     sendSuccess(res, {
       message: "Public agents created successfully",
       data: agents,
@@ -40,7 +43,7 @@ interface PublicAgentQuery {
 export const getPublicAgents = async (
   req: AuthenticatedRequest<{}, {}, {}, PublicAgentQuery>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -48,10 +51,10 @@ export const getPublicAgents = async (
     }
 
     const userId = new mongoose.Types.ObjectId(req.user.userId);
-    
+
     // Now TypeScript knows these properties exist on req.query
     const { page, limit, type, industry } = req.query;
-    
+
     // Get public agents for the user with query parameters
     // This function DOESN'T create agents, it only retrieves them
     const agents = await getPublicAgentsForUser(userId, {
@@ -60,7 +63,7 @@ export const getPublicAgents = async (
       type,
       industry,
     });
-    
+
     sendSuccess(res, {
       data: agents.agents,
       meta: {
@@ -73,4 +76,4 @@ export const getPublicAgents = async (
   } catch (error) {
     next(error);
   }
-}; 
+};

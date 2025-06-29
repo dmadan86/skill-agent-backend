@@ -6,7 +6,7 @@ export interface IUserMetricActivity extends Document {
   feature: string;
   metadata: Record<string, any>;
   timestamp: Date;
-  status: 'success' | 'failed';
+  status: "success" | "failed";
   duration?: number;
 }
 
@@ -15,72 +15,72 @@ const UserMetricActivitySchema = new Schema<IUserMetricActivity>(
     userId: {
       type: String,
       required: true,
-      index: true
+      index: true,
     },
     activityType: {
       type: String,
       required: true,
       enum: [
         // User lifecycle events
-        'user_signup',
-        'user_login',
-        'login_failed',
-        'user_logout',
-        
+        "user_signup",
+        "user_login",
+        "login_failed",
+        "user_logout",
+
         // Feature usage events
-        'training_started',
-        'training_completed',
-        'training_progress',
-        'evaluation_started',
-        'evaluation_completed',
-        'evaluation_progress',
-        'quickprep_started',
-        'quickprep_completed',
-        'team_created',
-        'team_joined',
-        'team_left',
-        
+        "training_started",
+        "training_completed",
+        "training_progress",
+        "evaluation_started",
+        "evaluation_completed",
+        "evaluation_progress",
+        "quickprep_started",
+        "quickprep_completed",
+        "team_created",
+        "team_joined",
+        "team_left",
+
         // System events
-        'error_occurred',
-        'support_ticket_created',
-        'support_ticket_resolved'
-      ]
+        "error_occurred",
+        "support_ticket_created",
+        "support_ticket_resolved",
+      ],
     },
     feature: {
       type: String,
       required: true,
       enum: [
-        'authentication',
-        'training',
-        'evaluation',
-        'quickprep',
-        'teams',
-        'support',
-        'system'
-      ]
+        "authentication",
+        "training",
+        "evaluation",
+        "quickprep",
+        "teams",
+        "support",
+        "system",
+      ],
     },
     metadata: {
       type: Schema.Types.Mixed,
-      default: {}
+      default: {},
     },
     timestamp: {
       type: Date,
       default: Date.now,
-      index: true
+      index: true,
     },
     status: {
       type: String,
-      enum: ['success', 'failed'],
-      default: 'success'
+      enum: ["success", "failed"],
+      default: "success",
     },
     duration: {
       type: Number,
-      default: 0
-    }
+      default: 0,
+    },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
 // Indexes for efficient querying
@@ -90,5 +90,5 @@ UserMetricActivitySchema.index({ activityType: 1, timestamp: -1 });
 
 export const UserMetricActivity = mongoose.model<IUserMetricActivity>(
   "UserMetricActivity",
-  UserMetricActivitySchema
-); 
+  UserMetricActivitySchema,
+);

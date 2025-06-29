@@ -15,23 +15,23 @@ export interface IWebhook extends Document {
   retryInterval: number;
 }
 
-export type WebhookEvent = 
-  | 'user.created'
-  | 'user.updated'
-  | 'user.deleted'
-  | 'team.created'
-  | 'team.updated'
-  | 'team.deleted'
-  | 'team.member_added'
-  | 'team.member_removed'
-  | 'agent.created'
-  | 'agent.updated'
-  | 'agent.deleted'
-  | 'training.started'
-  | 'training.completed'
-  | 'training.failed'
-  | 'report.generated'
-  | 'user.nudged';
+export type WebhookEvent =
+  | "user.created"
+  | "user.updated"
+  | "user.deleted"
+  | "team.created"
+  | "team.updated"
+  | "team.deleted"
+  | "team.member_added"
+  | "team.member_removed"
+  | "agent.created"
+  | "agent.updated"
+  | "agent.deleted"
+  | "training.started"
+  | "training.completed"
+  | "training.failed"
+  | "report.generated"
+  | "user.nudged";
 
 const WebhookSchema = new Schema<IWebhook>(
   {
@@ -57,11 +57,11 @@ const WebhookSchema = new Schema<IWebhook>(
       type: [String],
       required: true,
       validate: {
-        validator: function(events: string[]) {
+        validator: function (events: string[]) {
           return events.length > 0;
         },
-        message: "At least one event must be specified"
-      }
+        message: "At least one event must be specified",
+      },
     },
     description: {
       type: String,
@@ -82,12 +82,12 @@ const WebhookSchema = new Schema<IWebhook>(
     retryInterval: {
       type: Number, // in seconds
       default: 60,
-    }
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 WebhookSchema.index({ userId: 1 });
 WebhookSchema.index({ events: 1 });
 
-export const Webhook = mongoose.model<IWebhook>("Webhook", WebhookSchema); 
+export const Webhook = mongoose.model<IWebhook>("Webhook", WebhookSchema);

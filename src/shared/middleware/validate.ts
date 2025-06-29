@@ -1,6 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject, ZodError } from 'zod';
-import { sendError } from '../utils/response.utils';
+import { Request, Response, NextFunction } from "express";
+import { AnyZodObject, ZodError } from "zod";
+import { sendError } from "../utils/response.utils";
 
 interface ValidationSchema {
   body?: AnyZodObject;
@@ -9,7 +9,11 @@ interface ValidationSchema {
 }
 
 export const validate = (schema: ValidationSchema) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       console.log("body", req.body);
       console.log("query", req.query);
@@ -24,10 +28,10 @@ export const validate = (schema: ValidationSchema) => {
         console.log("Validation error", error.errors);
         sendError(
           res,
-          'VALIDATION_ERROR',
-          'Validation failed',
+          "VALIDATION_ERROR",
+          "Validation failed",
           400,
-          error.errors
+          error.errors,
         );
         return;
       }

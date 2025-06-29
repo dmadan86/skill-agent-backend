@@ -1,16 +1,16 @@
 import mongoose from "mongoose";
 import { Agent } from "../../../shared/models/Agent";
-import { 
-  AgentNotFoundError, 
-  AgentAccessDeniedError 
+import {
+  AgentNotFoundError,
+  AgentAccessDeniedError,
 } from "../../../shared/errors/AppError";
-import { 
-  assignTrainees, 
-  removeTrainee 
+import {
+  assignTrainees,
+  removeTrainee,
 } from "../../training/services/trainingSessionService";
-import { 
-  assignUsers, 
-  removeAssignee 
+import {
+  assignUsers,
+  removeAssignee,
 } from "../../evaluation/services/evaluationService";
 import { sendUnifiedAssignmentEmail } from "../../../shared/services/emailService";
 import config from "../../../shared/config";
@@ -45,7 +45,7 @@ export interface UnifiedAssignmentResponse {
 export const assignUsersToAgent = async (
   agentId: string,
   userId: mongoose.Types.ObjectId,
-  data: UnifiedAssignmentData
+  data: UnifiedAssignmentData,
 ): Promise<UnifiedAssignmentResponse> => {
   const agent = await Agent.findById(agentId);
 
@@ -60,7 +60,7 @@ export const assignUsersToAgent = async (
   const results: UnifiedAssignmentResponse = {
     trainingSession: null,
     evaluationSession: null,
-    agent: null
+    agent: null,
   };
 
   // Assign to training session if it exists
@@ -68,12 +68,12 @@ export const assignUsersToAgent = async (
     try {
       const trainingData: AssignTraineesData = {
         userIds: data.userIds,
-        departmentIds: data.departmentIds
+        departmentIds: data.departmentIds,
       };
       results.trainingSession = await assignTrainees(
         agent.trainingSessionId.toString(),
         userId,
-        trainingData
+        trainingData,
       );
     } catch (error) {
       console.error("Error assigning to training session:", error);
@@ -86,12 +86,12 @@ export const assignUsersToAgent = async (
     try {
       const evaluationData: AssignUsersData = {
         userIds: data.userIds,
-        departmentIds: data.departmentIds
+        departmentIds: data.departmentIds,
       };
       results.evaluationSession = await assignUsers(
         agent.evaluationSessionId.toString(),
         userId,
-        evaluationData
+        evaluationData,
       );
     } catch (error) {
       console.error("Error assigning to evaluation session:", error);
@@ -101,15 +101,17 @@ export const assignUsersToAgent = async (
 
   // Update agent with new user IDs
   if (data.userIds && data.userIds.length > 0) {
-    const newUserIds = data.userIds.map(id => new mongoose.Types.ObjectId(id));
-    const existingUserIds = agent.userIds.map(id => id.toString());
-    
+    const newUserIds = data.userIds.map(
+      (id) => new mongoose.Types.ObjectId(id),
+    );
+    const existingUserIds = agent.userIds.map((id) => id.toString());
+
     for (const newUserId of newUserIds) {
       if (!existingUserIds.includes(newUserId.toString())) {
         agent.userIds.push(newUserId);
       }
     }
-    
+
     await agent.save();
     results.agent = agent;
   }
@@ -120,7 +122,11 @@ export const assignUsersToAgent = async (
       const user = await User.findById(assignedUserId);
       if (user) {
         const passwordChangeRequired = user.passwordChangeRequired;
-        const token = generateEmailToken(user._id.toString(), user.email, 'magic_link_setup');
+        const token = generateEmailToken(
+          user._id.toString(),
+          user.email,
+          "magic_link_setup",
+        );
 
         let trainingLink = results.trainingSession
           ? `${config.frontendUrl}/dashboard/my-training/${results.trainingSession._id}`
@@ -169,7 +175,7 @@ export const assignUsersToAgent = async (
 export const removeUsersFromAgent = async (
   agentId: string,
   userId: mongoose.Types.ObjectId,
-  userToRemove: string
+  userToRemove: string,
 ): Promise<UnifiedAssignmentResponse> => {
   const agent = await Agent.findById(agentId);
 
@@ -184,7 +190,7 @@ export const removeUsersFromAgent = async (
   const results: UnifiedAssignmentResponse = {
     trainingSession: null,
     evaluationSession: null,
-    agent: null
+    agent: null,
   };
 
   // Remove from training session if it exists
@@ -193,7 +199,7 @@ export const removeUsersFromAgent = async (
       results.trainingSession = await removeTrainee(
         agent.trainingSessionId.toString(),
         userToRemove,
-        userId
+        userId,
       );
     } catch (error) {
       console.error("Error removing from training session:", error);
@@ -207,7 +213,7 @@ export const removeUsersFromAgent = async (
       results.evaluationSession = await removeAssignee(
         agent.evaluationSessionId.toString(),
         userToRemove,
-        userId
+        userId,
       );
     } catch (error) {
       console.error("Error removing from evaluation session:", error);
@@ -216,9 +222,9 @@ export const removeUsersFromAgent = async (
   }
 
   // Remove from agent's userIds
-  agent.userIds = agent.userIds.filter(id => id.toString() !== userToRemove);
+  agent.userIds = agent.userIds.filter((id) => id.toString() !== userToRemove);
   await agent.save();
   results.agent = agent;
 
   return results;
-}; 
+};

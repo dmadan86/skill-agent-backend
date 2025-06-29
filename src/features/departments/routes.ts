@@ -1,9 +1,9 @@
 // src/features/departments/routes.ts
-import { Router } from 'express';
-import * as departmentController from './controllers/departmentController';
-import { validate } from '../../shared/middleware/validate';
-import { authenticate } from '../../shared/middleware/authenticate';
-import { departmentSchemas } from './validation/departmentSchema';
+import { Router } from "express";
+import * as departmentController from "./controllers/departmentController";
+import { validate } from "../../shared/middleware/validate";
+import { authenticate } from "../../shared/middleware/authenticate";
+import { departmentSchemas } from "./validation/departmentSchema";
 
 const router = Router();
 
@@ -11,44 +11,41 @@ const router = Router();
 router.use(authenticate);
 // Department routes
 router.post(
-  '/',
+  "/",
   validate(departmentSchemas.createDepartmentSchema),
-  departmentController.createDepartment
+  departmentController.createDepartment,
 );
 
 router.put(
-  '/:id',
+  "/:id",
   validate(departmentSchemas.updateDepartmentSchema),
-  departmentController.updateDepartment
+  departmentController.updateDepartment,
 );
 
 router.get(
-  '/:id',
+  "/:id",
   validate(departmentSchemas.getDepartmentSchema),
-  departmentController.getDepartment
+  departmentController.getDepartment,
 );
 
 router.delete(
-  '/:id',
+  "/:id",
   validate(departmentSchemas.deleteDepartmentSchema),
-  departmentController.deleteDepartment
+  departmentController.deleteDepartment,
 );
 
-router.get(
-  '/',
-  departmentController.listDepartments
-);
+router.get("/", departmentController.listDepartments);
 
 router.post(
-  '/:id/members',
+  "/:id/members",
   validate(departmentSchemas.addMembersSchema),
-  departmentController.addMembers
+  departmentController.addMembers,
 );
 
 router.delete(
-  '/:id/members',
+  "/:id/members",
   validate(departmentSchemas.removeMembersSchema),
-  departmentController.removeMembers
+  departmentController.removeMembers,
 );
 
 export default router;

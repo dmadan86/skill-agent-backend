@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
-import { AuthenticatedRequest } from '../../../shared/middleware/authenticate';
-import { sendSuccess } from '../../../shared/utils/response.utils';
-import * as userManagementService from '../services/userManagementService';
+import { Request, Response, NextFunction } from "express";
+import { AuthenticatedRequest } from "../../../shared/middleware/authenticate";
+import { sendSuccess } from "../../../shared/utils/response.utils";
+import * as userManagementService from "../services/userManagementService";
 import {
   UserIdParams,
   CreateUserInput,
@@ -13,9 +13,9 @@ import {
   PasswordResetInput,
   MagicLinkVerificationInput,
   ChangePasswordInput,
-} from '../validation/userManagementSchema';
-import { AppError } from '../../../shared/errors/AppError';
-import logger from '../../../shared/utils/logger';
+} from "../validation/userManagementSchema";
+import { AppError } from "../../../shared/errors/AppError";
+import logger from "../../../shared/utils/logger";
 
 /**
  * Get all users (admin only)
@@ -23,12 +23,12 @@ import logger from '../../../shared/utils/logger';
 export const getAllUsers = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const userId = req.user?.userId;
     if (!userId) {
-      throw new AppError('User ID is required', 'USER_ID_REQUIRED', 400);
+      throw new AppError("User ID is required", "USER_ID_REQUIRED", 400);
     }
     const users = await userManagementService.getAllUsers(userId);
     sendSuccess(res, users);
@@ -43,7 +43,7 @@ export const getAllUsers = async (
 export const getUserById = async (
   req: AuthenticatedRequest<UserIdParams>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { userId } = req.params;
@@ -60,12 +60,13 @@ export const getUserById = async (
 export const createUser = async (
   req: AuthenticatedRequest<{}, {}, CreateUserInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    const userData : CreateUserInput & { managedBy?: string } = req.body;
+    const userData: CreateUserInput & { managedBy?: string } = req.body;
     userData.managedBy = req.user?.userId;
-    const user = await userManagementService.createUserWithTemporaryPassword(userData);
+    const user =
+      await userManagementService.createUserWithTemporaryPassword(userData);
     sendSuccess(res, user);
   } catch (error) {
     next(error);
@@ -78,7 +79,7 @@ export const createUser = async (
 export const updateUser = async (
   req: AuthenticatedRequest<UserIdParams, {}, UpdateUserInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { userId } = req.params;
@@ -96,7 +97,7 @@ export const updateUser = async (
 export const deleteUser = async (
   req: AuthenticatedRequest<UserIdParams>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { userId } = req.params;
@@ -113,13 +114,20 @@ export const deleteUser = async (
 export const lockUserAccount = async (
   req: AuthenticatedRequest<UserIdParams, {}, LockUserAccountInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { userId } = req.params;
     const { lockDuration } = req.body;
-    const user = await userManagementService.lockUserAccount(userId, lockDuration);
-    sendSuccess(res, { userId: user._id, locked: true, lockUntil: user.lockUntil });
+    const user = await userManagementService.lockUserAccount(
+      userId,
+      lockDuration,
+    );
+    sendSuccess(res, {
+      userId: user._id,
+      locked: true,
+      lockUntil: user.lockUntil,
+    });
   } catch (error) {
     next(error);
   }
@@ -131,7 +139,7 @@ export const lockUserAccount = async (
 export const unlockUserAccount = async (
   req: AuthenticatedRequest<UserIdParams>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { userId } = req.params;
@@ -148,7 +156,7 @@ export const unlockUserAccount = async (
 export const resetUserPassword = async (
   req: AuthenticatedRequest<UserIdParams>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { userId } = req.params;
@@ -165,7 +173,7 @@ export const resetUserPassword = async (
 export const verifyEmail = async (
   req: Request<{}, {}, EmailVerificationInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { token } = req.body;
@@ -182,26 +190,28 @@ export const verifyEmail = async (
 export const sendVerificationEmail = async (
   req: Request<{}, {}, SendVerificationEmailInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email } = req.body;
-    
+
     // Find user by email first
     const user = await userManagementService.findUserByEmail(email);
-    
+
     if (!user) {
       // For security, don't reveal that the email doesn't exist
       sendSuccess(res, { success: true });
       return;
     }
-    
+
     if (user.isEmailVerified) {
-      sendSuccess(res, { success: true, message: 'Email already verified' });
+      sendSuccess(res, { success: true, message: "Email already verified" });
       return;
     }
-    
-    const result = await userManagementService.sendEmailVerification(user._id.toString());
+
+    const result = await userManagementService.sendEmailVerification(
+      user._id.toString(),
+    );
     sendSuccess(res, result);
   } catch (error) {
     logger.error("Error sending verification email ");
@@ -216,7 +226,7 @@ export const sendVerificationEmail = async (
 export const requestPasswordReset = async (
   req: Request<{}, {}, PasswordResetRequestInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { email } = req.body;
@@ -235,11 +245,14 @@ export const requestPasswordReset = async (
 export const resetPassword = async (
   req: Request<{}, {}, PasswordResetInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { token, newPassword } = req.body;
-    const result = await userManagementService.resetPassword(token, newPassword);
+    const result = await userManagementService.resetPassword(
+      token,
+      newPassword,
+    );
     sendSuccess(res, result);
   } catch (error) {
     next(error);
@@ -252,18 +265,18 @@ export const resetPassword = async (
 export const changePassword = async (
   req: AuthenticatedRequest<{}, {}, ChangePasswordInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
-      throw new AppError('Authentication required', 'AUTH_REQUIRED', 401);
+      throw new AppError("Authentication required", "AUTH_REQUIRED", 401);
     }
 
     const { currentPassword, newPassword } = req.body;
     const result = await userManagementService.changePassword(
       req.user.userId,
       currentPassword,
-      newPassword
+      newPassword,
     );
     sendSuccess(res, result);
   } catch (error) {
@@ -277,11 +290,14 @@ export const changePassword = async (
 export const verifyMagicLinkAndSetupPassword = async (
   req: Request<{}, {}, MagicLinkVerificationInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { token, newPassword } = req.body;
-    const result = await userManagementService.verifyMagicLinkAndSetupPassword(token, newPassword);
+    const result = await userManagementService.verifyMagicLinkAndSetupPassword(
+      token,
+      newPassword,
+    );
     sendSuccess(res, result);
   } catch (error) {
     next(error);
@@ -294,7 +310,7 @@ export const verifyMagicLinkAndSetupPassword = async (
 export const checkPasswordSetStatus = async (
   req: Request<{}, {}, { token: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { token } = req.body;
@@ -303,4 +319,4 @@ export const checkPasswordSetStatus = async (
   } catch (error) {
     next(error);
   }
-}; 
+};

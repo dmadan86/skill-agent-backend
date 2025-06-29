@@ -74,10 +74,10 @@ const InvoiceSchema = new Schema<IInvoice>(
       type: Schema.Types.Mixed,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 InvoiceSchema.index({ stripeInvoiceId: 1 }, { unique: true });
 InvoiceSchema.index({ invoiceNumber: 1 }, { unique: true });
 
-export const Invoice = mongoose.model<IInvoice>("Invoice", InvoiceSchema); 
+export const Invoice = mongoose.model<IInvoice>("Invoice", InvoiceSchema);

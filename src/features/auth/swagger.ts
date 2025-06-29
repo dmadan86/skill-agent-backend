@@ -3,7 +3,7 @@
  * tags:
  *   name: Authentication
  *   description: API endpoints for user authentication
- * 
+ *
  * @swagger
  * tags:
  *   name: User Management
@@ -53,7 +53,7 @@
  *           type: string
  *           example: Sales Representative
  *           description: User's position
- *     
+ *
  *     LoginRequest:
  *       type: object
  *       required:
@@ -68,7 +68,7 @@
  *           type: string
  *           format: password
  *           example: SecurePass123
- *     
+ *
  *     LoginResponse:
  *       type: object
  *       properties:
@@ -239,7 +239,7 @@
  *         description: Invalid input
  *       409:
  *         description: Email already in use
- * 
+ *
  * /auth/login:
  *   post:
  *     summary: Login to the system
@@ -992,7 +992,7 @@
  *           type: string
  *           format: date-time
  *           example: 2023-06-29T14:30:00Z
- * 
+ *
  *   responses:
  *     UnauthorizedError:
  *       description: Access token is missing or invalid
@@ -1016,7 +1016,7 @@
  *                   status:
  *                     type: integer
  *                     example: 401
- * 
+ *
  *     ForbiddenError:
  *       description: User does not have required permissions
  *       content:
@@ -1039,11 +1039,10 @@
  *                   status:
  *                     type: integer
  *                     example: 403
- * 
+ *
  *   securitySchemes:
  *     bearerAuth:
  *       type: http
  *       scheme: bearer
  *       bearerFormat: JWT
  */
-

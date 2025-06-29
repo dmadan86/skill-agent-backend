@@ -1,11 +1,11 @@
 // src/features/agents/routes.ts
-import { Router } from 'express';
-import * as agentController from './controllers/agentController';
-import * as publicAgentController from './controllers/publicAgentController';
-import * as assignmentController from './controllers/assignmentController';
-import { validate } from '../../shared/middleware/validate';
-import { authenticate } from '../../shared/middleware/authenticate';
-import { agentSchemas } from './validation/agentSchema';
+import { Router } from "express";
+import * as agentController from "./controllers/agentController";
+import * as publicAgentController from "./controllers/publicAgentController";
+import * as assignmentController from "./controllers/assignmentController";
+import { validate } from "../../shared/middleware/validate";
+import { authenticate } from "../../shared/middleware/authenticate";
+import { agentSchemas } from "./validation/agentSchema";
 
 const router = Router();
 
@@ -14,75 +14,65 @@ router.use(authenticate);
 
 // Create a new agent
 router.post(
-  '/',
+  "/",
   validate(agentSchemas.createAgentSchema),
-  agentController.createAgent
+  agentController.createAgent,
 );
 
 // Create public agents for the user
-router.post(
-  '/public',
-  publicAgentController.createPublicAgents
-);
+router.post("/public", publicAgentController.createPublicAgents);
 
 // Get public agents for the current user
-router.get(
-  '/public',
-  publicAgentController.getPublicAgents
-);
-
+router.get("/public", publicAgentController.getPublicAgents);
 
 // List agents with pagination and filtering
 router.get(
-  '/',
+  "/",
   validate(agentSchemas.listAgentsSchema),
-  agentController.listAgents
+  agentController.listAgents,
 );
 
 // List agents with pagination and filtering
-router.get(
-  '/individual',
-  agentController.listIndividualAgents
-);
+router.get("/individual", agentController.listIndividualAgents);
 
 router.post(
-  '/start-web-call',
+  "/start-web-call",
   validate(agentSchemas.startWebCallSchema),
-  agentController.startWebCall
+  agentController.startWebCall,
 );
 
 // Update an existing agent
 router.put(
-  '/:id',
+  "/:id",
   validate(agentSchemas.updateAgentSchema),
-  agentController.updateAgent
+  agentController.updateAgent,
 );
 
 // Get an agent by ID
 router.get(
-  '/:id',
+  "/:id",
   validate(agentSchemas.getAgentSchema),
-  agentController.getAgent
+  agentController.getAgent,
 );
 
 // Delete an agent
 router.delete(
-  '/:id',
+  "/:id",
   validate(agentSchemas.deleteAgentSchema),
-  agentController.deleteAgent
+  agentController.deleteAgent,
 );
 
 // Unified assignment routes
 router.post(
-  '/:agentId/assign',
+  "/:agentId/assign",
   validate(agentSchemas.unifiedAssignmentSchema),
-  assignmentController.assignUsersToAgent
+  assignmentController.assignUsersToAgent,
 );
 
 router.delete(
-  '/:agentId/assign/:userId',
+  "/:agentId/assign/:userId",
   validate(agentSchemas.unifiedRemoveUserSchema),
-  assignmentController.removeUsersFromAgent
+  assignmentController.removeUsersFromAgent,
 );
 
 export default router;

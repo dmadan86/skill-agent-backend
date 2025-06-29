@@ -35,7 +35,7 @@ interface RegisterData {
   role?: string;
   department?: string;
   position?: string;
-  profilePicture?: string; // Filename of the uploaded profile 
+  profilePicture?: string; // Filename of the uploaded profile
   company?: string;
   industry?: string;
 }
@@ -65,7 +65,7 @@ export const register = async (userData: RegisterData): Promise<IUser> => {
   // Process profile picture if provided
   let profilePictureUrl = undefined;
   if (userData.profilePicture) {
-    profilePictureUrl = getFileUrl(userData.profilePicture, 'profile-picture');
+    profilePictureUrl = getFileUrl(userData.profilePicture, "profile-picture");
   }
 
   // Create new user
@@ -88,28 +88,31 @@ export const register = async (userData: RegisterData): Promise<IUser> => {
     members: [user._id],
   });
 
-  user.organizationOwner.push(new mongoose.Types.ObjectId(organization._id as string));
-  user.organizationMember.push(new mongoose.Types.ObjectId(organization._id as string));
+  user.organizationOwner.push(
+    new mongoose.Types.ObjectId(organization._id as string),
+  );
+  user.organizationMember.push(
+    new mongoose.Types.ObjectId(organization._id as string),
+  );
 
   await organization.save();
   await user.save();
 
-  
   // Process any team invites
   await processTeamInvitesForUser(user._id.toString(), user.email);
 
   // Track user registration activity
   await UserMetricActivityService.createActivity({
     userId: user._id.toString(),
-    activityType: 'user_signup',
-    feature: 'authentication',
+    activityType: "user_signup",
+    feature: "authentication",
     metadata: {
-      method: 'email',
+      method: "email",
       role: user.role,
       company: (user as any).company,
-      industry: (user as any).industry
+      industry: (user as any).industry,
     },
-    status: 'success'
+    status: "success",
   });
 
   // Send email verification
@@ -127,7 +130,7 @@ export const login = async (
   email: string,
   password: string,
   req: Request,
-  isPilot?: boolean
+  isPilot?: boolean,
 ): Promise<LoginResult> => {
   const user = await User.findOne({ email: email.toLowerCase() });
 
@@ -137,12 +140,20 @@ export const login = async (
 
   // Check if user is trying to login as admin through regular login
   if (user.role === "superadmin" && !isPilot) {
-    throw new AppError("Admin access not allowed through regular login", "ADMIN_ACCESS_RESTRICTED", 403);
+    throw new AppError(
+      "Admin access not allowed through regular login",
+      "ADMIN_ACCESS_RESTRICTED",
+      403,
+    );
   }
 
   // Check if non-admin is trying to login through pilot login
   if (isPilot && user.role !== "superadmin") {
-    throw new AppError("Only superadmin can access pilot login", "PILOT_ACCESS_RESTRICTED", 403);
+    throw new AppError(
+      "Only superadmin can access pilot login",
+      "PILOT_ACCESS_RESTRICTED",
+      403,
+    );
   }
 
   if (user.isAccountLocked()) {
@@ -169,14 +180,14 @@ export const login = async (
     // Track failed login attempt
     await UserMetricActivityService.createActivity({
       userId: user._id.toString(),
-      activityType: 'login_failed',
-      feature: 'authentication',
+      activityType: "login_failed",
+      feature: "authentication",
       metadata: {
-        method: 'email',
+        method: "email",
         attempts: user.loginAttempts,
-        isLocked: user.isAccountLocked()
+        isLocked: user.isAccountLocked(),
       },
-      status: 'failed'
+      status: "failed",
     });
 
     throw new InvalidCredentialsError();
@@ -207,28 +218,28 @@ export const login = async (
       createdAt: new Date(),
     });
 
-  await user.save();
+    await user.save();
 
-  // Track successful login
-  await UserMetricActivityService.createActivity({
-    userId: user._id.toString(),
-    activityType: 'user_login',
-    feature: 'authentication',
-    metadata: {
-      method: 'email',
-      isPilot,
-      userAgent,
-      ip
-    },
-    status: 'success'
-  });
-  
-}
+    // Track successful login
+    await UserMetricActivityService.createActivity({
+      userId: user._id.toString(),
+      activityType: "user_login",
+      feature: "authentication",
+      metadata: {
+        method: "email",
+        isPilot,
+        userAgent,
+        ip,
+      },
+      status: "success",
+    });
+  }
 
-  const savedUser: IUser | null = await User.findById(user._id).select("-password -refreshTokens")
-  .populate({path: 'organizationMember', select: 'name industry'})
-  .populate({path: 'managedBy', select: 'firstName lastName email'})
-  .populate({path: 'department', select: 'name description'})
+  const savedUser: IUser | null = await User.findById(user._id)
+    .select("-password -refreshTokens")
+    .populate({ path: "organizationMember", select: "name industry" })
+    .populate({ path: "managedBy", select: "firstName lastName email" })
+    .populate({ path: "department", select: "name description" });
 
   return {
     user: savedUser,
@@ -239,7 +250,7 @@ export const login = async (
 
 export const refreshToken = async (
   token: string,
-  req: Request
+  req: Request,
 ): Promise<{ accessToken: string; refreshToken: string }> => {
   // Verify the refresh token
   const payload = verifyRefreshToken(token);
@@ -265,12 +276,12 @@ export const refreshToken = async (
   const accessToken = generateAccessToken(
     user._id.toString(),
     user.email,
-    user.role
+    user.role,
   );
   const newRefreshToken = generateRefreshToken(
     user._id.toString(),
     user.email,
-    user.role
+    user.role,
   );
 
   // Store new refresh token
@@ -295,7 +306,7 @@ export const refreshToken = async (
 
 export const logout = async (
   userId: string,
-  refreshToken?: string
+  refreshToken?: string,
 ): Promise<void> => {
   const user = await User.findById(userId);
 
@@ -306,7 +317,7 @@ export const logout = async (
   if (refreshToken) {
     // Remove specific refresh token
     user.refreshTokens = user.refreshTokens.filter(
-      (t) => t.token !== refreshToken
+      (t) => t.token !== refreshToken,
     );
   } else {
     // Remove all refresh tokens (logout from all devices)
@@ -318,18 +329,24 @@ export const logout = async (
   // Track logout activity
   await UserMetricActivityService.createActivity({
     userId: user._id.toString(),
-    activityType: 'user_logout',
-    feature: 'authentication',
+    activityType: "user_logout",
+    feature: "authentication",
     metadata: {
-      method: 'token'
+      method: "token",
     },
-    status: 'success'
+    status: "success",
   });
 };
 
 export const completeOnboarding = async (
-  userId: string
-): Promise<{ type?: string; onboardingSteps: number[]; interests?: string[]; userId: string; hasOnBoarded: boolean }> => {
+  userId: string,
+): Promise<{
+  type?: string;
+  onboardingSteps: number[];
+  interests?: string[];
+  userId: string;
+  hasOnBoarded: boolean;
+}> => {
   const user = await User.findById(userId);
 
   if (!user) {
@@ -354,12 +371,12 @@ export const googleAuth = async (
   email: string,
   firstName: string,
   lastName: string,
-  req: Request
+  req: Request,
 ): Promise<LoginResult> => {
   let user = await User.findOne({
     $or: [{ googleId }, { email: email.toLowerCase() }],
   });
- 
+
   if (user) {
     user.googleId ??= googleId;
   } else {
@@ -377,13 +394,13 @@ export const googleAuth = async (
     // Track new user registration via Google
     await UserMetricActivityService.createActivity({
       userId: user._id.toString(),
-      activityType: 'user_signup',
-      feature: 'authentication',
+      activityType: "user_signup",
+      feature: "authentication",
       metadata: {
-        method: 'google',
-        role: user.role
+        method: "google",
+        role: user.role,
       },
-      status: 'success'
+      status: "success",
     });
   }
 
@@ -394,12 +411,12 @@ export const googleAuth = async (
   const accessToken = generateAccessToken(
     user._id.toString(),
     user.email,
-    user.role
+    user.role,
   );
   const refreshToken = generateRefreshToken(
     user._id.toString(),
     user.email,
-    user.role
+    user.role,
   );
 
   // Store refresh token with user agent and IP info
@@ -415,26 +432,27 @@ export const googleAuth = async (
   });
 
   await user.save();
-  
+
   await processTeamInvitesForUser(user._id.toString(), user.email);
 
   // Track successful login
   await UserMetricActivityService.createActivity({
     userId: user._id.toString(),
-    activityType: 'user_login',
-    feature: 'authentication',
+    activityType: "user_login",
+    feature: "authentication",
     metadata: {
-      method: 'google',
+      method: "google",
       userAgent,
-      ip
+      ip,
     },
-    status: 'success'
+    status: "success",
   });
 
-  const savedUser: IUser | null = await User.findById(user._id).select("-password -refreshTokens")
-    .populate({path: 'organizationMember', select: 'name industry'})
-    .populate({path: 'managedBy', select: 'firstName lastName email'})
-    .populate({path: 'department', select: 'name description'})
+  const savedUser: IUser | null = await User.findById(user._id)
+    .select("-password -refreshTokens")
+    .populate({ path: "organizationMember", select: "name industry" })
+    .populate({ path: "managedBy", select: "firstName lastName email" })
+    .populate({ path: "department", select: "name description" });
 
   return {
     user: savedUser,
@@ -445,21 +463,21 @@ export const googleAuth = async (
 
 export const facebookAuth = async (
   fbAccessToken: string,
-  req: Request
+  req: Request,
 ): Promise<LoginResult> => {
   // Verify the Facebook access token
   const response = await fetch(
-    `https://graph.facebook.com/v19.0/me?fields=id,email,first_name,last_name&access_token=${fbAccessToken}`
+    `https://graph.facebook.com/v19.0/me?fields=id,email,first_name,last_name&access_token=${fbAccessToken}`,
   );
-  
+
   if (!response.ok) {
-    throw new AppError('Invalid Facebook token', 'FACEBOOK_AUTH_ERROR', 401);
+    throw new AppError("Invalid Facebook token", "FACEBOOK_AUTH_ERROR", 401);
   }
 
   const data = await response.json();
 
   if (!data.email || !data.id) {
-    throw new AppError('Invalid Facebook token', 'FACEBOOK_AUTH_ERROR', 401);
+    throw new AppError("Invalid Facebook token", "FACEBOOK_AUTH_ERROR", 401);
   }
 
   // Find or create user
@@ -472,8 +490,8 @@ export const facebookAuth = async (
   } else {
     user = new User({
       email: data.email.toLowerCase(),
-      firstName: data.first_name ?? '',
-      lastName: data.last_name ?? '',
+      firstName: data.first_name ?? "",
+      lastName: data.last_name ?? "",
       facebookId: data.id,
       role: "admin",
       isEmailVerified: true,
@@ -483,13 +501,13 @@ export const facebookAuth = async (
     // Track new user registration via Facebook
     await UserMetricActivityService.createActivity({
       userId: user._id.toString(),
-      activityType: 'user_signup',
-      feature: 'authentication',
+      activityType: "user_signup",
+      feature: "authentication",
       metadata: {
-        method: 'facebook',
-        role: user.role
+        method: "facebook",
+        role: user.role,
       },
-      status: 'success'
+      status: "success",
     });
   }
 
@@ -500,17 +518,17 @@ export const facebookAuth = async (
   const accessToken = generateAccessToken(
     user._id.toString(),
     user.email,
-    user.role
+    user.role,
   );
   const refreshToken = generateRefreshToken(
     user._id.toString(),
     user.email,
-    user.role
+    user.role,
   );
 
   // Store refresh token with user agent and IP info
-  const userAgent = req.headers['user-agent'] ?? '';
-  const ip = req.ip ?? '';
+  const userAgent = req.headers["user-agent"] ?? "";
+  const ip = req.ip ?? "";
 
   user.refreshTokens.push({
     token: refreshToken,
@@ -521,26 +539,27 @@ export const facebookAuth = async (
   });
 
   await user.save();
-  
+
   await processTeamInvitesForUser(user._id.toString(), user.email);
 
   // Track successful login
   await UserMetricActivityService.createActivity({
     userId: user._id.toString(),
-    activityType: 'user_login',
-    feature: 'authentication',
+    activityType: "user_login",
+    feature: "authentication",
     metadata: {
-      method: 'facebook',
+      method: "facebook",
       userAgent,
-      ip
+      ip,
     },
-    status: 'success'
+    status: "success",
   });
 
-  const savedUser: IUser | null = await User.findById(user._id).select('-password -refreshTokens')
-    .populate({path: 'organizationMember', select: 'name industry'})
-    .populate({path: 'managedBy', select: 'firstName lastName email'})
-    .populate({path: 'department', select: 'name description'})
+  const savedUser: IUser | null = await User.findById(user._id)
+    .select("-password -refreshTokens")
+    .populate({ path: "organizationMember", select: "name industry" })
+    .populate({ path: "managedBy", select: "firstName lastName email" })
+    .populate({ path: "department", select: "name description" });
 
   return {
     user: savedUser,
@@ -558,19 +577,19 @@ export async function getAllUsers() {
 // Add new function to update user profile
 export const updateUserProfile = async (
   userId: string,
-  updateData: UpdateProfileData
+  updateData: UpdateProfileData,
 ): Promise<IUser> => {
   const user = await User.findById(userId);
-  
+
   if (!user) {
     throw new NotFoundError("User not found");
   }
-  
+
   // Update user fields if provided
   if (updateData.firstName) {
     user.firstName = updateData.firstName;
   }
-  
+
   if (updateData.lastName) {
     user.lastName = updateData.lastName;
   }
@@ -578,21 +597,30 @@ export const updateUserProfile = async (
   if (updateData.bio) {
     user.bio = updateData.bio;
   }
-  
+
   // Update profile picture if provided
   if (updateData.profilePicture) {
-    user.profilePicture = getFileUrl(updateData.profilePicture, 'profile-picture');
+    user.profilePicture = getFileUrl(
+      updateData.profilePicture,
+      "profile-picture",
+    );
   }
-  
+
   await user.save();
-  
+
   return user;
 };
 
 export const createOnboarding = async (
   userId: string,
-  updateData: CreateOnboardingInput
-): Promise<{ type?: string; onboardingSteps: number[]; interests?: string[]; userId: string; hasOnBoarded: boolean }> => {
+  updateData: CreateOnboardingInput,
+): Promise<{
+  type?: string;
+  onboardingSteps: number[];
+  interests?: string[];
+  userId: string;
+  hasOnBoarded: boolean;
+}> => {
   const user = await User.findById(userId);
 
   if (!user) {
@@ -611,12 +639,19 @@ export const createOnboarding = async (
     user.interests = updateData.interests;
   }
 
-  const isOnboardingComplete = user.type === "individual"
-  ? Boolean(user.type && user.onboardingSteps?.length === 3 && (user.interests?.length ?? 0) > 0)
-  : Boolean(
-      user.type === "team" && 
-      (user.onboardingSteps?.length === 4 || user.onboardingSteps?.length === 3 || user.onboardingSteps?.length === 2)
-    );
+  const isOnboardingComplete =
+    user.type === "individual"
+      ? Boolean(
+          user.type &&
+            user.onboardingSteps?.length === 3 &&
+            (user.interests?.length ?? 0) > 0,
+        )
+      : Boolean(
+          user.type === "team" &&
+            (user.onboardingSteps?.length === 4 ||
+              user.onboardingSteps?.length === 3 ||
+              user.onboardingSteps?.length === 2),
+        );
   user.hasOnBoarded = isOnboardingComplete;
 
   await user.save();
@@ -626,14 +661,14 @@ export const createOnboarding = async (
     onboardingSteps: user.onboardingSteps ?? [],
     interests: user.interests,
     userId: user._id.toString(),
-    hasOnBoarded: user.hasOnBoarded
+    hasOnBoarded: user.hasOnBoarded,
   };
 };
 
 export const changePassword = async (
   userId: string,
   currentPassword: string,
-  newPassword: string
+  newPassword: string,
 ): Promise<void> => {
   const user = await User.findById(userId);
 
@@ -647,12 +682,12 @@ export const changePassword = async (
     // Track failed password change attempt
     await UserMetricActivityService.createActivity({
       userId: user._id.toString(),
-      activityType: 'error_occurred',
-      feature: 'authentication',
+      activityType: "error_occurred",
+      feature: "authentication",
       metadata: {
-        reason: 'invalid_current_password'
+        reason: "invalid_current_password",
       },
-      status: 'failed'
+      status: "failed",
     });
 
     throw new InvalidCredentialsError();
@@ -665,17 +700,17 @@ export const changePassword = async (
   // Track successful password change
   await UserMetricActivityService.createActivity({
     userId: user._id.toString(),
-    activityType: 'user_login',
-    feature: 'authentication',
+    activityType: "user_login",
+    feature: "authentication",
     metadata: {
-      method: 'manual'
+      method: "manual",
     },
-    status: 'success'
+    status: "success",
   });
 };
 
 export const initializeFreemiumTrial = async (
-  userId: string
+  userId: string,
 ): Promise<void> => {
   // IMPORTANT: If the Freemium plan's _id changes in the database, update the FREEMIUM_PLAN_ID constant in `shared/utils/constants.ts`.
   const freemiumPlan = await BillingPlan.findById(FREEMIUM_PLAN_ID);
@@ -711,7 +746,7 @@ export const initializeFreemiumTrial = async (
 };
 
 export const getUsageLogs = async (
-  userId: string
+  userId: string,
 ): Promise<IUsageLogs | null> => {
   return UsageLogs.findOne({ userId: new mongoose.Types.ObjectId(userId) })
     .sort({ createdAt: -1 })

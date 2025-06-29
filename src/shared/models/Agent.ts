@@ -1,5 +1,5 @@
 // src/shared/models/Agent.ts
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IAgent extends Document {
   name: string;
@@ -29,7 +29,7 @@ export interface IAgent extends Document {
   autoReminder?: boolean;
   timeInterval?: string;
   manualDays?: number;
-  startTime?: string
+  startTime?: string;
   isPublic?: boolean;
 }
 
@@ -43,26 +43,30 @@ const AgentSchema = new Schema<IAgent>(
     type: {
       type: String,
       required: true,
-      enum: ['PROCESS', 'PRODUCT', 'SERVICE', 'JOB', 'CERTIFICATE'],
+      enum: ["PROCESS", "PRODUCT", "SERVICE", "JOB", "CERTIFICATE"],
     },
-    userIds: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: false,
-    }],
-    departmentIds: [{
-      type: Schema.Types.ObjectId,
-      ref: 'Department',
-      required: false,
-    }],
+    userIds: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        required: false,
+      },
+    ],
+    departmentIds: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Department",
+        required: false,
+      },
+    ],
     trainingPrompt: {
       type: String,
     },
     evaluationPrompt: {
-      type: String
+      type: String,
     },
     quickPrepPrompt: {
-      type: String
+      type: String,
     },
     description: {
       type: String,
@@ -106,27 +110,27 @@ const AgentSchema = new Schema<IAgent>(
     },
     owner: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     trainingSessionsUsingAgent: {
       type: [Schema.Types.ObjectId],
-      ref: 'TrainingSession',
+      ref: "TrainingSession",
       required: false,
     },
     evaluationSessionsUsingAgent: {
       type: [Schema.Types.ObjectId],
-      ref: 'EvaluationSession',
+      ref: "EvaluationSession",
       required: false,
     },
     trainingSessionId: {
       type: Schema.Types.ObjectId,
-      ref: 'TrainingSession',
+      ref: "TrainingSession",
       required: false,
     },
-    evaluationSessionId: {  
+    evaluationSessionId: {
       type: Schema.Types.ObjectId,
-      ref: 'EvaluationSession',
+      ref: "EvaluationSession",
       required: false,
     },
     autoReminder: {
@@ -149,11 +153,11 @@ const AgentSchema = new Schema<IAgent>(
     isPublic: {
       type: Boolean,
       default: false,
-    }
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 AgentSchema.index({ name: 1, owner: 1, isPublic: 1 }, { unique: true });
 
-export const Agent = mongoose.model<IAgent>('Agent', AgentSchema);
+export const Agent = mongoose.model<IAgent>("Agent", AgentSchema);

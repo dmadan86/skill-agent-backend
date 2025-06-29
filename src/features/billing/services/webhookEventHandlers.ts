@@ -29,7 +29,7 @@ export const getCustomer = async (customerId: string) => {
 };
 
 export const handleCheckoutSessionCompleted = async (
-  event: any
+  event: any,
 ): Promise<void> => {
   const session = event.data.object;
 
@@ -46,7 +46,7 @@ export const handleCheckoutSessionCompleted = async (
       throw new Error("Missing required session properties");
     }
 
-    const customer = await getCustomer(session.customer) as Stripe.Customer;
+    const customer = (await getCustomer(session.customer)) as Stripe.Customer;
 
     // Find the user in the database
     const user = await User.findById(session.metadata.user_id);
@@ -56,13 +56,13 @@ export const handleCheckoutSessionCompleted = async (
 
     // Retrieve subscription details from Stripe
     const subscription = await stripe.subscriptions.retrieve(
-      session.subscription
+      session.subscription,
     );
     const currentPeriodStart = new Date(
-      subscription.items.data[0].current_period_start * 1000
+      subscription.items.data[0].current_period_start * 1000,
     );
     const currentPeriodEnd = new Date(
-      subscription.items.data[0].current_period_end * 1000
+      subscription.items.data[0].current_period_end * 1000,
     );
 
     // Create a new subscription
@@ -123,7 +123,7 @@ export const handleCheckoutSessionCompleted = async (
           plan_id: session.metadata?.plan_id,
         },
       },
-      { new: true, upsert: true }
+      { new: true, upsert: true },
     );
   } catch (error) {
     console.error("Error in handleCheckoutSessionCompleted:", error);
@@ -133,7 +133,7 @@ export const handleCheckoutSessionCompleted = async (
 
 export const handleSubscriptionEvent = async (
   event: any,
-  action: "created" | "updated" | "deleted"
+  action: "created" | "updated" | "deleted",
 ): Promise<void> => {
   const subscription = event.data.object;
 
@@ -142,7 +142,9 @@ export const handleSubscriptionEvent = async (
       throw new Error("Customer ID is missing in the subscription");
     }
 
-    const customer = await getCustomer(subscription.customer) as Stripe.Customer;
+    const customer = (await getCustomer(
+      subscription.customer,
+    )) as Stripe.Customer;
 
     // Find the usage log for the customer
     const usageLog = await UsageLogs.findOne({ customer_id: customer.id });
@@ -152,15 +154,15 @@ export const handleSubscriptionEvent = async (
     }
 
     const currentPeriodStart = new Date(
-      subscription.items.data[0].current_period_start * 1000
+      subscription.items.data[0].current_period_start * 1000,
     );
     const currentPeriodEnd = new Date(
-      subscription.items.data[0].current_period_end * 1000
+      subscription.items.data[0].current_period_end * 1000,
     );
 
     const isCancelledViaMetadata =
       subscription.metadata?.subscription_status === "subscription_canceled";
-    
+
     const now = new Date();
     const isFreemiumTrialValid =
       usageLog.trial_end_date &&
@@ -176,7 +178,7 @@ export const handleSubscriptionEvent = async (
             plan_status: "active",
             subscription_expiry: currentPeriodEnd,
           },
-          { new: true }
+          { new: true },
         );
         break;
 
@@ -235,36 +237,39 @@ export const handleSubscriptionEvent = async (
             isSubscribed = false;
             isActive = false;
             break;
-        };
+        }
 
-        if(isCancelledViaMetadata) {
+        if (isCancelledViaMetadata) {
           await Subscription.findOneAndUpdate(
             { stripe_subscription_id: subscription.id },
             {
               isActive,
               endDate: currentPeriodEnd,
               autoRenew: !subscription.cancel_at_period_end,
-              cancelledAt: subscription.cancel_at_period_end ? new Date() : null,
+              cancelledAt: subscription.cancel_at_period_end
+                ? new Date()
+                : null,
             },
-            { new: true, upsert: false }
+            { new: true, upsert: false },
           );
-  
+
           await UsageLogs.findOneAndUpdate(
             { customer_id: customer.id },
             {
               is_subscribed: false,
               plan_status: planStatus,
               plan_id: subscription.metadata?.plan_id,
-            }
+            },
           );
-  
+
           const createCancelledPayments = new Payment({
             userId: usageLog.userId,
             subscriptionId: subscription.id,
             email: customer.email,
             type: "subscription_cancelled",
             payment_status: "cancelled",
-            payment_date: new Date(subscription.canceled_at * 1000) || new Date(),
+            payment_date:
+              new Date(subscription.canceled_at * 1000) || new Date(),
             currency: subscription.currency || "usd",
             amount: 0,
             metadata: {
@@ -294,14 +299,16 @@ export const handleSubscriptionEvent = async (
               isActive,
               endDate: currentPeriodEnd,
               autoRenew: !subscription.cancel_at_period_end,
-              cancelledAt: subscription.cancel_at_period_end ? new Date() : null,
+              cancelledAt: subscription.cancel_at_period_end
+                ? new Date()
+                : null,
               plan: subscription.metadata.plan_name,
               price: parseFloat(subscription.metadata.price),
               stripe_price_id: subscription.metadata.stripe_price_id,
             },
-            { new: true, upsert: false }
+            { new: true, upsert: false },
           );
-  
+
           await UsageLogs.findOneAndUpdate(
             { customer_id: customer.id },
             {
@@ -314,13 +321,13 @@ export const handleSubscriptionEvent = async (
               stripe_price_id: subscription.metadata.stripe_price_id,
               plan_id: subscription.metadata?.plan_id,
             },
-            { new: true, upsert: false }
+            { new: true, upsert: false },
           );
-  
+
           const invoice = await stripe.invoices.retrieve(
-            subscription.latest_invoice
+            subscription.latest_invoice,
           );
-  
+
           const payment = new Payment({
             userId: usageLog.userId,
             subscriptionId: subscription.id,
@@ -357,7 +364,7 @@ export const handleSubscriptionEvent = async (
           {
             isActive: false,
             autoRenew: false,
-          }
+          },
         );
 
         await UsageLogs.findOneAndUpdate(
@@ -368,7 +375,7 @@ export const handleSubscriptionEvent = async (
             subscription_expiry: isFreemiumTrialValid
               ? usageLog.trial_end_date
               : new Date(),
-          }
+          },
         );
 
         const createCancelledPayments = new Payment({
@@ -434,15 +441,14 @@ export const handleTrialWillEnd = async (event: any) => {
     // Force subscription to active to fix the issue
     await UsageLogs.findOneAndUpdate(
       { customer_id: customerId },
-      { plan_status: "active" }
+      { plan_status: "active" },
     );
-
   } catch (error) {
     dbLogger.error("Trial", "handleTrialWillEnd", error);
     throw new AppError(
       "Failed to handle trial will end event",
       "TRIAL_WILL_END_ERROR",
-      500
+      500,
     );
   }
 };
@@ -491,7 +497,7 @@ export const sendFreemiumTrialWarning = async (): Promise<void> => {
   try {
     const warningDate = new Date();
     warningDate.setDate(warningDate.getDate() + 3);
-  
+
     const upcomingExpiry = await UsageLogs.find({
       plan_status: "trialing",
       trial_end_date: {
@@ -523,10 +529,10 @@ export const sendFreemiumTrialWarning = async (): Promise<void> => {
 
 export const handleInvoiceEvent = async (
   event: any,
-  action: "created" | "finalized" | "succeeded" | "failed" | "paid"
+  action: "created" | "finalized" | "succeeded" | "failed" | "paid",
 ): Promise<void> => {
   const invoice = event.data.object;
-  const customer = await getCustomer(invoice.customer) as Stripe.Customer;
+  const customer = (await getCustomer(invoice.customer)) as Stripe.Customer;
 
   try {
     const invoiceData = {
@@ -568,7 +574,7 @@ export const handleInvoiceEvent = async (
             ...invoiceData,
             status: "draft",
           },
-          { upsert: true, new: true }
+          { upsert: true, new: true },
         );
         break;
 
@@ -580,7 +586,7 @@ export const handleInvoiceEvent = async (
             status: "open",
             dueDate: new Date(invoice.due_date * 1000),
           },
-          { upsert: true, new: true }
+          { upsert: true, new: true },
         );
         break;
 
@@ -594,7 +600,7 @@ export const handleInvoiceEvent = async (
             paidAt: new Date(invoice.status_transitions.paid_at * 1000),
             amount: invoice.amount_paid / 100,
           },
-          { upsert: true, new: true }
+          { upsert: true, new: true },
         );
         // Update usage log
         await UsageLogs.findOneAndUpdate(
@@ -602,10 +608,10 @@ export const handleInvoiceEvent = async (
           {
             plan_status: "active",
             subscription_expiry: new Date(
-              invoice.lines.data[0]?.period?.end * 1000
+              invoice.lines.data[0]?.period?.end * 1000,
             ),
             is_subscribed: true,
-          }
+          },
         );
         break;
 
@@ -618,7 +624,7 @@ export const handleInvoiceEvent = async (
             paidAt: new Date(invoice.status_transitions.paid_at * 1000),
             amount: invoice.amount_paid / 100,
           },
-          { upsert: true, new: true }
+          { upsert: true, new: true },
         );
         break;
 
@@ -630,14 +636,14 @@ export const handleInvoiceEvent = async (
             status: "payment_failed",
             dueDate: new Date(invoice.due_date * 1000),
           },
-          { upsert: true, new: true }
+          { upsert: true, new: true },
         );
 
         await UsageLogs.findOneAndUpdate(
           { customer_id: invoice.customer },
           {
             plan_status: "payment_failed",
-          }
+          },
         );
         break;
 
@@ -655,7 +661,7 @@ export const handleInvoiceEvent = async (
     throw new AppError(
       `Failed to handle invoice ${action}`,
       "INVOICE_HANDLING_ERROR",
-      500
+      500,
     );
   }
 };

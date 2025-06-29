@@ -87,7 +87,7 @@ const startTrainingSchema = z.object({
 const updateProgressSchema = z.object({
   callId: z.string({
     required_error: "Call ID is required",
-  })
+  }),
 });
 
 // Submit Evaluation Schema

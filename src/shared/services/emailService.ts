@@ -102,10 +102,10 @@ const registerHandlebarsHelpers = (): void => {
         this: any,
         arg1: any,
         arg2: any,
-        options: handlebars.HelperOptions
+        options: handlebars.HelperOptions,
       ): string {
         return arg1 === arg2 ? options.fn(this) : options.inverse(this);
-      }
+      },
     );
   } catch (error) {
     logger.warn("Unable to register Handlebars helpers:", error);
@@ -123,7 +123,7 @@ registerHandlebarsHelpers();
  */
 export const getEmailTemplate = (
   templateName: string,
-  data: TemplateData
+  data: TemplateData,
 ): string => {
   try {
     // Try multiple possible paths for the template
@@ -133,14 +133,14 @@ export const getEmailTemplate = (
         "dist",
         "templates",
         "emails",
-        `${templateName}.hbs`
+        `${templateName}.hbs`,
       ),
       path.join(
         process.cwd(),
         "src",
         "templates",
         "emails",
-        `${templateName}.hbs`
+        `${templateName}.hbs`,
       ),
       path.join(
         __dirname,
@@ -148,7 +148,7 @@ export const getEmailTemplate = (
         "..",
         "templates",
         "emails",
-        `${templateName}.hbs`
+        `${templateName}.hbs`,
       ),
     ];
 
@@ -171,7 +171,7 @@ export const getEmailTemplate = (
 
     if (!templateContent || !templatePath) {
       throw new Error(
-        `Template ${templateName} not found in any of the possible locations`
+        `Template ${templateName} not found in any of the possible locations`,
       );
     }
 
@@ -195,7 +195,7 @@ export const getEmailTemplate = (
   } catch (error) {
     logger.error(`Error loading email template ${templateName}:`, error);
     throw new Error(
-      `Email template ${templateName} not found or could not be compiled`
+      `Email template ${templateName} not found or could not be compiled`,
     );
   }
 };
@@ -251,7 +251,7 @@ export const sendTeamInviteEmail = async (
   email: string,
   teamName: string,
   inviterName: string,
-  inviteLink: string
+  inviteLink: string,
 ): Promise<boolean> => {
   try {
     const templateData = {
@@ -285,7 +285,7 @@ export const sendTeamInviteEmail = async (
 export const sendTrainingAssignmentEmail = async (
   email: string,
   trainingName: string,
-  trainingLink: string
+  trainingLink: string,
 ): Promise<boolean> => {
   try {
     const templateData = {
@@ -323,7 +323,7 @@ export const sendTrainingAssignmentEmail = async (
 export const sendEvaluationAssignmentEmail = async (
   email: string,
   evaluationName: string,
-  evaluationLink: string
+  evaluationLink: string,
 ): Promise<boolean> => {
   try {
     const templateData = {
@@ -332,7 +332,7 @@ export const sendEvaluationAssignmentEmail = async (
       assignedDate: new Date(),
     };
 
-    const html = getEmailTemplate("evaluation-assignment", templateData); 
+    const html = getEmailTemplate("evaluation-assignment", templateData);
 
     const sent = await sendEmail({
       to: email,
@@ -361,7 +361,7 @@ export const sendEvaluationAssignmentEmail = async (
 export const sendEmailVerificationEmail = async (
   email: string,
   userName: string,
-  verificationLink: string
+  verificationLink: string,
 ): Promise<boolean> => {
   try {
     const templateData = {
@@ -401,7 +401,7 @@ export const sendEmailVerificationEmail = async (
 export const sendPasswordResetEmail = async (
   email: string,
   userName: string,
-  resetLink: string
+  resetLink: string,
 ): Promise<boolean> => {
   try {
     const templateData = {
@@ -443,7 +443,7 @@ export const sendTemporaryPasswordEmail = async (
   email: string,
   userName: string,
   temporaryPassword: string,
-  loginLink: string
+  loginLink: string,
 ): Promise<boolean> => {
   try {
     const templateData = {
@@ -483,7 +483,7 @@ export const sendTemporaryPasswordEmail = async (
 export const sendAccountLockEmail = async (
   email: string,
   userName: string,
-  unlockTime: Date
+  unlockTime: Date,
 ): Promise<boolean> => {
   try {
     const formattedUnlockTime = unlockTime.toLocaleString("en-US", {
@@ -533,14 +533,14 @@ export const sendTrainingReminderEmail = async (
   assignedDate: string,
   email: string,
   userName: string,
-  joinTrainingLink: string
+  joinTrainingLink: string,
 ): Promise<boolean> => {
   try {
     // Format the date
-    const formattedDate = new Date(assignedDate).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    const formattedDate = new Date(assignedDate).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
 
     const templateData = {
@@ -548,9 +548,9 @@ export const sendTrainingReminderEmail = async (
       assignedDate: formattedDate,
       userName,
       joinTrainingLink,
-      currentYear: new Date().getFullYear()
-    }; 
-    
+      currentYear: new Date().getFullYear(),
+    };
+
     const html = getEmailTemplate("training-reminder", templateData);
 
     const sent = await sendEmail({
@@ -582,7 +582,7 @@ export const sendTrainingReminderEmail = async (
 export const sendMagicLinkSetupEmail = async (
   email: string,
   userName: string,
-  magicLink: string
+  magicLink: string,
 ): Promise<boolean> => {
   try {
     const templateData = {
@@ -624,7 +624,7 @@ export const sendUnifiedAssignmentEmail = async (
   assignments: {
     training?: { title: string; link: string };
     evaluation?: { title: string; link: string };
-  }
+  },
 ): Promise<boolean> => {
   try {
     const { training, evaluation } = assignments;

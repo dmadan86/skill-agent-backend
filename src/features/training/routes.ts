@@ -1,106 +1,100 @@
 // src/features/training/routes.ts
-import { Router } from 'express';
-import * as trainingSessionController from './controllers/trainingSessionController';
-import * as trainingProgressController from './controllers/trainingProgressController';
-import { validate } from '../../shared/middleware/validate';
-import { authenticate } from '../../shared/middleware/authenticate';
-import { trainingSchemas } from './validation/trainingSchema';
+import { Router } from "express";
+import * as trainingSessionController from "./controllers/trainingSessionController";
+import * as trainingProgressController from "./controllers/trainingProgressController";
+import { validate } from "../../shared/middleware/validate";
+import { authenticate } from "../../shared/middleware/authenticate";
+import { trainingSchemas } from "./validation/trainingSchema";
 
 const router = Router();
 
 // All training routes require authentication
 router.use(authenticate);
 
-// Training Session Routes 
+// Training Session Routes
 router.post(
-  '/',
+  "/",
   validate(trainingSchemas.createTrainingSessionSchema),
-  trainingSessionController.createTrainingSession
+  trainingSessionController.createTrainingSession,
 );
 
-router.get(
-  '/progress',
-  trainingProgressController.listUserTrainingProgress
-);
+router.get("/progress", trainingProgressController.listUserTrainingProgress);
 
 router.get(
-  '/assigned',
+  "/assigned",
   validate(trainingSchemas.listTrainingSessionsSchema),
-  trainingSessionController.listAssignedTrainingSessions
+  trainingSessionController.listAssignedTrainingSessions,
 );
-
 
 router.put(
-  '/:id',
+  "/:id",
   validate(trainingSchemas.updateTrainingSessionSchema),
-  trainingSessionController.updateTrainingSession
+  trainingSessionController.updateTrainingSession,
 );
 
 router.get(
-  '/:id',
+  "/:id",
   validate(trainingSchemas.getTrainingSessionSchema),
-  trainingSessionController.getTrainingSession
+  trainingSessionController.getTrainingSession,
 );
 
 router.delete(
-  '/:id',
+  "/:id",
   validate(trainingSchemas.deleteTrainingSessionSchema),
-  trainingSessionController.deleteTrainingSession
+  trainingSessionController.deleteTrainingSession,
 );
 
 router.post(
-  '/:id/trainees',
+  "/:id/trainees",
   validate(trainingSchemas.assignTraineesSchema),
-  trainingSessionController.assignTrainees
+  trainingSessionController.assignTrainees,
 );
 
 router.delete(
-  '/:sessionId/trainees/:userId',
+  "/:sessionId/trainees/:userId",
   validate(trainingSchemas.removeTraineeSchema),
-  trainingSessionController.removeTrainee
+  trainingSessionController.removeTrainee,
 );
 
 router.post(
-  '/reminder/:userId',
+  "/reminder/:userId",
   validate(trainingSchemas.sendMemberReminderSchema),
-  trainingSessionController.sendMemberReminder 
+  trainingSessionController.sendMemberReminder,
 );
 
 router.get(
-  '/',
+  "/",
   validate(trainingSchemas.listTrainingSessionsSchema),
-  trainingSessionController.listTrainingSessions
+  trainingSessionController.listTrainingSessions,
 );
 
 router.put(
-  '/progress/:sessionId',
+  "/progress/:sessionId",
   validate(trainingSchemas.updateProgressSchema),
-  trainingProgressController.updateProgress
+  trainingProgressController.updateProgress,
 );
 
 router.post(
-  '/progress/:sessionId/reset',
+  "/progress/:sessionId/reset",
   validate(trainingSchemas.resetProgressSchema),
-  trainingProgressController.resetProgress
+  trainingProgressController.resetProgress,
 );
-
 
 router.post(
-  '/progress/:sessionId/evaluations',
+  "/progress/:sessionId/evaluations",
   validate(trainingSchemas.submitEvaluationSchema),
-  trainingProgressController.submitEvaluation
+  trainingProgressController.submitEvaluation,
 );
 
-
 router.get(
-  '/progress/:sessionId',
+  "/progress/:sessionId",
   validate(trainingSchemas.startTrainingSchema),
-  trainingProgressController.getTrainingProgress
+  trainingProgressController.getTrainingProgress,
 );
 
 router.get(
-  '/employee/progress/:progressId',
-  trainingProgressController.getTrainingProgressByProgressId
+  "/employee/progress/:progressId",
+  trainingProgressController.getTrainingProgressByProgressId,
 );
 
 export default router;

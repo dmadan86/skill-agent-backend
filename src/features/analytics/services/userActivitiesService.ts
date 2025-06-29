@@ -12,7 +12,7 @@ export const getUserActivities = async (page: number, limit: number) => {
         .populate("userId", "firstName lastName email")
         .populate("managerId", "firstName lastName email")
         .lean(),
-      Activity.countDocuments()
+      Activity.countDocuments(),
     ]);
 
     return {
@@ -21,11 +21,11 @@ export const getUserActivities = async (page: number, limit: number) => {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     };
   } catch (error) {
     console.error("Error in getUserActivities:", error);
     throw error;
   }
-}; 
+};

@@ -1,22 +1,22 @@
 import { z } from "zod";
 
 const webhookEventsList = [
-  'user.created',
-  'user.updated',
-  'user.deleted',
-  'team.created',
-  'team.updated',
-  'team.deleted',
-  'team.member_added',
-  'team.member_removed',
-  'agent.created',
-  'agent.updated',
-  'agent.deleted',
-  'training.started',
-  'training.completed',
-  'training.failed',
-  'report.generated',
-  'user.nudged'
+  "user.created",
+  "user.updated",
+  "user.deleted",
+  "team.created",
+  "team.updated",
+  "team.deleted",
+  "team.member_added",
+  "team.member_removed",
+  "agent.created",
+  "agent.updated",
+  "agent.deleted",
+  "training.started",
+  "training.completed",
+  "training.failed",
+  "report.generated",
+  "user.nudged",
 ] as const;
 
 // Create webhook input schema
@@ -57,9 +57,7 @@ const updateWebhookSchema = z.object({
     .array(z.enum(webhookEventsList))
     .min(1, "At least one event must be specified")
     .optional(),
-  active: z
-    .boolean()
-    .optional(),
+  active: z.boolean().optional(),
   description: z
     .string()
     .max(200, "Description must be at most 200 characters")
@@ -100,10 +98,10 @@ export const webhookSchemas = {
   updateWebhookSchema: { body: updateWebhookSchema },
   getWebhookSchema: { params: getWebhookSchema },
   testWebhookSchema: { params: testWebhookSchema },
-  webhookDeliveriesQuerySchema: { query: webhookDeliveriesQuerySchema }
+  webhookDeliveriesQuerySchema: { query: webhookDeliveriesQuerySchema },
 };
 
 export type CreateWebhookInput = z.infer<typeof createWebhookSchema>;
 export type UpdateWebhookInput = z.infer<typeof updateWebhookSchema>;
 export type GetWebhookInput = z.infer<typeof getWebhookSchema>;
-export type TestWebhookInput = z.infer<typeof testWebhookSchema>; 
+export type TestWebhookInput = z.infer<typeof testWebhookSchema>;

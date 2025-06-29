@@ -8,7 +8,10 @@ import {
   AssigneeNotFoundError,
   EvaluationAnalysisError,
 } from "../../../shared/errors/EvaluationErrors";
-import { AnalysisResult, analyzeEvaluationTranscript } from "./evaluationAnalysisService";
+import {
+  AnalysisResult,
+  analyzeEvaluationTranscript,
+} from "./evaluationAnalysisService";
 import {
   EvaluationProgress,
   IEvaluationProgress,
@@ -41,7 +44,7 @@ interface SubmitEvaluationData {
  * Start or continue an evaluation for a user
  */
 export const createEvaluationProgress = async (
-  data: CreateEvaluationProgressData
+  data: CreateEvaluationProgressData,
 ): Promise<IEvaluationProgress> => {
   const { evaluationId, userId, createdBy } = data;
 
@@ -67,13 +70,12 @@ export const createEvaluationProgress = async (
  * Update evaluation progress after a session
  */
 export const updateProgress = async (
-  data: UpdateProgressData
+  data: UpdateProgressData,
 ): Promise<IEvaluationProgress> => {
   const { evaluationId, userId, callId } = data;
 
-  const evaluation = await Evaluation.findById(evaluationId).populate(
-    "agentId"
-  );
+  const evaluation =
+    await Evaluation.findById(evaluationId).populate("agentId");
   const { transcript, timeSpent } = await getCallDetails(callId);
 
   if (!evaluation) {
@@ -93,7 +95,7 @@ export const updateProgress = async (
     throw new AppError(
       "Evaluation progress not found",
       "EVALUATION_PROGRESS_NOT_FOUND",
-      404
+      404,
     );
   }
 
@@ -106,12 +108,12 @@ export const updateProgress = async (
   try {
     // Analyze the transcript to generate summary and calculate progress
     const agent = evaluation.agentId as any;
-    const analysisResult : AnalysisResult = await analyzeEvaluationTranscript(
+    const analysisResult: AnalysisResult = await analyzeEvaluationTranscript(
       transcript,
       agent.content,
       previousSummary,
       [],
-      progress.progress
+      progress.progress,
     );
 
     // Create new summary
@@ -165,7 +167,7 @@ export const updateProgress = async (
     return progress;
   } catch (error) {
     throw new EvaluationAnalysisError(
-      "Failed to analyze evaluation transcript: " + (error as Error).message
+      "Failed to analyze evaluation transcript: " + (error as Error).message,
     );
   }
 };
@@ -175,26 +177,30 @@ export const updateProgress = async (
  */
 export const getEvaluationProgress = async (
   evaluationId: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<IEvaluationProgress> => {
-  const progress = await EvaluationProgress.findOne({ evaluationId, userId }).populate([
+  const progress = await EvaluationProgress.findOne({
+    evaluationId,
+    userId,
+  }).populate([
     {
       path: "userId",
       select: "firstName lastName email position department",
     },
     {
-    path: "evaluationId",
-    select: "-assignees",
-    populate: [
-      {
-        path: "agentId",
-      },
-      {
-        path: "createdBy",
-        select: "firstName lastName email",
-      },
-    ],
-  }]);
+      path: "evaluationId",
+      select: "-assignees",
+      populate: [
+        {
+          path: "agentId",
+        },
+        {
+          path: "createdBy",
+          select: "firstName lastName email",
+        },
+      ],
+    },
+  ]);
 
   if (!progress) {
     throw new EvaluationNotFoundError();
@@ -205,12 +211,16 @@ export const getEvaluationProgress = async (
 
 export const getIndividualUserEvaluationProgress = async (
   userId: mongoose.Types.ObjectId,
-  evaluationId: mongoose.Types.ObjectId
+  evaluationId: mongoose.Types.ObjectId,
 ): Promise<IEvaluationProgress[]> => {
+  const session = await Evaluation.findOne({
+    "assignees.userId": userId,
+    agentId: evaluationId,
+  }).populate("assignees");
 
-  const session = await Evaluation.findOne({ "assignees.userId": userId, "agentId": evaluationId }).populate('assignees')
-
-  const progressId = session?.assignees.find((t) => t.userId.equals(userId))?.progressId
+  const progressId = session?.assignees.find((t) =>
+    t.userId.equals(userId),
+  )?.progressId;
 
   return EvaluationProgress.find({ _id: progressId })
     .sort({ updatedAt: -1 })
@@ -234,7 +244,7 @@ export const getIndividualUserEvaluationProgress = async (
  * Get evaluation progress for a specific progressId
  */
 export const getEvaluationProgressByProgressId = async (
-  progressId: string
+  progressId: string,
 ): Promise<IEvaluationProgress> => {
   const progress = await EvaluationProgress.findById(progressId).populate([
     {
@@ -242,18 +252,19 @@ export const getEvaluationProgressByProgressId = async (
       select: "firstName lastName email position department",
     },
     {
-    path: "evaluationId",
-    select: "-assignees",
-    populate: [
-      {
-        path: "agentId",
-      },
-      {
-        path: "createdBy",
-        select: "firstName lastName email",
-      },
-    ],
-  }]);
+      path: "evaluationId",
+      select: "-assignees",
+      populate: [
+        {
+          path: "agentId",
+        },
+        {
+          path: "createdBy",
+          select: "firstName lastName email",
+        },
+      ],
+    },
+  ]);
 
   if (!progress) {
     throw new EvaluationNotFoundError();
@@ -262,12 +273,11 @@ export const getEvaluationProgressByProgressId = async (
   return progress;
 };
 
-
 /**
  * List all evaluation progress records for a user
  */
 export const listUserEvaluationProgress = async (
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<IEvaluationProgress[]> => {
   return EvaluationProgress.find({ userId })
     .sort({ updatedAt: -1 })

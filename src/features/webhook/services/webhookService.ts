@@ -19,7 +19,7 @@ export const getWebhooks = async (userId: string): Promise<IWebhook[]> => {
  */
 export const getWebhookById = async (
   id: string,
-  userId: string
+  userId: string,
 ): Promise<IWebhook> => {
   const webhook = await Webhook.findOne({ _id: id, userId });
 
@@ -35,7 +35,7 @@ export const getWebhookById = async (
  */
 export const createWebhook = async (
   userId: string,
-  webhookData: CreateWebhookInput
+  webhookData: CreateWebhookInput,
 ): Promise<IWebhook> => {
   const secret = generateWebhookSecret();
 
@@ -56,7 +56,7 @@ export const createWebhook = async (
 export const updateWebhook = async (
   id: string,
   userId: string,
-  updateData: UpdateWebhookInput
+  updateData: UpdateWebhookInput,
 ): Promise<IWebhook> => {
   const webhook = await Webhook.findOne({ _id: id, userId });
 
@@ -79,7 +79,7 @@ export const updateWebhook = async (
  */
 export const deleteWebhook = async (
   id: string,
-  userId: string
+  userId: string,
 ): Promise<void> => {
   const webhook = await Webhook.findOneAndDelete({ _id: id, userId });
 
@@ -93,7 +93,7 @@ export const deleteWebhook = async (
  */
 export const regenerateSecret = async (
   id: string,
-  userId: string
+  userId: string,
 ): Promise<{ secret: string }> => {
   const webhook = await Webhook.findOne({ _id: id, userId });
 
@@ -115,7 +115,7 @@ export const getWebhookDeliveries = async (
   webhookId: string,
   userId: string,
   limit: number = 50,
-  skip: number = 0
+  skip: number = 0,
 ): Promise<{
   deliveries: any[];
   total: number;

@@ -19,14 +19,14 @@ import { FREEMIUM_PLAN_ID } from "../../../shared/utils/constants";
 
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY as string;
 const stripe = new Stripe(STRIPE_KEY, {
-  apiVersion: "2025-05-28.basil"
+  apiVersion: "2025-05-28.basil",
 });
 
 /**
  * Create a Stripe checkout session
  */
 export const createCheckoutSession = async (
-  data: CreateCheckoutSessionInput & { userId: string }
+  data: CreateCheckoutSessionInput & { userId: string },
 ) => {
   try {
     const user = await User.findById(data.userId);
@@ -38,7 +38,9 @@ export const createCheckoutSession = async (
     const existingUser = await UsageLogs.findOne({ userId: data?.userId });
     let stripeCustomer;
     if (existingUser && existingUser.customer_id) {
-      stripeCustomer = await stripe.customers.retrieve(existingUser.customer_id);
+      stripeCustomer = await stripe.customers.retrieve(
+        existingUser.customer_id,
+      );
 
       if (stripeCustomer) {
         const existingSubscription = await stripe.subscriptions.list({
@@ -47,25 +49,28 @@ export const createCheckoutSession = async (
         });
         const activeSubscription = existingSubscription?.data[0];
 
-        const updatedSubscription = await stripe.subscriptions.update(activeSubscription.id, {
-          items: [
-            {
-              id: activeSubscription.items.data[0].id,
-              price: data.stripe_price_id,
+        const updatedSubscription = await stripe.subscriptions.update(
+          activeSubscription.id,
+          {
+            items: [
+              {
+                id: activeSubscription.items.data[0].id,
+                price: data.stripe_price_id,
+              },
+            ],
+            proration_behavior: "always_invoice",
+            metadata: {
+              price: data?.price,
+              plan_name: data.plan_name,
+              stripe_price_id: data.stripe_price_id,
+              user_id: data.userId,
+              plan_id: data?.plan_id,
             },
-          ],
-          proration_behavior: "always_invoice",
-          metadata: {
-            price: data?.price,
-            plan_name: data.plan_name,
-            stripe_price_id: data.stripe_price_id,
-            user_id: data.userId,
-            plan_id: data?.plan_id
-          },
-        } as Stripe.SubscriptionUpdateParams);
+          } as Stripe.SubscriptionUpdateParams,
+        );
 
         const latestInvoice = await stripe.invoices.retrieve(
-          String(updatedSubscription.latest_invoice)
+          String(updatedSubscription.latest_invoice),
         );
 
         return {
@@ -77,7 +82,7 @@ export const createCheckoutSession = async (
             plan_id: updatedSubscription.metadata.plan_id,
           },
           invoice_url: latestInvoice.hosted_invoice_url,
-          message: `Your subscription has been successfully upgraded to the ${data.plan_name} plan.`
+          message: `Your subscription has been successfully upgraded to the ${data.plan_name} plan.`,
         };
       }
     }
@@ -97,7 +102,7 @@ export const createCheckoutSession = async (
         plan_name: data.plan_name,
         stripe_price_id: data.stripe_price_id,
         user_id: data.userId,
-        plan_id: data?.plan_id
+        plan_id: data?.plan_id,
       },
       success_url: `${process.env.FRONTEND_URL}/dashboard/settings/billing`,
       cancel_url: `${process.env.FRONTEND_URL}/dashboard`,
@@ -106,7 +111,7 @@ export const createCheckoutSession = async (
     return {
       type: "subscription_created",
       session_id: session.id,
-      message: `You have successfully subscribed to the ${data.plan_name} plan.`
+      message: `You have successfully subscribed to the ${data.plan_name} plan.`,
     };
   } catch (error) {
     console.log(error);
@@ -118,7 +123,7 @@ export const createCheckoutSession = async (
  */
 export const handleStripeWebhook = async (
   payload: Buffer,
-  sig: string
+  sig: string,
 ): Promise<{ received: boolean; type: string }> => {
   try {
     const secret = process.env.STRIPE_WEBHOOK_SECRET as string;
@@ -137,7 +142,9 @@ export const handleStripeWebhook = async (
         break;
 
       case "customer.subscription.trial_will_end":
-        console.log("⚠️ Trial ending soon - This should NOT happen in freemium model");
+        console.log(
+          "⚠️ Trial ending soon - This should NOT happen in freemium model",
+        );
         await handleTrialWillEnd(event);
         break;
 
@@ -189,7 +196,7 @@ export const handleStripeWebhook = async (
     throw new AppError(
       "Failed to handle Stripe webhook event",
       "STRIPE_WEBHOOK_ERROR",
-      500
+      500,
     );
   }
 };
@@ -199,14 +206,18 @@ export const handleStripeWebhook = async (
  */
 export const getUserBillingDetails = async (userId: string) => {
   try {
-    const usageLog = await UsageLogs.findOne({ userId }).sort({ createdAt: -1 });
+    const usageLog = await UsageLogs.findOne({ userId }).sort({
+      createdAt: -1,
+    });
     if (!usageLog) {
       throw new AppError("Usage log not found", "USAGE_LOG_NOT_FOUND", 404);
     }
 
     const customerId = usageLog.customer_id;
     const subscription = await Subscription.findOne({ userId, isActive: true });
-    const invoices = await Invoice.find({ customer_id: customerId }).sort({ createdAt: -1 });
+    const invoices = await Invoice.find({ customer_id: customerId }).sort({
+      createdAt: -1,
+    });
 
     return {
       usageLog,
@@ -218,20 +229,28 @@ export const getUserBillingDetails = async (userId: string) => {
     throw new AppError(
       "Failed to fetch user billing details",
       "BILLING_DETAILS_ERROR",
-      500
+      500,
     );
   }
 };
 
-
 /**
  * Cancel user subscription using UsageLogs integration
  */
-export const cancelSubscription = async (subscription_id: string, cancelAtPeriodEnd: boolean = false, userId: string) => {
+export const cancelSubscription = async (
+  subscription_id: string,
+  cancelAtPeriodEnd: boolean = false,
+  userId: string,
+) => {
   try {
-    let stripeSubscription = await stripe.subscriptions.retrieve(subscription_id);
-    if(!stripeSubscription) {
-      throw new AppError("Subscription not found in Stripe", "STRIPE_SUBSCRIPTION_NOT_FOUND", 404);
+    let stripeSubscription =
+      await stripe.subscriptions.retrieve(subscription_id);
+    if (!stripeSubscription) {
+      throw new AppError(
+        "Subscription not found in Stripe",
+        "STRIPE_SUBSCRIPTION_NOT_FOUND",
+        404,
+      );
     }
 
     const freemiumPlan = await BillingPlan.findById(FREEMIUM_PLAN_ID);
@@ -242,13 +261,16 @@ export const cancelSubscription = async (subscription_id: string, cancelAtPeriod
     let canceledSubscription;
 
     if (cancelAtPeriodEnd) {
-      canceledSubscription = await stripe.subscriptions.update(subscription_id, {
-        cancel_at_period_end: true,
-        metadata: {
-          subscription_status: "subscription_canceled",
-          plan_id: String(freemiumPlan._id),
-        },
-      } as Stripe.SubscriptionUpdateParams);
+      canceledSubscription = await stripe.subscriptions.update(
+        subscription_id,
+        {
+          cancel_at_period_end: true,
+          metadata: {
+            subscription_status: "subscription_canceled",
+            plan_id: String(freemiumPlan._id),
+          },
+        } as Stripe.SubscriptionUpdateParams,
+      );
     } else {
       canceledSubscription = await stripe.subscriptions.cancel(subscription_id);
     }
@@ -265,7 +287,7 @@ export const cancelSubscription = async (subscription_id: string, cancelAtPeriod
       throw new AppError(
         `Stripe error: ${error.message}`,
         "STRIPE_CANCELLATION_ERROR",
-        400
+        400,
       );
     }
 
@@ -278,8 +300,7 @@ export const cancelSubscription = async (subscription_id: string, cancelAtPeriod
     throw new AppError(
       "Failed to cancel subscription",
       "SUBSCRIPTION_CANCELLATION_ERROR",
-      500
+      500,
     );
   }
 };
-

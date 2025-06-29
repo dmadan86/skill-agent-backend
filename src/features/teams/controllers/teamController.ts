@@ -17,7 +17,7 @@ import logger from "../../../shared/utils/logger";
 export const createTeam = async (
   req: AuthenticatedRequest<{}, {}, CreateTeamInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -40,7 +40,7 @@ export const createTeam = async (
 export const getTeam = async (
   req: AuthenticatedRequest<{ teamId: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -59,7 +59,7 @@ export const getTeam = async (
 export const updateTeam = async (
   req: AuthenticatedRequest<{ teamId: string }, {}, UpdateTeamInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -71,7 +71,7 @@ export const updateTeam = async (
     const team = await teamService.updateTeam(
       teamId,
       { name, description },
-      req.user.userId
+      req.user.userId,
     );
 
     sendSuccess(res, team);
@@ -83,7 +83,7 @@ export const updateTeam = async (
 export const deleteTeam = async (
   req: AuthenticatedRequest<{ teamId: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -102,7 +102,7 @@ export const deleteTeam = async (
 export const getAllTeams = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -120,7 +120,7 @@ export const getAllTeams = async (
 export const addTeamMembers = async (
   req: AuthenticatedRequest<{ teamId: string }, {}, TeamMembersInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -132,7 +132,7 @@ export const addTeamMembers = async (
     const team = await teamService.addTeamMembers(
       teamId,
       userIds,
-      req.user.userId
+      req.user.userId,
     );
 
     sendSuccess(res, team);
@@ -144,7 +144,7 @@ export const addTeamMembers = async (
 export const removeTeamMembers = async (
   req: AuthenticatedRequest<{ teamId: string }, {}, TeamMembersInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -156,7 +156,7 @@ export const removeTeamMembers = async (
     const team = await teamService.removeTeamMembers(
       teamId,
       userIds,
-      req.user.userId
+      req.user.userId,
     );
 
     sendSuccess(res, team);
@@ -168,7 +168,7 @@ export const removeTeamMembers = async (
 export const inviteToTeam = async (
   req: AuthenticatedRequest<{ teamId: string }, {}, InviteToTeamInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -182,12 +182,12 @@ export const inviteToTeam = async (
         teamId,
         emails,
         userId: req.user.userId,
-      })}`
+      })}`,
     );
     const invitation = await teamService.inviteToTeam(
       teamId,
       emails,
-      req.user.userId
+      req.user.userId,
     );
 
     sendSuccess(res, invitation);
@@ -199,7 +199,7 @@ export const inviteToTeam = async (
 export const acceptInvite = async (
   req: Request<{}, {}, AcceptInviteInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { token } = req.body;
@@ -214,7 +214,7 @@ export const acceptInvite = async (
 export const rejectInvite = async (
   req: Request<{}, {}, AcceptInviteInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { token } = req.body;
@@ -227,9 +227,9 @@ export const rejectInvite = async (
 };
 
 export const getTeamInvites = async (
-  req: AuthenticatedRequest<{ teamId: string }, {}, {}, {status: string}>,
+  req: AuthenticatedRequest<{ teamId: string }, {}, {}, { status: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -240,8 +240,12 @@ export const getTeamInvites = async (
 
     const { teamId } = req.params;
     const { status } = req.query;
-    if (status) query  = {status: status};
-    const invites = await teamService.getTeamInvites(teamId, req.user.userId, query);
+    if (status) query = { status: status };
+    const invites = await teamService.getTeamInvites(
+      teamId,
+      req.user.userId,
+      query,
+    );
 
     sendSuccess(res, invites);
   } catch (error) {
@@ -252,7 +256,7 @@ export const getTeamInvites = async (
 export const getUserInvites = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -270,7 +274,7 @@ export const getUserInvites = async (
 export const cancelInvite = async (
   req: AuthenticatedRequest<{ inviteId: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -289,7 +293,7 @@ export const cancelInvite = async (
 export const bulkImportMembers = async (
   req: AuthenticatedRequest<{ teamId: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -306,7 +310,7 @@ export const bulkImportMembers = async (
     const result = await bulkImportService.bulkImportTeamMembers(
       teamId,
       csvContent,
-      req.user.userId
+      req.user.userId,
     );
 
     sendSuccess(res, result);
@@ -318,7 +322,7 @@ export const bulkImportMembers = async (
 export const downloadImportTemplate = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const template = bulkImportService.generateImportTemplate();
@@ -326,7 +330,7 @@ export const downloadImportTemplate = async (
     res.setHeader("Content-Type", "text/csv");
     res.setHeader(
       "Content-Disposition",
-      "attachment; filename=team-import-template.csv"
+      "attachment; filename=team-import-template.csv",
     );
     res.send(template);
   } catch (error) {
@@ -335,18 +339,18 @@ export const downloadImportTemplate = async (
 };
 
 export const sendMemberReminder = async (
-  req: AuthenticatedRequest<{ userId: string; }>,
+  req: AuthenticatedRequest<{ userId: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
       throw new AppError("Authentication required", "AUTH_REQUIRED", 401);
     }
 
-    const { userId  } = req.params;
+    const { userId } = req.params;
     console.log("req.params", req.params);
-    
+
     // logger.debug("Sending reminder", { teamId, memberId, userId: req.user.userId });
 
     // await teamService.sendMemberReminder(teamId, memberId, req.user.userId);

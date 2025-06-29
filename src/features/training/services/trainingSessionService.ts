@@ -17,10 +17,16 @@ import { AgentNotFoundError } from "../../../shared/errors/AppError";
 import User from "../../../shared/models/User";
 import { createTrainingProgress } from "./trainingProgressService";
 import { TrainingProgress } from "../../../shared/models/TrainingProgress";
-import { sendTrainingAssignmentEmail, sendTrainingReminderEmail } from "../../../shared/services/emailService";
+import {
+  sendTrainingAssignmentEmail,
+  sendTrainingReminderEmail,
+} from "../../../shared/services/emailService";
 import config from "../../../shared/config";
-import logger from "../../../shared/utils/logger"
-import { IActivityData, createActivityRecord } from "../../../shared/services/activityService";
+import logger from "../../../shared/utils/logger";
+import {
+  IActivityData,
+  createActivityRecord,
+} from "../../../shared/services/activityService";
 import { useWebhookTrigger } from "../../../shared/services/webhookService";
 import { UserMetricActivityService } from "../../../shared/services/userMetricActivityService";
 
@@ -54,7 +60,7 @@ interface ListTrainingSessionsOptions {
  * Create a new training session
  */
 export const createTrainingSession = async (
-  data: CreateTrainingSessionData
+  data: CreateTrainingSessionData,
 ): Promise<ITrainingSession> => {
   const { userIds, departmentIds, ...sessionData } = data;
 
@@ -81,30 +87,31 @@ export const createTrainingSession = async (
       userId: trainee.userId,
       createdBy: data.createdBy,
     });
-    
+
     // Update the trainee with the progressId
-    const traineeIndex = savedSession.trainees.findIndex(t => 
-      t.userId.equals(trainee.userId)
+    const traineeIndex = savedSession.trainees.findIndex((t) =>
+      t.userId.equals(trainee.userId),
     );
     if (traineeIndex !== -1 && progress._id) {
-      savedSession.trainees[traineeIndex].progressId = progress._id as mongoose.Types.ObjectId;
+      savedSession.trainees[traineeIndex].progressId =
+        progress._id as mongoose.Types.ObjectId;
     }
-    
+
     const user = await User.findById(trainee.userId);
-    if (user && user.role === 'employee') {
+    if (user && user.role === "employee") {
       await sendTrainingAssignmentEmail(
         user.email,
         savedSession.title,
-        `${config.frontendUrl}/dashboard/my-training/${savedSession._id}`
+        `${config.frontendUrl}/dashboard/my-training/${savedSession._id}`,
       );
     }
   }
-  
+
   // Save the session with updated progressIds
   savedSession = await savedSession.save();
 
   agent.trainingSessionsUsingAgent.push(
-    savedSession._id as mongoose.Types.ObjectId
+    savedSession._id as mongoose.Types.ObjectId,
   );
   await agent.save();
 
@@ -114,7 +121,7 @@ export const createTrainingSession = async (
     .populate("createdBy", "firstName lastName email")
     .populate(
       "trainees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!populatedSession) {
@@ -122,12 +129,16 @@ export const createTrainingSession = async (
   }
 
   // Trigger webhook for training started
-  await useWebhookTrigger("training.started", {
-    sessionId: savedSession._id,
-    title: savedSession.title,
-    agentId: savedSession.agentId,
-    createdBy: savedSession.createdBy,
-  }, data.createdBy.toString());
+  await useWebhookTrigger(
+    "training.started",
+    {
+      sessionId: savedSession._id,
+      title: savedSession.title,
+      agentId: savedSession.agentId,
+      createdBy: savedSession.createdBy,
+    },
+    data.createdBy.toString(),
+  );
 
   return populatedSession;
 };
@@ -138,7 +149,7 @@ export const createTrainingSession = async (
 export const updateTrainingSession = async (
   id: string,
   userId: mongoose.Types.ObjectId,
-  data: UpdateTrainingSessionData
+  data: UpdateTrainingSessionData,
 ): Promise<ITrainingSession> => {
   const session = await TrainingSession.findById(id);
 
@@ -168,7 +179,7 @@ export const updateTrainingSession = async (
     .populate("createdBy", "firstName lastName email")
     .populate(
       "trainees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!populatedSession) {
@@ -183,14 +194,14 @@ export const updateTrainingSession = async (
  */
 export const getTrainingSessionById = async (
   id: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<ITrainingSession> => {
   const session = await TrainingSession.findById(id)
     .populate("agentId", "name type description industry")
     .populate("createdBy", "firstName lastName email")
     .populate(
       "trainees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!session) {
@@ -213,7 +224,7 @@ export const getTrainingSessionById = async (
  */
 export const deleteTrainingSession = async (
   id: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<void> => {
   const session = await TrainingSession.findById(id);
 
@@ -236,7 +247,7 @@ export const deleteTrainingSession = async (
 export const assignTrainees = async (
   id: string,
   userId: mongoose.Types.ObjectId,
-  data: AssignTraineesData
+  data: AssignTraineesData,
 ): Promise<ITrainingSession> => {
   const session = await TrainingSession.findById(id);
 
@@ -252,7 +263,7 @@ export const assignTrainees = async (
   // Get new trainees
   const newTrainees = await getTraineesFromInputs(
     data.userIds,
-    data.departmentIds
+    data.departmentIds,
   );
 
   if (newTrainees.length === 0) {
@@ -271,7 +282,7 @@ export const assignTrainees = async (
 
   // Save the session first to ensure it has the updated trainees
   let savedSession = await session.save();
-  
+
   // Create training progress for each new trainee and update their progressId
   for (const trainee of newTrainees) {
     const traineeId = trainee.userId.toString();
@@ -282,28 +293,29 @@ export const assignTrainees = async (
         userId: trainee.userId,
         createdBy: userId,
       });
-      
+
       // Update the trainee with the progressId
-      const traineeIndex = savedSession.trainees.findIndex(t => 
-        t.userId.equals(trainee.userId)
+      const traineeIndex = savedSession.trainees.findIndex((t) =>
+        t.userId.equals(trainee.userId),
       );
-      
+
       if (traineeIndex !== -1 && progress._id) {
-        savedSession.trainees[traineeIndex].progressId = progress._id as mongoose.Types.ObjectId;
+        savedSession.trainees[traineeIndex].progressId =
+          progress._id as mongoose.Types.ObjectId;
       }
     }
   }
-  
+
   // Save the session again with the updated progressIds
   savedSession = await savedSession.save();
-  
+
   // Populate user details before returning
   const populatedSession = await TrainingSession.findById(savedSession._id)
     .populate("agentId", "name type description industry")
     .populate("createdBy", "firstName lastName email")
     .populate(
       "trainees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!populatedSession) {
@@ -324,10 +336,7 @@ export const assignIndividualTrainees = async (
   }
 
   // Get new trainees
-  const newTrainees = await getTraineesFromInputs(
-    [userId.toString()],
-    []
-  );
+  const newTrainees = await getTraineesFromInputs([userId.toString()], []);
 
   if (newTrainees.length === 0) {
     throw new NoTraineesSpecifiedError();
@@ -353,10 +362,10 @@ export const assignIndividualTrainees = async (
   }
 
   await agent?.save();
-  
+
   // Save the session first to ensure it has the updated trainees
   let savedSession = await session.save();
-  
+
   // Create training progress for each new trainee and update their progressId
   for (const trainee of newTrainees) {
     const traineeId = trainee.userId.toString();
@@ -367,28 +376,29 @@ export const assignIndividualTrainees = async (
         userId: trainee.userId,
         createdBy: userId,
       });
-      
+
       // Update the trainee with the progressId
-      const traineeIndex = savedSession.trainees.findIndex(t => 
-        t.userId.equals(trainee.userId)
+      const traineeIndex = savedSession.trainees.findIndex((t) =>
+        t.userId.equals(trainee.userId),
       );
-      
+
       if (traineeIndex !== -1 && progress._id) {
-        savedSession.trainees[traineeIndex].progressId = progress._id as mongoose.Types.ObjectId;
+        savedSession.trainees[traineeIndex].progressId =
+          progress._id as mongoose.Types.ObjectId;
       }
     }
   }
-  
+
   // Save the session again with the updated progressIds
   savedSession = await savedSession.save();
-  
+
   // Populate user details before returning
   const populatedSession = await TrainingSession.findById(savedSession._id)
     .populate("agentId", "name type description industry")
     .populate("createdBy", "firstName lastName email")
     .populate(
       "trainees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!populatedSession) {
@@ -404,7 +414,7 @@ export const assignIndividualTrainees = async (
 export const removeTrainee = async (
   sessionId: string,
   traineeId: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<ITrainingSession> => {
   const session = await TrainingSession.findById(sessionId);
 
@@ -420,7 +430,7 @@ export const removeTrainee = async (
   // Remove the trainee
 
   const traineeIndex = session.trainees.findIndex((t) =>
-    t.userId.equals(traineeId)
+    t.userId.equals(traineeId),
   );
   if (traineeIndex === -1) {
     throw new Error("User is not a trainee in this session");
@@ -443,7 +453,7 @@ export const removeTrainee = async (
     .populate("createdBy", "firstName lastName email")
     .populate(
       "trainees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!populatedSession) {
@@ -457,7 +467,7 @@ export const removeTrainee = async (
  * List training sessions with pagination and filtering
  */
 export const listTrainingSessions = async (
-  options: ListTrainingSessionsOptions
+  options: ListTrainingSessionsOptions,
 ): Promise<{
   sessions: ITrainingSession[];
   total: number;
@@ -473,7 +483,7 @@ export const listTrainingSessions = async (
   if (status) query["trainees.status"] = status;
   if (userId) {
     const user = await User.findById(userId);
-    if(user?.role === 'manager' || user?.role === 'admin') {
+    if (user?.role === "manager" || user?.role === "admin") {
       query.createdBy = userId;
     } else {
       query["trainees.userId"] = userId;
@@ -486,7 +496,10 @@ export const listTrainingSessions = async (
   const sessions = await TrainingSession.find(query)
     .populate("agentId", "name type description industry")
     .populate("createdBy", "firstName lastName email")
-    .populate("trainees.userId", "firstName lastName email position department progressId")
+    .populate(
+      "trainees.userId",
+      "firstName lastName email position department progressId",
+    )
     .sort({ updatedAt: -1 })
     .skip((page - 1) * limit)
     .limit(limit);
@@ -507,9 +520,9 @@ export const updateTraineeProgress = async (
   sessionId: string,
   userId: mongoose.Types.ObjectId,
   progress: number,
-  timeSpent: number
+  timeSpent: number,
 ): Promise<ITrainingSession> => {
-  logger.info(`sessionId : ${sessionId}`)
+  logger.info(`sessionId : ${sessionId}`);
   const session = await TrainingSession.findById(sessionId);
 
   if (!session) {
@@ -518,7 +531,7 @@ export const updateTraineeProgress = async (
 
   // Find the trainee
   const traineeIndex = session.trainees.findIndex((t) =>
-    t.userId.equals(userId)
+    t.userId.equals(userId),
   );
 
   if (traineeIndex === -1) {
@@ -537,12 +550,16 @@ export const updateTraineeProgress = async (
     trainee.completedDate = new Date();
 
     // Trigger webhook for training completed
-    await useWebhookTrigger("training.completed", {
-      sessionId,
-      userId,
-      progress,
-      timeSpent,
-    }, userId.toString());
+    await useWebhookTrigger(
+      "training.completed",
+      {
+        sessionId,
+        userId,
+        progress,
+        timeSpent,
+      },
+      userId.toString(),
+    );
   } else if (progress > 0) {
     trainee.status = "In Progress";
   }
@@ -555,7 +572,7 @@ export const updateTraineeProgress = async (
     .populate("createdBy", "firstName lastName email")
     .populate(
       "trainees.userId",
-      "firstName lastName email position department"
+      "firstName lastName email position department",
     );
 
   if (!populatedSession) {
@@ -576,16 +593,21 @@ export const updateTraineeProgress = async (
   // Track user metric activity
   await UserMetricActivityService.createActivity({
     userId: userId.toString(),
-    activityType: progress >= 100 ? 'training_completed' : progress > 0 ? 'training_progress' : 'training_started',
-    feature: 'training',
+    activityType:
+      progress >= 100
+        ? "training_completed"
+        : progress > 0
+          ? "training_progress"
+          : "training_started",
+    feature: "training",
     metadata: {
       sessionId: (session._id as any).toString(),
       sessionTitle: session.title,
       progress,
-      timeSpent
+      timeSpent,
     },
-    status: 'success',
-    duration: timeSpent
+    status: "success",
+    duration: timeSpent,
   });
 
   return populatedSession;
@@ -596,7 +618,7 @@ export const updateTraineeProgress = async (
  */
 const getTraineesFromInputs = async (
   userIds?: string[],
-  departmentIds?: string[]
+  departmentIds?: string[],
 ): Promise<ITrainee[]> => {
   const uniqueUserIds = new Set<string>();
 
@@ -612,7 +634,7 @@ const getTraineesFromInputs = async (
 
 const addIndividualUsers = (
   uniqueUserIds: Set<string>,
-  userIds?: string[]
+  userIds?: string[],
 ): void => {
   if (userIds?.length) {
     userIds.forEach((id) => uniqueUserIds.add(id));
@@ -621,7 +643,7 @@ const addIndividualUsers = (
 
 const addDepartmentMembers = async (
   uniqueUserIds: Set<string>,
-  departmentIds?: string[]
+  departmentIds?: string[],
 ): Promise<void> => {
   if (!departmentIds?.length) return;
 
@@ -639,7 +661,7 @@ const addDepartmentMembers = async (
 };
 
 const createTraineeEntries = async (
-  uniqueUserIds: Set<string>
+  uniqueUserIds: Set<string>,
 ): Promise<ITrainee[]> => {
   const trainees: ITrainee[] = [];
 
@@ -668,7 +690,7 @@ const createTraineeEntry = (userId: string): ITrainee => {
 
 export const sendMemberReminder = async (
   userId: string,
-  requesterId: string
+  requesterId: string,
 ): Promise<void> => {
   // Get user details
   const user = await User.findById(userId);
@@ -679,7 +701,7 @@ export const sendMemberReminder = async (
 
   // Get the training session for this user
   const session = await TrainingSession.findOne({
-    "trainees.userId": userId
+    "trainees.userId": userId,
   });
 
   const trainingTitle = session?.title || "";
@@ -694,13 +716,13 @@ export const sendMemberReminder = async (
   // Create the training link
   const trainingLink = `${config.frontendUrl}/dashboard/my-training/${session._id}`;
 
-    await sendTrainingReminderEmail(
-      trainingTitle,
-      assignedDate,
-      user.email,
-      `${user.firstName} ${user.lastName}`,
-      trainingLink
-    );
+  await sendTrainingReminderEmail(
+    trainingTitle,
+    assignedDate,
+    user.email,
+    `${user.firstName} ${user.lastName}`,
+    trainingLink,
+  );
 
-    logger.info(`Reminder sent for training session to user ${user.email}`);
+  logger.info(`Reminder sent for training session to user ${user.email}`);
 };

@@ -41,7 +41,7 @@ const config = {
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? "",
     currency: process.env.STRIPE_CURRENCY ?? "usd",
     successUrl: process.env.STRIPE_SUCCESS_URL ?? "",
-    cancelUrl: process.env.STRIPE_CANCEL_URL ?? ""
+    cancelUrl: process.env.STRIPE_CANCEL_URL ?? "",
   },
   pdf: {
     tempDir: process.env.PDF_TEMP_DIR ?? "temp",

@@ -88,12 +88,14 @@ const UserSchema = new Schema<IUser>(
     },
     department: {
       type: Schema.Types.ObjectId,
-      ref: 'Department',
+      ref: "Department",
     },
-    teams: [{
-      type: Schema.Types.ObjectId,
-      ref: 'Team',
-    }],
+    teams: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Team",
+      },
+    ],
     position: {
       type: String,
       trim: true,
@@ -149,22 +151,28 @@ const UserSchema = new Schema<IUser>(
       type: Number,
       default: 0,
     },
-    managedBy: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    }],
+    managedBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     hasOnBoarded: {
       type: Boolean,
       default: false,
     },
-    organizationOwner: [{
-      type: Schema.Types.ObjectId,
-      ref: 'Organization',
-    }],
-    organizationMember: [{
-      type: Schema.Types.ObjectId,
-      ref: 'Organization',
-    }],
+    organizationOwner: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Organization",
+      },
+    ],
+    organizationMember: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Organization",
+      },
+    ],
     resetPasswordToken: String,
     resetPasswordExpires: Date,
     verificationToken: String,
@@ -187,8 +195,8 @@ const UserSchema = new Schema<IUser>(
     },
     type: {
       type: String,
-      enum: ['individual', 'team'],
-      default: 'individual',
+      enum: ["individual", "team"],
+      default: "individual",
     },
     interests: {
       type: [String],
@@ -205,7 +213,7 @@ const UserSchema = new Schema<IUser>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 UserSchema.index({ lastLogin: -1 }); // For sorting recent logins
@@ -213,12 +221,12 @@ UserSchema.index({ lastLogin: -1 }); // For sorting recent logins
 // Hash password before saving
 UserSchema.pre("save", async function (next) {
   const user = this;
-  
+
   // Log user creation
   if (user.isNew) {
     dbLogger.query("User", "create", { email: user.email });
   }
-  
+
   // Hash password if modified
   if (!user.isModified("password") || !user.password) return next();
 
@@ -233,12 +241,12 @@ UserSchema.pre("save", async function (next) {
 });
 
 // Log when a user is deleted
-UserSchema.pre("deleteOne", { document: true, query: false }, function() {
+UserSchema.pre("deleteOne", { document: true, query: false }, function () {
   dbLogger.query("User", "delete", { userId: this._id });
 });
 
 // Log when a user is updated
-UserSchema.pre("findOneAndUpdate", function() {
+UserSchema.pre("findOneAndUpdate", function () {
   const update = this.getUpdate();
   if (update) {
     dbLogger.query("User", "update", { query: this.getQuery(), update });
@@ -247,17 +255,17 @@ UserSchema.pre("findOneAndUpdate", function() {
 
 // Method to compare password
 UserSchema.methods.comparePassword = async function (
-  candidatePassword: string
+  candidatePassword: string,
 ): Promise<boolean> {
   if (!this.password) return false;
   try {
     const isMatch = await bcrypt.compare(candidatePassword, this.password);
-    
+
     // Only log failed attempts to avoid logging sensitive information
     if (!isMatch) {
       dbLogger.query("User", "failed-login-attempt", { userId: this._id });
     }
-    
+
     return isMatch;
   } catch (error) {
     dbLogger.error("User", "password-compare", error);
@@ -268,11 +276,14 @@ UserSchema.methods.comparePassword = async function (
 // Method to check if account is locked
 UserSchema.methods.isAccountLocked = function (): boolean {
   const isLocked = !!(this.lockUntil && this.lockUntil > new Date());
-  
+
   if (isLocked) {
-    dbLogger.query("User", "account-locked", { userId: this._id, until: this.lockUntil });
+    dbLogger.query("User", "account-locked", {
+      userId: this._id,
+      until: this.lockUntil,
+    });
   }
-  
+
   return isLocked;
 };
 

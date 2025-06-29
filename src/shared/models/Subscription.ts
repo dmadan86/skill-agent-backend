@@ -69,12 +69,12 @@ const SubscriptionSchema = new Schema<ISubscription>(
     },
     stripe_subscription_id: {
       type: String,
-    }
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const Subscription = mongoose.model<ISubscription>(
   "Subscription",
-  SubscriptionSchema
+  SubscriptionSchema,
 );

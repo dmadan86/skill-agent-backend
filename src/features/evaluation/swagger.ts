@@ -797,7 +797,6 @@
  *         $ref: '#/components/responses/InternalServerError'
  */
 
-
 /**
  * @swagger
  * /evaluation/employee/progress/{progressId}:
@@ -814,20 +813,20 @@
  *           type: string
  *           pattern: ^[0-9a-fA-F]{24}$
  *         description: Progress ID (24-character hex string)
- *     responses:   
+ *     responses:
  *       200:
  *         description: Evaluation progress details
  *         content:
  *           application/json:
  *             schema:
  *               type: object
- *               properties:    
+ *               properties:
  *                 data:
  *                   $ref: '#/components/schemas/EvaluationAssignee'
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  *       403:
- *         $ref: '#/components/responses/ForbiddenError'   
+ *         $ref: '#/components/responses/ForbiddenError'
  *       404:
  *         $ref: '#/components/responses/NotFoundError'
  *       500:

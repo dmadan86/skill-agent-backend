@@ -99,7 +99,10 @@ const updateSubscriptionSchema = z.object({
   status: z
     .enum(["active", "canceled", "past_due", "trialing", "unpaid"])
     .optional(),
-  creditBalance: z.number().min(0, "Credit balance cannot be negative").optional(),
+  creditBalance: z
+    .number()
+    .min(0, "Credit balance cannot be negative")
+    .optional(),
   autoRenew: z.boolean().optional(),
 });
 
@@ -207,4 +210,4 @@ export const billingSchemas = {
     body: updateInvoiceSchema,
   },
   getInvoiceSchema: { params: getInvoiceSchema },
-}; 
+};

@@ -20,7 +20,7 @@ import { createEvaluation } from "../../../features/evaluation/services/evaluati
 export const createAgent = async (
   req: AuthenticatedRequest<{}, {}, CreateAgentInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -39,30 +39,40 @@ export const createAgent = async (
     const trainingSession = await createTrainingSession({
       agentId: agents._id as string,
       createdBy: userId,
-      userIds: agentData?.userIds && agentData?.userIds?.length > 0 ? [...agentData?.userIds, userId] as string[] : [userId.toString()],
+      userIds:
+        agentData?.userIds && agentData?.userIds?.length > 0
+          ? ([...agentData?.userIds, userId] as string[])
+          : [userId.toString()],
       // departmentIds: [...(agentData?.departmentIds || []), userId] as string[],
       title: `Training for ${agents.name}`,
       description: `Training for ${agents.name}`,
     });
-    const evaluationSession= await createEvaluation({
+    const evaluationSession = await createEvaluation({
       agentId: agents._id as string,
       createdBy: userId,
-      userIds: agentData?.userIds && agentData?.userIds?.length > 0 ? [...agentData?.userIds, userId] as string[] : [userId.toString()],
+      userIds:
+        agentData?.userIds && agentData?.userIds?.length > 0
+          ? ([...agentData?.userIds, userId] as string[])
+          : [userId.toString()],
       // departmentIds: [...(agentData?.departmentIds || []), userId] as string[],
       title: `Evaluation for ${agents.name}`,
       description: `Evaluation for ${agents.name}`,
     });
-    const updatedAgent = await agentService.updateAgent(agents._id as string, userId, {
-      trainingSessionId: trainingSession._id as string,
-      evaluationSessionId: evaluationSession._id as string,
-    });
+    const updatedAgent = await agentService.updateAgent(
+      agents._id as string,
+      userId,
+      {
+        trainingSessionId: trainingSession._id as string,
+        evaluationSessionId: evaluationSession._id as string,
+      },
+    );
     sendSuccess(
       res,
       {
         message: "Agents created successfully",
         data: updatedAgent,
       },
-      201
+      201,
     );
   } catch (error) {
     next(error);
@@ -72,7 +82,7 @@ export const createAgent = async (
 export const updateAgent = async (
   req: AuthenticatedRequest<{ id: string }, {}, UpdateAgentInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -96,7 +106,7 @@ export const updateAgent = async (
 export const getAgent = async (
   req: AuthenticatedRequest<GetAgentInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -107,7 +117,7 @@ export const getAgent = async (
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new AgentNotFoundError(`Agent not found with id: ${id}`);
     }
-    const userId = new mongoose.Types.ObjectId(req.user.userId );
+    const userId = new mongoose.Types.ObjectId(req.user.userId);
 
     const agent = await agentService.getAgentById(id, userId);
 
@@ -126,7 +136,7 @@ export const getAgent = async (
 export const deleteAgent = async (
   req: AuthenticatedRequest<DeleteAgentInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -152,7 +162,7 @@ export const deleteAgent = async (
 export const listAgents = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -189,7 +199,7 @@ export const listAgents = async (
 export const listIndividualAgents = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -226,12 +236,24 @@ export const listIndividualAgents = async (
 export const startWebCall = async (
   req: AuthenticatedRequest<{}, {}, StartWebCallInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-    const { agentId, userName, userPosition, userDepartment, previousSessionSummary } = req.body;
+    const {
+      agentId,
+      userName,
+      userPosition,
+      userDepartment,
+      previousSessionSummary,
+    } = req.body;
 
-    const { call_id, access_token } =  await retellAgentService.startWebCall(agentId, userName, userPosition, userDepartment, previousSessionSummary);
+    const { call_id, access_token } = await retellAgentService.startWebCall(
+      agentId,
+      userName,
+      userPosition,
+      userDepartment,
+      previousSessionSummary,
+    );
 
     sendSuccess(res, {
       message: "Web call started successfully",
@@ -243,15 +265,30 @@ export const startWebCall = async (
 };
 
 export const setAutoReminder = async (
-  req: AuthenticatedRequest<{ agentId: string }, {}, { autoPoke: boolean, timeInterval: string, manualDays: number, startTime: string }>,
+  req: AuthenticatedRequest<
+    { agentId: string },
+    {},
+    {
+      autoPoke: boolean;
+      timeInterval: string;
+      manualDays: number;
+      startTime: string;
+    }
+  >,
   res: Response,
-  next: NextFunction
-) => {  
+  next: NextFunction,
+) => {
   try {
     const { agentId } = req.params;
     const { autoPoke, timeInterval, manualDays, startTime } = req.body;
 
-    const reminder = await agentService.setAutoReminder(agentId, autoPoke, timeInterval, manualDays, startTime);
+    const reminder = await agentService.setAutoReminder(
+      agentId,
+      autoPoke,
+      timeInterval,
+      manualDays,
+      startTime,
+    );
 
     sendSuccess(res, {
       message: "Auto reminder set successfully",

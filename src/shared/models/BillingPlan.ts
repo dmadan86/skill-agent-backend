@@ -62,10 +62,13 @@ const BillingPlanSchema = new Schema<IBillingPlan>(
       type: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 BillingPlanSchema.index({ name: 1 });
 BillingPlanSchema.index({ isActive: 1 });
 
-export const BillingPlan = mongoose.model<IBillingPlan>("BillingPlan", BillingPlanSchema); 
+export const BillingPlan = mongoose.model<IBillingPlan>(
+  "BillingPlan",
+  BillingPlanSchema,
+);

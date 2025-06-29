@@ -1,8 +1,8 @@
-import { Router } from 'express';
-import * as chatController from './controllers/chatController';
-import { validate } from '../../shared/middleware/validate';
-import { authenticate } from '../../shared/middleware/authenticate';
-import { chatSchemas } from './validation/chatSchema';
+import { Router } from "express";
+import * as chatController from "./controllers/chatController";
+import { validate } from "../../shared/middleware/validate";
+import { authenticate } from "../../shared/middleware/authenticate";
+import { chatSchemas } from "./validation/chatSchema";
 
 const router = Router();
 
@@ -11,30 +11,30 @@ router.use(authenticate);
 
 // Create a new chat session
 router.post(
-  '/',
+  "/",
   validate(chatSchemas.createChatSessionSchema),
-  chatController.createChatSession
+  chatController.createChatSession,
 );
 
 // Get a specific chat session
 router.get(
-  '/:id',
+  "/:id",
   validate(chatSchemas.getChatSessionSchema),
-  chatController.getChatSession
+  chatController.getChatSession,
 );
 
 // List user's chat sessions
 router.get(
-  '/',
+  "/",
   validate(chatSchemas.listChatSessionsSchema),
-  chatController.getUserSessions
+  chatController.getUserSessions,
 );
 
 // End a chat session
 router.post(
-  '/:id/end',
+  "/:id/end",
   validate(chatSchemas.endChatSessionSchema),
-  chatController.endChatSession
+  chatController.endChatSession,
 );
 
-export default router; 
+export default router;

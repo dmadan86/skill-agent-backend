@@ -4,7 +4,7 @@ import { Agent, IAgent } from "../../../shared/models/Agent";
 import {
   AgentNotFoundError,
   AgentAccessDeniedError,
-  DuplicateAgentNameError
+  DuplicateAgentNameError,
 } from "../../../shared/errors/AppError";
 import {
   createRetellAgent,
@@ -15,7 +15,10 @@ import { deleteTrainingSession } from "../../training/services/trainingSessionSe
 import { deleteEvaluation } from "../../evaluation/services/evaluationService";
 import logger from "../../../shared/utils/logger";
 import { useWebhookTrigger } from "../../../shared/services/webhookService";
-import { cancelDelayedRepeatingJob, scheduleDelayedRepeatingJob } from "../../../shared/services/schedulerService";
+import {
+  cancelDelayedRepeatingJob,
+  scheduleDelayedRepeatingJob,
+} from "../../../shared/services/schedulerService";
 import User from "../../../shared/models/User";
 import { sendTrainingReminderEmail } from "../../../shared/services/emailService";
 import config from "../../../shared/config";
@@ -87,7 +90,7 @@ export const createAgent = async (data: CreateAgentData): Promise<IAgent> => {
     agent.quickPrepPrompt = retellAgent[2].prompt;
 
     const savedAgent = await agent.save();
-    await useWebhookTrigger('agent.created', savedAgent, data.owner.toString());
+    await useWebhookTrigger("agent.created", savedAgent, data.owner.toString());
     return savedAgent;
   } catch (error: any) {
     throw error;
@@ -100,7 +103,7 @@ export const createAgent = async (data: CreateAgentData): Promise<IAgent> => {
 export const updateAgent = async (
   id: string,
   userId: mongoose.Types.ObjectId,
-  data: UpdateAgentData
+  data: UpdateAgentData,
 ): Promise<IAgent> => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     throw new AgentNotFoundError(`Agent not found with id: ${id}`);
@@ -138,19 +141,19 @@ export const updateAgent = async (
     agent.retellTrainingLlmId,
     agent.retellTrainingAgentId,
     agent,
-    "TRAINING"
+    "TRAINING",
   );
   const evaluationPrompt = await updateRetellAgent(
     agent.retellEvaluationLlmId,
     agent.retellEvaluationAgentId,
     agent,
-    "EVALUATION"
+    "EVALUATION",
   );
   const quickPrepPrompt = await updateRetellAgent(
     agent.retellQuickPrepLlmId,
     agent.retellQuickPrepAgentId,
     agent,
-    "QUICK_PREP"
+    "QUICK_PREP",
   );
 
   agent.trainingPrompt = trainingPrompt.prompt;
@@ -164,9 +167,9 @@ export const updateAgent = async (
   if (data.evaluationSessionId) {
     agent.evaluationSessionId = data.evaluationSessionId;
   }
-  
-  const savedAgent = await agent.save()
-  await useWebhookTrigger('agent.updated', savedAgent, userId.toString());
+
+  const savedAgent = await agent.save();
+  await useWebhookTrigger("agent.updated", savedAgent, userId.toString());
   return savedAgent;
 };
 
@@ -175,9 +178,12 @@ export const updateAgent = async (
  */
 export const getAgentById = async (
   id: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<IAgent> => {
-  const agent = await Agent.findById(id).populate("owner", "firstName lastName email").populate("userIds").populate("departmentIds");
+  const agent = await Agent.findById(id)
+    .populate("owner", "firstName lastName email")
+    .populate("userIds")
+    .populate("departmentIds");
 
   if (!agent) {
     throw new AgentNotFoundError();
@@ -196,7 +202,7 @@ export const getAgentById = async (
  */
 export const deleteAgent = async (
   id: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<void> => {
   const agent = await Agent.findById(id);
 
@@ -219,25 +225,25 @@ export const deleteAgent = async (
 
   await deleteRetellAgent(
     agent.retellTrainingAgentId,
-    agent.retellTrainingLlmId
+    agent.retellTrainingLlmId,
   );
   await deleteRetellAgent(
     agent.retellEvaluationAgentId,
-    agent.retellEvaluationLlmId
+    agent.retellEvaluationLlmId,
   );
   await deleteRetellAgent(
     agent.retellQuickPrepAgentId,
-    agent.retellQuickPrepLlmId
+    agent.retellQuickPrepLlmId,
   );
   await Agent.findByIdAndDelete(id);
-  await useWebhookTrigger('agent.deleted', { id }, userId.toString());
+  await useWebhookTrigger("agent.deleted", { id }, userId.toString());
 };
 
 /**
  * List agents with pagination and filtering
  */
 export const listAgents = async (
-  options: ListAgentsOptions
+  options: ListAgentsOptions,
 ): Promise<{
   agents: IAgent[];
   total: number;
@@ -248,7 +254,7 @@ export const listAgents = async (
   const { page = 1, limit = 30, type, industry, owner } = options;
 
   const query: any = {
-    isPublic: { $ne: true }
+    isPublic: { $ne: true },
   };
 
   // Add filters if provided
@@ -259,8 +265,7 @@ export const listAgents = async (
   const total = await Agent.countDocuments(query);
   const totalPages = Math.ceil(total / limit);
 
-  const agents = await Agent.find(query)
-    .sort({ createdAt: -1 })
+  const agents = await Agent.find(query).sort({ createdAt: -1 });
 
   return {
     agents,
@@ -272,7 +277,7 @@ export const listAgents = async (
 };
 
 export const listIndividualAgents = async (
-  options: ListAgentsOptions
+  options: ListAgentsOptions,
 ): Promise<{
   agents: IAgent[];
   total: number;
@@ -283,7 +288,7 @@ export const listIndividualAgents = async (
   const { page = 1, limit = 10, type, industry, owner } = options;
 
   const query: any = {
-    isPublic: { $ne: true }
+    isPublic: { $ne: true },
   };
 
   // Add filters if provided
@@ -297,30 +302,39 @@ export const listIndividualAgents = async (
   const agents = await Agent.find(query)
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
-    .limit(limit)
+    .limit(limit);
 
-  const finalAgents = await Promise.all(agents.map(async (agent: any) => {
-    const trainingProgress = await getIndividualUserTrainingProgress(agent.owner, agent._id as mongoose.Types.ObjectId);
-    const evaluationProgress = await getIndividualUserEvaluationProgress(agent.owner, agent._id);
-    return { ...agent._doc, trainingProgress, evaluationProgress };
-  }));
+  const finalAgents = await Promise.all(
+    agents.map(async (agent: any) => {
+      const trainingProgress = await getIndividualUserTrainingProgress(
+        agent.owner,
+        agent._id as mongoose.Types.ObjectId,
+      );
+      const evaluationProgress = await getIndividualUserEvaluationProgress(
+        agent.owner,
+        agent._id,
+      );
+      return { ...agent._doc, trainingProgress, evaluationProgress };
+    }),
+  );
 
   return {
     agents: finalAgents as any,
     total,
     page,
-    limit,  
+    limit,
     totalPages,
   };
 };
 
-
 function getNextCSTStartTime(cstTimeStr: string) {
-  const [hour, minute] = cstTimeStr.split(':').map(Number);
+  const [hour, minute] = cstTimeStr.split(":").map(Number);
   const now = new Date();
 
   // Get current time in CST
-  const nowCST = new Date(now.toLocaleString("en-US", { timeZone: "America/Chicago" }));
+  const nowCST = new Date(
+    now.toLocaleString("en-US", { timeZone: "America/Chicago" }),
+  );
 
   // Create target CST time today
   const targetCST = new Date(nowCST);
@@ -337,15 +351,20 @@ function getNextCSTStartTime(cstTimeStr: string) {
   return localStartTime.toISOString();
 }
 
-
-export const setAutoReminder = async (agentId: string, autoPoke: boolean, timeInterval: string, manualDays: number, startTime: string) => {
+export const setAutoReminder = async (
+  agentId: string,
+  autoPoke: boolean,
+  timeInterval: string,
+  manualDays: number,
+  startTime: string,
+) => {
   const agent = await Agent.findById(agentId);
   if (!agent) {
     throw new AgentNotFoundError();
   }
 
   const cstStartTime = getNextCSTStartTime(startTime);
-  
+
   agent.autoReminder = autoPoke;
   agent.timeInterval = timeInterval;
   agent.manualDays = manualDays;
@@ -355,7 +374,7 @@ export const setAutoReminder = async (agentId: string, autoPoke: boolean, timeIn
 
   let cronExpr = "";
 
-  if(timeInterval === "manual") {
+  if (timeInterval === "manual") {
     cronExpr = `0 0 * * *`;
   } else if (timeInterval === "daily") {
     cronExpr = `0 0 * * *`;
@@ -370,7 +389,7 @@ export const setAutoReminder = async (agentId: string, autoPoke: boolean, timeIn
   const delayMs = startDate.getTime() - now.getTime();
 
   if (delayMs < 0) {
-    throw new Error('Start time must be in the future');
+    throw new Error("Start time must be in the future");
   }
   if (autoPoke) {
     scheduleDelayedRepeatingJob(agentId, delayMs, cronExpr, () => {
@@ -380,7 +399,7 @@ export const setAutoReminder = async (agentId: string, autoPoke: boolean, timeIn
     cancelDelayedRepeatingJob(agentId);
   }
   return agent;
-}
+};
 
 const sendNotificationToUsers = async (agentId: string) => {
   const agent = await Agent.findById(agentId);
@@ -390,9 +409,12 @@ const sendNotificationToUsers = async (agentId: string) => {
   agent.userIds.forEach(async (user) => {
     await sendNotificationToUser(user._id, agent.name);
   });
-}
+};
 
-const sendNotificationToUser = async (userId: mongoose.Types.ObjectId, agentName: string) => {
+const sendNotificationToUser = async (
+  userId: mongoose.Types.ObjectId,
+  agentName: string,
+) => {
   const user = await User.findById(userId);
   if (!user) {
     throw new Error("User not found");
@@ -405,6 +427,6 @@ const sendNotificationToUser = async (userId: mongoose.Types.ObjectId, agentName
     new Date().toISOString(),
     user.email,
     `${user.firstName} ${user.lastName}`,
-    joinTrainingLink
+    joinTrainingLink,
   );
-}
+};

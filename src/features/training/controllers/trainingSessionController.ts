@@ -1,6 +1,6 @@
 // src/features/training/controllers/trainingSessionController.ts
 import { Response, NextFunction } from "express";
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import * as trainingSessionService from "../services/trainingSessionService";
 import { sendSuccess } from "../../../shared/utils/response.utils";
 import { AuthenticatedRequest } from "../../../shared/middleware/authenticate";
@@ -10,7 +10,7 @@ import {
   UpdateTrainingSessionInput,
   AssignTraineesInput,
 } from "../validation/trainingSchema";
-import { sendMemberReminder as sendMemberReminderService } from '../services/trainingSessionService';
+import { sendMemberReminder as sendMemberReminderService } from "../services/trainingSessionService";
 
 /**
  * Create a new training session
@@ -18,7 +18,7 @@ import { sendMemberReminder as sendMemberReminderService } from '../services/tra
 export const createTrainingSession = async (
   req: AuthenticatedRequest<{}, {}, CreateTrainingSessionInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -33,10 +33,14 @@ export const createTrainingSession = async (
       createdBy: userId,
     });
 
-    sendSuccess(res, {
-      message: "Training session created successfully",
-      data: session,
-    }, 201);
+    sendSuccess(
+      res,
+      {
+        message: "Training session created successfully",
+        data: session,
+      },
+      201,
+    );
   } catch (error) {
     next(error);
   }
@@ -48,7 +52,7 @@ export const createTrainingSession = async (
 export const updateTrainingSession = async (
   req: AuthenticatedRequest<{ id: string }, {}, UpdateTrainingSessionInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -61,7 +65,7 @@ export const updateTrainingSession = async (
     const session = await trainingSessionService.updateTrainingSession(
       id,
       userId,
-      req.body
+      req.body,
     );
 
     sendSuccess(res, {
@@ -79,7 +83,7 @@ export const updateTrainingSession = async (
 export const getTrainingSession = async (
   req: AuthenticatedRequest<{ id: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -89,7 +93,10 @@ export const getTrainingSession = async (
     const { id } = req.params;
     const userId = new mongoose.Types.ObjectId(req.user.userId);
 
-    const session = await trainingSessionService.getTrainingSessionById(id, userId);
+    const session = await trainingSessionService.getTrainingSessionById(
+      id,
+      userId,
+    );
 
     sendSuccess(res, {
       data: session,
@@ -105,7 +112,7 @@ export const getTrainingSession = async (
 export const deleteTrainingSession = async (
   req: AuthenticatedRequest<{ id: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -131,7 +138,7 @@ export const deleteTrainingSession = async (
 export const assignTrainees = async (
   req: AuthenticatedRequest<{ id: string }, {}, AssignTraineesInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -144,7 +151,7 @@ export const assignTrainees = async (
     const session = await trainingSessionService.assignTrainees(
       id,
       userId,
-      req.body
+      req.body,
     );
 
     sendSuccess(res, {
@@ -160,9 +167,9 @@ export const assignTrainees = async (
  * Remove a trainee from a training session
  */
 export const removeTrainee = async (
-  req: AuthenticatedRequest<{ sessionId: string, userId: string }>,
+  req: AuthenticatedRequest<{ sessionId: string; userId: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -175,7 +182,7 @@ export const removeTrainee = async (
     const session = await trainingSessionService.removeTrainee(
       sessionId,
       traineeId,
-      userId
+      userId,
     );
 
     sendSuccess(res, {
@@ -193,7 +200,7 @@ export const removeTrainee = async (
 export const listTrainingSessions = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -228,7 +235,7 @@ export const listTrainingSessions = async (
 export const listAssignedTrainingSessions = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -263,7 +270,7 @@ export const listAssignedTrainingSessions = async (
 export const sendMemberReminder = async (
   req: AuthenticatedRequest<{ userId: string; sessionId: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -276,7 +283,7 @@ export const sendMemberReminder = async (
 
     sendSuccess(res, {
       message: "Training reminder sent successfully",
-      success: true
+      success: true,
     });
   } catch (error) {
     next(error);

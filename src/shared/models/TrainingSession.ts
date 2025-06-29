@@ -1,9 +1,9 @@
 // src/shared/models/TrainingSession.ts
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface ITrainee {
   userId: mongoose.Types.ObjectId;
-  status: 'Not Started' | 'In Progress' | 'Completed';
+  status: "Not Started" | "In Progress" | "Completed";
   progressId: mongoose.Types.ObjectId;
   progress: number;
   lastAccessDate: Date;
@@ -25,18 +25,18 @@ export interface ITrainingSession extends Document {
 const TraineeSchema = new Schema<ITrainee>({
   userId: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
   },
   progressId: {
     type: Schema.Types.ObjectId,
-    ref: 'TrainingProgress',
+    ref: "TrainingProgress",
     required: true,
   },
   status: {
     type: String,
-    enum: ['Not Started', 'In Progress', 'Completed'],
-    default: 'Not Started',
+    enum: ["Not Started", "In Progress", "Completed"],
+    default: "Not Started",
   },
   progress: {
     type: Number,
@@ -71,7 +71,7 @@ const TrainingSessionSchema = new Schema<ITrainingSession>(
     },
     agentId: {
       type: Schema.Types.ObjectId,
-      ref: 'Agent',
+      ref: "Agent",
       required: true,
     },
     description: {
@@ -80,17 +80,20 @@ const TrainingSessionSchema = new Schema<ITrainingSession>(
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     trainees: [TraineeSchema],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Create indexes for efficient queries
 TrainingSessionSchema.index({ createdBy: 1 });
 TrainingSessionSchema.index({ agentId: 1 });
-TrainingSessionSchema.index({ 'trainees.userId': 1 });
+TrainingSessionSchema.index({ "trainees.userId": 1 });
 
-export const TrainingSession = mongoose.model<ITrainingSession>('TrainingSession', TrainingSessionSchema);
+export const TrainingSession = mongoose.model<ITrainingSession>(
+  "TrainingSession",
+  TrainingSessionSchema,
+);

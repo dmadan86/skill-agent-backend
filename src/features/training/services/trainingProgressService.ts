@@ -44,7 +44,7 @@ interface SubmitEvaluationData {
  * Start or continue a training session for a user
  */
 export const createTrainingProgress = async (
-  data: CreateTrainingProgressData
+  data: CreateTrainingProgressData,
 ): Promise<ITrainingProgress> => {
   const { sessionId, userId, createdBy } = data;
 
@@ -71,19 +71,19 @@ export const createTrainingProgress = async (
  * Update training progress after a session
  */
 export const updateProgress = async (
-  data: UpdateProgressData
+  data: UpdateProgressData,
 ): Promise<ITrainingProgress> => {
   const { sessionId, userId, callId } = data;
 
   logger.debug(
-    `Updating progress for sessionId: ${sessionId}, userId: ${userId}, callId: ${callId}`
+    `Updating progress for sessionId: ${sessionId}, userId: ${userId}, callId: ${callId}`,
   );
 
   const session = await TrainingSession.findById(sessionId).populate("agentId");
   const { transcript, timeSpent } = await getCallDetails(callId);
 
   logger.debug(
-    `Retrieved transcript length: ${transcript.length}, timeSpent: ${timeSpent}`
+    `Retrieved transcript length: ${transcript.length}, timeSpent: ${timeSpent}`,
   );
 
   if (!session) {
@@ -115,7 +115,7 @@ export const updateProgress = async (
       transcript,
       agent.content,
       previousSummary,
-      progressPercentage
+      progressPercentage,
     );
 
     // Ensure transcript is never undefined or null
@@ -129,7 +129,7 @@ export const updateProgress = async (
     };
 
     logger.debug(
-      `Creating new summary with transcript length: ${sanitizedTranscript.length}`
+      `Creating new summary with transcript length: ${sanitizedTranscript.length}`,
     );
 
     progress.summaries.push(newSummary);
@@ -159,14 +159,14 @@ export const updateProgress = async (
       sessionId,
       userId,
       progress.progress,
-      timeSpent
+      timeSpent,
     );
 
     return progress;
   } catch (error) {
     logger.error("Error in updateProgress:", error);
     throw new AnalysisServiceError(
-      "Failed to analyze training transcript: " + (error as Error).message
+      "Failed to analyze training transcript: " + (error as Error).message,
     );
   }
 };
@@ -175,7 +175,7 @@ export const updateProgress = async (
  * Submit an evaluation for a training session
  */
 export const submitEvaluation = async (
-  data: SubmitEvaluationData
+  data: SubmitEvaluationData,
 ): Promise<ITrainingProgress> => {
   const { sessionId, userId, score, feedback } = data;
 
@@ -218,7 +218,7 @@ export const submitEvaluation = async (
  */
 export const getTrainingProgress = async (
   sessionId: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<ITrainingProgress> => {
   const progress = await TrainingProgress.findOne({
     sessionId,
@@ -254,7 +254,7 @@ export const getTrainingProgress = async (
  * Get training progress for a specific progressId
  */
 export const getTrainingProgressByProgressId = async (
-  progressId: string
+  progressId: string,
 ): Promise<ITrainingProgress> => {
   const progress = await TrainingProgress.findById(progressId).populate([
     {
@@ -287,7 +287,7 @@ export const getTrainingProgressByProgressId = async (
  * List all training progress records for a user
  */
 export const listUserTrainingProgress = async (
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<ITrainingProgress[]> => {
   return TrainingProgress.find({ userId })
     .sort({ updatedAt: -1 })
@@ -309,12 +309,16 @@ export const listUserTrainingProgress = async (
 
 export const getIndividualUserTrainingProgress = async (
   userId: mongoose.Types.ObjectId,
-  agentId: mongoose.Types.ObjectId
+  agentId: mongoose.Types.ObjectId,
 ): Promise<ITrainingProgress[]> => {
+  const session = await TrainingSession.findOne({
+    "trainees.userId": userId,
+    agentId: agentId,
+  }).populate("trainees");
 
-  const session = await TrainingSession.findOne({ "trainees.userId": userId, "agentId": agentId }).populate('trainees')
-
-  const progressId = session?.trainees.find((t) => t.userId.equals(userId))?.progressId
+  const progressId = session?.trainees.find((t) =>
+    t.userId.equals(userId),
+  )?.progressId;
 
   return TrainingProgress.find({ _id: progressId })
     .sort({ updatedAt: -1 })
@@ -338,7 +342,7 @@ export const getIndividualUserTrainingProgress = async (
  * Get training progress for a specific createdBy
  */
 export const getTrainingProgressByCreatedBy = async (
-  createdBy: mongoose.Types.ObjectId
+  createdBy: mongoose.Types.ObjectId,
 ): Promise<ITrainingProgress[]> => {
   return TrainingProgress.find({ createdBy })
     .sort({ updatedAt: -1 })
@@ -356,9 +360,24 @@ export const getTrainingProgressByCreatedBy = async (
 
 export const resetProgress = async (
   sessionId: string,
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId,
 ): Promise<ITrainingProgress> => {
-  const progress = await TrainingProgress.findOneAndUpdate({ sessionId, userId }, { $set: { progress: 0, status: "Not Started", summaries: [], evaluations: [], timeSpent: 0, lastAccessDate: new Date(), topicsCovered: [], conceptsUnderstood: []} }, { new: true });
+  const progress = await TrainingProgress.findOneAndUpdate(
+    { sessionId, userId },
+    {
+      $set: {
+        progress: 0,
+        status: "Not Started",
+        summaries: [],
+        evaluations: [],
+        timeSpent: 0,
+        lastAccessDate: new Date(),
+        topicsCovered: [],
+        conceptsUnderstood: [],
+      },
+    },
+    { new: true },
+  );
 
   if (!progress) {
     throw new TrainingProgressNotFoundError();

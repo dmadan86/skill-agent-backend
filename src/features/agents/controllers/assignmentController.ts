@@ -9,9 +9,13 @@ import mongoose from "mongoose";
  * Assign users to both training and evaluation sessions for an agent
  */
 export const assignUsersToAgent = async (
-  req: AuthenticatedRequest<{ agentId: string }, {}, { userIds?: string[], departmentIds?: string[] }>,
+  req: AuthenticatedRequest<
+    { agentId: string },
+    {},
+    { userIds?: string[]; departmentIds?: string[] }
+  >,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -24,11 +28,12 @@ export const assignUsersToAgent = async (
     const results = await assignmentService.assignUsersToAgent(
       agentId,
       userId,
-      req.body
+      req.body,
     );
 
     sendSuccess(res, {
-      message: "Users assigned successfully to both training and evaluation sessions",
+      message:
+        "Users assigned successfully to both training and evaluation sessions",
       data: results,
     });
   } catch (error) {
@@ -40,9 +45,9 @@ export const assignUsersToAgent = async (
  * Remove users from both training and evaluation sessions for an agent
  */
 export const removeUsersFromAgent = async (
-  req: AuthenticatedRequest<{ agentId: string, userId: string }>,
+  req: AuthenticatedRequest<{ agentId: string; userId: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -55,14 +60,15 @@ export const removeUsersFromAgent = async (
     const results = await assignmentService.removeUsersFromAgent(
       agentId,
       userId,
-      userToRemove
+      userToRemove,
     );
 
     sendSuccess(res, {
-      message: "User removed successfully from both training and evaluation sessions",
+      message:
+        "User removed successfully from both training and evaluation sessions",
       data: results,
     });
   } catch (error) {
     next(error);
   }
-}; 
+};

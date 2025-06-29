@@ -42,6 +42,7 @@ Creates a new chat session with a specified agent and session type.
 **Content-Type:** `application/json`
 
 **Request Body:**
+
 ```json
 {
   "agentId": "string",
@@ -50,6 +51,7 @@ Creates a new chat session with a specified agent and session type.
 ```
 
 **Response (201):**
+
 ```json
 {
   "message": "Chat session created successfully",
@@ -69,6 +71,7 @@ Retrieves details of a specific chat session by ID.
 **Endpoint:** `GET /api/chat/{id}`
 
 **Response (200):**
+
 ```json
 {
   "message": "Chat session retrieved successfully",
@@ -94,10 +97,12 @@ Returns a paginated list of the user's chat sessions.
 **Endpoint:** `GET /api/chat`
 
 **Query Parameters:**
+
 - `page` (integer, default=1)
 - `limit` (integer, default=10)
 
 **Response (200):**
+
 ```json
 {
   "message": "Chat sessions retrieved successfully",
@@ -117,6 +122,7 @@ Ends an active chat session and generates a summary.
 **Endpoint:** `POST /api/chat/{id}/end`
 
 **Response (200):**
+
 ```json
 {
   "message": "Chat session ended successfully",
@@ -133,29 +139,29 @@ Ends an active chat session and generates a summary.
 ### Connection Setup
 
 1. **Initialize the Socket.IO client**:
-   
+
    ```javascript
-   import { io } from 'socket.io-client';
-   
-   const socket = io('your-backend-url/chat', {
+   import { io } from "socket.io-client";
+
+   const socket = io("your-backend-url/chat", {
      auth: {
-       token: 'your-jwt-token'
-     }
+       token: "your-jwt-token",
+     },
    });
    ```
 
 2. **Handle connection events**:
 
    ```javascript
-   socket.on('connect', () => {
-     console.log('Connected to chat server');
+   socket.on("connect", () => {
+     console.log("Connected to chat server");
    });
-   
-   socket.on('disconnect', () => {
-     console.log('Disconnected from chat server');
+
+   socket.on("disconnect", () => {
+     console.log("Disconnected from chat server");
    });
-   
-   socket.on('error', (data) => {
+
+   socket.on("error", (data) => {
      console.error(`Error: ${data.message}`);
    });
    ```
@@ -167,15 +173,16 @@ Ends an active chat session and generates a summary.
 After creating a session with the REST API, join it via WebSocket:
 
 ```javascript
-socket.emit('join-session', 
-  sessionId,              // Session ID from the REST API
-  userName,               // User's name
-  userPosition,           // User's job title/position
-  userDepartment,         // User's department
-  previousSessionSummary  // Summary from previous session (or empty string)
+socket.emit(
+  "join-session",
+  sessionId, // Session ID from the REST API
+  userName, // User's name
+  userPosition, // User's job title/position
+  userDepartment, // User's department
+  previousSessionSummary, // Summary from previous session (or empty string)
 );
 
-socket.on('session-joined', (data) => {
+socket.on("session-joined", (data) => {
   console.log(`Successfully joined session: ${data.sessionId}`);
 });
 ```
@@ -188,19 +195,19 @@ The system will automatically send a greeting message. Handle it using one of tw
 
 ```javascript
 // 1. Greeting stream starts
-socket.on('greeting-stream-start', (data) => {
+socket.on("greeting-stream-start", (data) => {
   console.log(`Greeting started for message: ${data.messageId}`);
   // Initialize message UI component
 });
 
 // 2. Receive tokens one by one
-socket.on('greeting-token', (data) => {
+socket.on("greeting-token", (data) => {
   // Append each token to the UI
   console.log(`Token: ${data.token}`);
 });
 
 // 3. Greeting complete
-socket.on('greeting-stream-complete', (data) => {
+socket.on("greeting-stream-complete", (data) => {
   console.log(`Greeting completed: ${data.fullMessage}`);
   // Finalize message UI
 });
@@ -209,7 +216,7 @@ socket.on('greeting-stream-complete', (data) => {
 ##### Non-Streaming Greeting (Legacy)
 
 ```javascript
-socket.on('greeting', (data) => {
+socket.on("greeting", (data) => {
   console.log(`Received greeting: ${data.content}`);
   // Display complete message
 });
@@ -220,12 +227,12 @@ socket.on('greeting', (data) => {
 Send user messages to the assistant:
 
 ```javascript
-socket.emit('send-message', {
-  sessionId: 'your-session-id',
-  content: 'Your message text'
+socket.emit("send-message", {
+  sessionId: "your-session-id",
+  content: "Your message text",
 });
 
-socket.on('message-received', (data) => {
+socket.on("message-received", (data) => {
   console.log(`Message received with ID: ${data.messageId}`);
 });
 ```
@@ -238,19 +245,19 @@ Handle the assistant's response in one of two ways:
 
 ```javascript
 // 1. Response stream starts
-socket.on('assistant-stream-start', (data) => {
+socket.on("assistant-stream-start", (data) => {
   console.log(`Assistant response starting for session: ${data.sessionId}`);
   // Initialize response UI component
 });
 
 // 2. Receive tokens one by one
-socket.on('assistant-token', (data) => {
+socket.on("assistant-token", (data) => {
   // Append token to UI
   console.log(`Token: ${data.token}`);
 });
 
 // 3. Response complete
-socket.on('assistant-stream-complete', (data) => {
+socket.on("assistant-stream-complete", (data) => {
   console.log(`Response completed with ID: ${data.messageId}`);
   console.log(`Full message: ${data.fullMessage}`);
   // Finalize response UI
@@ -260,7 +267,7 @@ socket.on('assistant-stream-complete', (data) => {
 ##### Non-Streaming Response (Legacy)
 
 ```javascript
-socket.on('assistant-message', (data) => {
+socket.on("assistant-message", (data) => {
   console.log(`Received message ${data.messageId}: ${data.content}`);
   // Display complete message
 });
@@ -271,9 +278,9 @@ socket.on('assistant-message', (data) => {
 End the conversation when needed:
 
 ```javascript
-socket.emit('end-session', sessionId);
+socket.emit("end-session", sessionId);
 
-socket.on('session-ended', (data) => {
+socket.on("session-ended", (data) => {
   console.log(`Session ${data.sessionId} ended`);
   console.log(`Summary: ${data.summary}`);
   // Update UI to show session ended
@@ -286,28 +293,28 @@ socket.on('session-ended', (data) => {
 
 ### Client to Server Events
 
-| Event Name | Payload | Description |
-|------------|---------|-------------|
-| `join-session` | `(sessionId, userName, userPosition, userDepartment, previousSessionSummary)` | Join an existing chat session |
-| `send-message` | `{ sessionId, content }` | Send a message in the current session |
-| `end-session` | `sessionId` | End the current chat session |
+| Event Name     | Payload                                                                       | Description                           |
+| -------------- | ----------------------------------------------------------------------------- | ------------------------------------- |
+| `join-session` | `(sessionId, userName, userPosition, userDepartment, previousSessionSummary)` | Join an existing chat session         |
+| `send-message` | `{ sessionId, content }`                                                      | Send a message in the current session |
+| `end-session`  | `sessionId`                                                                   | End the current chat session          |
 
 ### Server to Client Events
 
-| Event Name | Payload | Description |
-|------------|---------|-------------|
-| `session-joined` | `{ sessionId }` | Confirmation that user joined the session |
-| `greeting-stream-start` | `{ sessionId, messageId }` | Initial greeting stream is starting |
-| `greeting-token` | `{ sessionId, messageId, token }` | Individual token from greeting stream |
-| `greeting-stream-complete` | `{ sessionId, messageId, fullMessage }` | Greeting stream completed |
-| `greeting` | `{ messageId, content }` | Complete greeting (non-streaming) |
-| `message-received` | `{ messageId }` | Confirmation that message was received |
-| `assistant-stream-start` | `{ sessionId }` | Assistant's response stream is starting |
-| `assistant-token` | `{ sessionId, token }` | Individual token from response stream |
-| `assistant-stream-complete` | `{ sessionId, messageId, fullMessage }` | Response stream completed |
-| `assistant-message` | `{ sessionId, messageId, content }` | Complete response (non-streaming) |
-| `session-ended` | `{ sessionId, summary }` | Session ended with summary |
-| `error` | `{ message, sessionId? }` | Error notification |
+| Event Name                  | Payload                                 | Description                               |
+| --------------------------- | --------------------------------------- | ----------------------------------------- |
+| `session-joined`            | `{ sessionId }`                         | Confirmation that user joined the session |
+| `greeting-stream-start`     | `{ sessionId, messageId }`              | Initial greeting stream is starting       |
+| `greeting-token`            | `{ sessionId, messageId, token }`       | Individual token from greeting stream     |
+| `greeting-stream-complete`  | `{ sessionId, messageId, fullMessage }` | Greeting stream completed                 |
+| `greeting`                  | `{ messageId, content }`                | Complete greeting (non-streaming)         |
+| `message-received`          | `{ messageId }`                         | Confirmation that message was received    |
+| `assistant-stream-start`    | `{ sessionId }`                         | Assistant's response stream is starting   |
+| `assistant-token`           | `{ sessionId, token }`                  | Individual token from response stream     |
+| `assistant-stream-complete` | `{ sessionId, messageId, fullMessage }` | Response stream completed                 |
+| `assistant-message`         | `{ sessionId, messageId, content }`     | Complete response (non-streaming)         |
+| `session-ended`             | `{ sessionId, summary }`                | Session ended with summary                |
+| `error`                     | `{ message, sessionId? }`               | Error notification                        |
 
 ---
 
@@ -318,12 +325,12 @@ socket.on('session-ended', (data) => {
 Here's a simplified example of a React component implementing the chat interface:
 
 ```tsx
-import React, { useState, useEffect, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
+import React, { useState, useEffect, useRef } from "react";
+import { io, Socket } from "socket.io-client";
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   isComplete: boolean;
 }
@@ -331,21 +338,21 @@ interface Message {
 const ChatInterface: React.FC = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [sessionId, setSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Connect to WebSocket on component mount
   useEffect(() => {
-    const newSocket = io('your-backend-url/chat', {
-      auth: { token: localStorage.getItem('jwt') }
+    const newSocket = io("your-backend-url/chat", {
+      auth: { token: localStorage.getItem("jwt") },
     });
 
-    newSocket.on('connect', () => {
-      console.log('Connected to chat server');
+    newSocket.on("connect", () => {
+      console.log("Connected to chat server");
     });
 
-    newSocket.on('error', (data) => {
+    newSocket.on("error", (data) => {
       console.error(`Error: ${data.message}`);
       // Show error toast or notification
     });
@@ -360,7 +367,7 @@ const ChatInterface: React.FC = () => {
 
   // Scroll to bottom of messages
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   // Set up event listeners for the session
@@ -368,113 +375,122 @@ const ChatInterface: React.FC = () => {
     if (!socket || !sessionId) return;
 
     // Handle greeting stream
-    socket.on('greeting-stream-start', (data) => {
-      setMessages(prev => [...prev, {
-        id: data.messageId,
-        role: 'assistant',
-        content: '',
-        isComplete: false
-      }]);
+    socket.on("greeting-stream-start", (data) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: data.messageId,
+          role: "assistant",
+          content: "",
+          isComplete: false,
+        },
+      ]);
     });
 
-    socket.on('greeting-token', (data) => {
-      setMessages(prev => prev.map(msg => 
-        msg.id === data.messageId 
-          ? { ...msg, content: msg.content + data.token }
-          : msg
-      ));
+    socket.on("greeting-token", (data) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === data.messageId
+            ? { ...msg, content: msg.content + data.token }
+            : msg,
+        ),
+      );
     });
 
-    socket.on('greeting-stream-complete', (data) => {
-      setMessages(prev => prev.map(msg => 
-        msg.id === data.messageId 
-          ? { ...msg, content: data.fullMessage, isComplete: true }
-          : msg
-      ));
+    socket.on("greeting-stream-complete", (data) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === data.messageId
+            ? { ...msg, content: data.fullMessage, isComplete: true }
+            : msg,
+        ),
+      );
     });
 
     // Handle assistant responses
-    socket.on('message-received', (data) => {
+    socket.on("message-received", (data) => {
       console.log(`Message received with ID: ${data.messageId}`);
     });
 
-    socket.on('assistant-stream-start', () => {
+    socket.on("assistant-stream-start", () => {
       const tempId = `temp-${Date.now()}`;
-      setMessages(prev => [...prev, {
-        id: tempId,
-        role: 'assistant',
-        content: '',
-        isComplete: false
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: tempId,
+          role: "assistant",
+          content: "",
+          isComplete: false,
+        },
+      ]);
     });
 
-    socket.on('assistant-token', (data) => {
-      setMessages(prev => {
+    socket.on("assistant-token", (data) => {
+      setMessages((prev) => {
         // Find the last assistant message (the one that's streaming)
-        const lastAssistantIndex = [...prev].reverse().findIndex(m => 
-          m.role === 'assistant' && !m.isComplete);
-        
+        const lastAssistantIndex = [...prev]
+          .reverse()
+          .findIndex((m) => m.role === "assistant" && !m.isComplete);
+
         if (lastAssistantIndex === -1) return prev;
-        
+
         const realIndex = prev.length - 1 - lastAssistantIndex;
-        
-        return prev.map((msg, i) => 
-          i === realIndex 
-            ? { ...msg, content: msg.content + data.token }
-            : msg
+
+        return prev.map((msg, i) =>
+          i === realIndex ? { ...msg, content: msg.content + data.token } : msg,
         );
       });
     });
 
-    socket.on('assistant-stream-complete', (data) => {
-      setMessages(prev => {
-        const lastAssistantIndex = [...prev].reverse().findIndex(m => 
-          m.role === 'assistant' && !m.isComplete);
-        
+    socket.on("assistant-stream-complete", (data) => {
+      setMessages((prev) => {
+        const lastAssistantIndex = [...prev]
+          .reverse()
+          .findIndex((m) => m.role === "assistant" && !m.isComplete);
+
         if (lastAssistantIndex === -1) return prev;
-        
+
         const realIndex = prev.length - 1 - lastAssistantIndex;
-        
-        return prev.map((msg, i) => 
-          i === realIndex 
-            ? { ...msg, id: data.messageId, content: data.fullMessage, isComplete: true }
-            : msg
+
+        return prev.map((msg, i) =>
+          i === realIndex
+            ? {
+                ...msg,
+                id: data.messageId,
+                content: data.fullMessage,
+                isComplete: true,
+              }
+            : msg,
         );
       });
     });
 
     // Handle session ended
-    socket.on('session-ended', (data) => {
+    socket.on("session-ended", (data) => {
       console.log(`Session ended with summary: ${data.summary}`);
       // Show summary in UI
     });
 
     // Clean up listeners
     return () => {
-      socket.off('greeting-stream-start');
-      socket.off('greeting-token');
-      socket.off('greeting-stream-complete');
-      socket.off('message-received');
-      socket.off('assistant-stream-start');
-      socket.off('assistant-token');
-      socket.off('assistant-stream-complete');
-      socket.off('session-ended');
+      socket.off("greeting-stream-start");
+      socket.off("greeting-token");
+      socket.off("greeting-stream-complete");
+      socket.off("message-received");
+      socket.off("assistant-stream-start");
+      socket.off("assistant-token");
+      socket.off("assistant-stream-complete");
+      socket.off("session-ended");
     };
   }, [socket, sessionId]);
 
   // Join session
   const joinSession = (id: string) => {
     if (!socket) return;
-    
-    socket.emit('join-session', 
-      id,
-      'John Doe',
-      'Developer',
-      'Engineering',
-      ''
-    );
-    
-    socket.on('session-joined', (data) => {
+
+    socket.emit("join-session", id, "John Doe", "Developer", "Engineering", "");
+
+    socket.on("session-joined", (data) => {
       setSessionId(data.sessionId);
       console.log(`Joined session: ${data.sessionId}`);
     });
@@ -487,43 +503,46 @@ const ChatInterface: React.FC = () => {
 
     // Add user message to UI immediately
     const userMessageId = `user-${Date.now()}`;
-    setMessages(prev => [...prev, {
-      id: userMessageId,
-      role: 'user',
-      content: input,
-      isComplete: true
-    }]);
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: userMessageId,
+        role: "user",
+        content: input,
+        isComplete: true,
+      },
+    ]);
 
     // Send to server
-    socket.emit('send-message', {
+    socket.emit("send-message", {
       sessionId,
-      content: input
+      content: input,
     });
 
     // Clear input
-    setInput('');
+    setInput("");
   };
 
   // End the session
   const endSession = () => {
     if (!socket || !sessionId) return;
-    socket.emit('end-session', sessionId);
+    socket.emit("end-session", sessionId);
   };
 
   return (
     <div className="chat-container">
       <div className="messages-container">
-        {messages.map(msg => (
+        {messages.map((msg) => (
           <div key={msg.id} className={`message ${msg.role}`}>
             <div className="message-content">{msg.content}</div>
-            {!msg.isComplete && msg.role === 'assistant' && (
+            {!msg.isComplete && msg.role === "assistant" && (
               <div className="typing-indicator">...</div>
             )}
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
-      
+
       <form onSubmit={sendMessage} className="message-form">
         <input
           type="text"
@@ -536,7 +555,7 @@ const ChatInterface: React.FC = () => {
           Send
         </button>
       </form>
-      
+
       <div className="session-controls">
         <button onClick={endSession} disabled={!sessionId}>
           End Session
@@ -603,12 +622,12 @@ export default ChatInterface;
 
 ### Common Issues
 
-| Problem | Possible Causes | Solutions |
-|---------|----------------|-----------|
-| Connection fails | Invalid token, network issues | Check token validity, network connection, try refreshing token |
-| No response to messages | Session timeout, server error | Check session status, reconnect if needed |
-| Messages out of order | Network latency, race conditions | Implement message sequencing, use timestamps |
-| Streaming stops unexpectedly | Network interruption, server timeout | Implement reconnection logic, fallback to non-streaming |
+| Problem                      | Possible Causes                      | Solutions                                                      |
+| ---------------------------- | ------------------------------------ | -------------------------------------------------------------- |
+| Connection fails             | Invalid token, network issues        | Check token validity, network connection, try refreshing token |
+| No response to messages      | Session timeout, server error        | Check session status, reconnect if needed                      |
+| Messages out of order        | Network latency, race conditions     | Implement message sequencing, use timestamps                   |
+| Streaming stops unexpectedly | Network interruption, server timeout | Implement reconnection logic, fallback to non-streaming        |
 
 ### Debug Checklist
 
@@ -623,5 +642,6 @@ export default ChatInterface;
 ### Support
 
 For technical support or questions about the chat API implementation, please contact:
+
 - Email: support@yourcompany.com
-- Internal Slack: #chat-api-support 
+- Internal Slack: #chat-api-support

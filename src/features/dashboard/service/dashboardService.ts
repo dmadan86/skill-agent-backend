@@ -31,7 +31,7 @@ interface DashboardData {
  * Get dashboard data for a manager or user
  */
 export const getDashboardData = async (
-  options: DashboardDataOptions
+  options: DashboardDataOptions,
 ): Promise<DashboardData> => {
   const { userId } = options;
 
@@ -44,7 +44,10 @@ export const getDashboardData = async (
   let completedEvaluations = 0;
   let pendingEvaluations = 0;
   console.log("user.role", user.role);
-  if (user.role.toLowerCase() === "manager" || user.role.toLowerCase() === "admin") {
+  if (
+    user.role.toLowerCase() === "manager" ||
+    user.role.toLowerCase() === "admin"
+  ) {
     totalTrainingSessions = await TrainingProgress.countDocuments({
       assignedBy: userId,
     });
@@ -97,7 +100,7 @@ export const getDashboardData = async (
  * Get recent activities for a team or user
  */
 export const getRecentActivities = async (
-  options: RecentActivitiesOptions
+  options: RecentActivitiesOptions,
 ): Promise<{
   activities: IActivity[];
   total: number;
@@ -115,7 +118,7 @@ export const getRecentActivities = async (
   const paginatedActivities: IActivityRecords = await getActivityRecords(
     userId.toString(),
     limit,
-    page
+    page,
   );
 
   return {

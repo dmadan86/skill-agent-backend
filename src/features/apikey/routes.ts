@@ -1,5 +1,5 @@
 // src/features/apikey/routes.ts
-import { Router } from 'express';
+import { Router } from "express";
 import * as apiKeyController from "./controllers/apikeyController";
 import { validate } from "../../shared/middleware/validate";
 import { authenticate } from "../../shared/middleware/authenticate";
@@ -17,15 +17,14 @@ router.get("/", apiKeyController.getApiKeys);
 router.post(
   "/generate",
   validate(apiKeySchemas.createApiKeySchema),
-  apiKeyController.createApiKey
+  apiKeyController.createApiKey,
 );
 
 // Revoke API key
 router.delete(
   "/:id",
   validate(apiKeySchemas.revokeApiKeySchema),
-  apiKeyController.revokeApiKey
+  apiKeyController.revokeApiKey,
 );
 
 export default router;
-

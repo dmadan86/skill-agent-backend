@@ -1,11 +1,14 @@
 // src/features/analytics/routes/analyticsRoutes.ts
-import { Router } from 'express';
-import * as analyticsController from './controllers/analyticsController';
-import * as superAdminAnalyticsController from './controllers/superAdminAnalyticsController';
-import { authenticate, requireRole } from '../../shared/middleware/authenticate';
-import { validate } from '../../shared/middleware/validate';
-import { analyticsSchemas } from './validation/analyticsSchema';
-import { schedulerService } from '../../shared/services/schedulerService';
+import { Router } from "express";
+import * as analyticsController from "./controllers/analyticsController";
+import * as superAdminAnalyticsController from "./controllers/superAdminAnalyticsController";
+import {
+  authenticate,
+  requireRole,
+} from "../../shared/middleware/authenticate";
+import { validate } from "../../shared/middleware/validate";
+import { analyticsSchemas } from "./validation/analyticsSchema";
+import { schedulerService } from "../../shared/services/schedulerService";
 
 const router = Router();
 
@@ -14,109 +17,108 @@ router.use(authenticate);
 
 // Route to manually trigger analytics aggregation (admin only)
 router.post(
-  '/aggregation/run',
-  requireRole(['admin']),
+  "/aggregation/run",
+  requireRole(["admin"]),
   async (req, res, next) => {
     try {
       await schedulerService.runAnalyticsAggregationNow();
-      res.status(200).json({ 
-        success: true, 
-        message: 'Analytics aggregation triggered successfully' 
+      res.status(200).json({
+        success: true,
+        message: "Analytics aggregation triggered successfully",
       });
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 // Overview metrics
 router.get(
-  '/teams/:teamId/overview',
+  "/teams/:teamId/overview",
   validate(analyticsSchemas.getOverviewSchema),
-  analyticsController.getOverviewMetrics
+  analyticsController.getOverviewMetrics,
 );
 
 // Performance timeline
 router.get(
-  '/teams/:teamId/performance-timeline',
+  "/teams/:teamId/performance-timeline",
   validate(analyticsSchemas.getPerformanceTimelineSchema),
-  analyticsController.getPerformanceTimeline
+  analyticsController.getPerformanceTimeline,
 );
 
 // Team progress
 router.get(
-  '/teams/:teamId/member-progress',
+  "/teams/:teamId/member-progress",
   validate(analyticsSchemas.getTeamMemberProgressSchema),
-  analyticsController.getTeamMemberProgress
+  analyticsController.getTeamMemberProgress,
 );
 
 // Department performance
 router.get(
-  '/teams/:teamId/department-performance',
+  "/teams/:teamId/department-performance",
   validate(analyticsSchemas.getDepartmentPerformanceSchema),
-  analyticsController.getDepartmentPerformance
+  analyticsController.getDepartmentPerformance,
 );
 
 // Training analytics
 router.get(
-  '/teams/:teamId/training-categories',
+  "/teams/:teamId/training-categories",
   validate(analyticsSchemas.getTrainingCategoryMetricsSchema),
-  analyticsController.getTrainingCategoryMetrics
+  analyticsController.getTrainingCategoryMetrics,
 );
 
 // Learning trends
 router.get(
-  '/teams/:teamId/learning-trends',
+  "/teams/:teamId/learning-trends",
   validate(analyticsSchemas.getLearningTrendsSchema),
-  analyticsController.getLearningTrends
+  analyticsController.getLearningTrends,
 );
 
 // Evaluation analytics
 router.get(
-  '/teams/:teamId/score-distribution',
+  "/teams/:teamId/score-distribution",
   validate(analyticsSchemas.getScoreDistributionSchema),
-  analyticsController.getScoreDistribution
+  analyticsController.getScoreDistribution,
 );
 
 // Skill assessment
 router.get(
-  '/teams/:teamId/skill-assessment',
+  "/teams/:teamId/skill-assessment",
   validate(analyticsSchemas.getSkillAssessmentSchema),
-  analyticsController.getSkillAssessment
+  analyticsController.getSkillAssessment,
 );
 
 // Assessment insights
 router.get(
-  '/teams/:teamId/assessment-insights',
+  "/teams/:teamId/assessment-insights",
   validate(analyticsSchemas.getAssessmentInsightsSchema),
-  analyticsController.getAssessmentInsights
+  analyticsController.getAssessmentInsights,
 );
 
 // Export analytics data
 router.get(
-  '/teams/:teamId/export',
+  "/teams/:teamId/export",
   validate(analyticsSchemas.exportAnalyticsDataSchema),
-  analyticsController.exportAnalyticsData
+  analyticsController.exportAnalyticsData,
 );
 
 router.get(
-  '/super-admin/analytics',
-  requireRole(['superadmin']),
-  superAdminAnalyticsController.getAnalytics
+  "/super-admin/analytics",
+  requireRole(["superadmin"]),
+  superAdminAnalyticsController.getAnalytics,
 );
-
 
 router.get(
   "/super-admin/activities",
-  requireRole(['superadmin']),
-  superAdminAnalyticsController.getActivities
+  requireRole(["superadmin"]),
+  superAdminAnalyticsController.getActivities,
 );
 
 // Super admin analytics
 router.get(
-  '/super-admin/analytics',
-  requireRole(['superadmin']),
-  superAdminAnalyticsController.getAnalytics
+  "/super-admin/analytics",
+  requireRole(["superadmin"]),
+  superAdminAnalyticsController.getAnalytics,
 );
 
 export default router;

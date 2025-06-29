@@ -1,5 +1,5 @@
 // src/shared/models/Team.ts
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IOrganization extends Document {
   name: string;
@@ -22,13 +22,15 @@ const OrganizationSchema = new Schema<IOrganization>(
       type: String,
       trim: true,
     },
-    members: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    }],
+    members: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     owner: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     industry: {
@@ -36,11 +38,14 @@ const OrganizationSchema = new Schema<IOrganization>(
       trim: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Create indexes for efficient queries
 OrganizationSchema.index({ owner: 1 });
 OrganizationSchema.index({ members: 1 });
 
-export const Organization = mongoose.model<IOrganization>('Organization', OrganizationSchema);
+export const Organization = mongoose.model<IOrganization>(
+  "Organization",
+  OrganizationSchema,
+);

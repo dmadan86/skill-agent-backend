@@ -125,13 +125,13 @@ export const getSuperAdminAnalytics = async () => {
     // Calculate total active chat sessions across all types
     const totalActiveChatSessions = chatSessionStats.reduce(
       (acc, curr) => acc + curr.activeSessions,
-      0
+      0,
     );
 
     // Get the most active chat session type
     const mostActiveChatType = chatSessionStats.reduce(
       (max, curr) => (curr.activeSessions > max.activeSessions ? curr : max),
-      { _id: "NONE", activeSessions: 0 }
+      { _id: "NONE", activeSessions: 0 },
     );
 
     return {
@@ -170,7 +170,7 @@ export const getSuperAdminAnalytics = async () => {
             averageDuration: curr.averageDuration,
           },
         }),
-        {}
+        {},
       ),
       failedLogins24h: failedLogins[0]?.totalFailedAttempts ?? 0,
       uniqueUsersFailedLogins24h: failedLogins[0]?.uniqueUsers ?? 0,
@@ -190,7 +190,7 @@ export const getSuperAdminAnalytics = async () => {
 
 async function getUserStats() {
   const totalUsers = await User.countDocuments();
-  
+
   // Get active users based on last login times
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -230,37 +230,40 @@ async function getUserStats() {
   const dailySignups = await User.aggregate([
     {
       $match: {
-        createdAt: { $gte: sevenDaysAgo }
-      }
+        createdAt: { $gte: sevenDaysAgo },
+      },
     },
     {
       $group: {
         _id: {
-          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
         },
-        count: { $sum: 1 }
-      }
+        count: { $sum: 1 },
+      },
     },
     {
-      $sort: { _id: 1 }
-    }
+      $sort: { _id: 1 },
+    },
   ]);
 
   // Fill in missing days with zero counts
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = new Date();
     date.setDate(date.getDate() - i);
-    return date.toISOString().split('T')[0];
+    return date.toISOString().split("T")[0];
   }).reverse();
 
-  const dailySignupsMap = dailySignups.reduce((acc, curr) => {
-    acc[curr._id] = curr.count;
-    return acc;
-  }, {} as Record<string, number>);
+  const dailySignupsMap = dailySignups.reduce(
+    (acc, curr) => {
+      acc[curr._id] = curr.count;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
-  const formattedDailySignups = last7Days.map(date => ({
+  const formattedDailySignups = last7Days.map((date) => ({
     date,
-    count: dailySignupsMap[date] || 0
+    count: dailySignupsMap[date] || 0,
   }));
 
   return {
@@ -272,7 +275,7 @@ async function getUserStats() {
       activeLast7Days: activeUsers7Days,
       activeLast24Hours: activeUsers24Hours,
       activeLast30Days: activeUsers30Days,
-      dailySignupsData: formattedDailySignups
+      dailySignupsData: formattedDailySignups,
     },
   };
 }
@@ -284,7 +287,7 @@ async function getSystemMetrics() {
   // Get system metrics from SystemLogService
   const systemMetrics = await SystemLogService.getSystemMetrics(
     thirtyDaysAgo,
-    new Date()
+    new Date(),
   );
 
   return {
@@ -310,33 +313,36 @@ function groupErrorsByType(logs: any[]) {
 async function getSupportTicketStats() {
   try {
     const clickupService = new ClickUpService({
-      apiKey: process.env.CLICKUP_API_KEY ?? '',
-      listId: process.env.CLICKUP_LIST_ID ?? ''
+      apiKey: process.env.CLICKUP_API_KEY ?? "",
+      listId: process.env.CLICKUP_LIST_ID ?? "",
     });
 
     const { stats, tasks } = await clickupService.getTaskDetails();
 
     // Update recent activity with feedback and issues
     const recentActivity = [
-      ...tasks.slice(0, 5).map(item => ({
+      ...tasks.slice(0, 5).map((item) => ({
         ...item,
-      }))
-    ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      })),
+    ].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 
     return {
       open: stats.open,
       closed: stats.closed,
-      recentActivities : recentActivity
+      recentActivities: recentActivity,
     };
   } catch (error) {
-    console.error('Error fetching support ticket stats:', error);
+    console.error("Error fetching support ticket stats:", error);
     return {
       stats: {
         open: 0,
         closed: 0,
-        total: 0
+        total: 0,
       },
-      recentActivity: []
+      recentActivity: [],
     };
   }
 }

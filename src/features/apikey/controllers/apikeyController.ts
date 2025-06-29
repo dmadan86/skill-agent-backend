@@ -11,7 +11,7 @@ import {
 export const getApiKeys = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -28,7 +28,7 @@ export const getApiKeys = async (
 export const createApiKey = async (
   req: AuthenticatedRequest<{}, {}, CreateApiKeyInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -37,7 +37,7 @@ export const createApiKey = async (
 
     const apiKey = await apiKeyService.createApiKey(
       req.user.userId,
-      req.body.name
+      req.body.name,
     );
     sendSuccess(res, { data: apiKey }, 201);
   } catch (error) {
@@ -48,7 +48,7 @@ export const createApiKey = async (
 export const revokeApiKey = async (
   req: AuthenticatedRequest<RevokeApiKeyInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {

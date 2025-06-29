@@ -14,7 +14,7 @@ import {
 export const getWebhooks = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -34,7 +34,7 @@ export const getWebhooks = async (
 export const getWebhook = async (
   req: AuthenticatedRequest<GetWebhookInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -43,7 +43,7 @@ export const getWebhook = async (
 
     const webhook = await webhookService.getWebhookById(
       req.params.id,
-      req.user.userId
+      req.user.userId,
     );
     sendSuccess(res, { data: webhook });
   } catch (error) {
@@ -57,7 +57,7 @@ export const getWebhook = async (
 export const createWebhook = async (
   req: AuthenticatedRequest<{}, {}, CreateWebhookInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -67,9 +67,9 @@ export const createWebhook = async (
 
     const webhook = await webhookService.createWebhook(
       req.user.userId,
-      req.body
+      req.body,
     );
-    
+
     // Return webhook with secret (only returned on create)
     sendSuccess(res, { data: webhook }, 201);
   } catch (error) {
@@ -83,7 +83,7 @@ export const createWebhook = async (
 export const updateWebhook = async (
   req: AuthenticatedRequest<GetWebhookInput, {}, UpdateWebhookInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -93,7 +93,7 @@ export const updateWebhook = async (
     const webhook = await webhookService.updateWebhook(
       req.params.id,
       req.user.userId,
-      req.body
+      req.body,
     );
     sendSuccess(res, { data: webhook });
   } catch (error) {
@@ -107,17 +107,14 @@ export const updateWebhook = async (
 export const deleteWebhook = async (
   req: AuthenticatedRequest<GetWebhookInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
       throw new AppError("Authentication required", "AUTH_REQUIRED", 401);
     }
 
-    await webhookService.deleteWebhook(
-      req.params.id,
-      req.user.userId
-    );
+    await webhookService.deleteWebhook(req.params.id, req.user.userId);
     sendSuccess(res, { message: "Webhook deleted successfully" });
   } catch (error) {
     next(error);
@@ -130,7 +127,7 @@ export const deleteWebhook = async (
 export const regenerateSecret = async (
   req: AuthenticatedRequest<GetWebhookInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -139,7 +136,7 @@ export const regenerateSecret = async (
 
     const result = await webhookService.regenerateSecret(
       req.params.id,
-      req.user.userId
+      req.user.userId,
     );
     sendSuccess(res, { data: result });
   } catch (error) {
@@ -151,9 +148,11 @@ export const regenerateSecret = async (
  * Get webhook delivery history
  */
 export const getWebhookDeliveries = async (
-  req: AuthenticatedRequest<GetWebhookInput> & { query: { limit?: string; skip?: string } },
+  req: AuthenticatedRequest<GetWebhookInput> & {
+    query: { limit?: string; skip?: string };
+  },
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -167,7 +166,7 @@ export const getWebhookDeliveries = async (
       req.params.id,
       req.user.userId,
       limit,
-      skip
+      skip,
     );
     sendSuccess(res, { data: result });
   } catch (error) {

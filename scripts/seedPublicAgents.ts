@@ -8,7 +8,9 @@ const SYSTEM_USER_ID = new mongoose.Types.ObjectId("682cbcf2730b9aaae39b6697");
 const seedPublicAgents = async () => {
   try {
     // Connect to the database
-    await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/digital-agents");
+    await mongoose.connect(
+      process.env.MONGODB_URI || "mongodb://localhost:27017/digital-agents",
+    );
 
     logger.info("Seeding public agents...");
 
@@ -25,4 +27,4 @@ const seedPublicAgents = async () => {
 };
 
 // Run the seeding script
-seedPublicAgents(); 
+seedPublicAgents();

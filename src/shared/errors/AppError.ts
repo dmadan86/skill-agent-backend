@@ -8,7 +8,7 @@ export class AppError extends Error {
     message: string,
     code: string,
     status: number,
-    details?: unknown
+    details?: unknown,
   ) {
     super(message);
     this.name = this.constructor.name;
@@ -61,7 +61,7 @@ export class AccountLockedError extends AuthenticationError {
     super(
       "Account is locked due to too many failed attempts",
       "AUTH_ACCOUNT_LOCKED",
-      details
+      details,
     );
   }
 }
@@ -108,7 +108,7 @@ export class DuplicateAgentNameError extends AppError {
       "An agent with this name already exists",
       "AGENT_NAME_DUPLICATE",
       409,
-      details
+      details,
     );
   }
 }
@@ -118,7 +118,7 @@ export class AgentInUseError extends AppError {
       "Agent is currently in use and cannot be modified",
       "AGENT_IN_USE",
       409,
-      details
+      details,
     );
   }
 }
@@ -129,7 +129,7 @@ export class AgentLimitExceededError extends AppError {
       "You have reached the maximum number of allowed agents",
       "AGENT_LIMIT_EXCEEDED",
       403,
-      details
+      details,
     );
   }
 }

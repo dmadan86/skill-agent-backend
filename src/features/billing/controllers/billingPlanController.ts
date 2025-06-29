@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express";
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 import * as billingPlanService from "../services/billingPlanService";
 import { sendSuccess } from "../../../shared/utils/response.utils";
 import { AuthenticatedRequest } from "../../../shared/middleware/authenticate";
@@ -16,7 +16,7 @@ import {
 export const createBillingPlan = async (
   req: AuthenticatedRequest<{}, {}, CreateBillingPlanInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -24,18 +24,26 @@ export const createBillingPlan = async (
     }
 
     if (req.user.role !== "superadmin") {
-      throw new AppError("Superadmin access required", "SUPERADMIN_REQUIRED", 403);
+      throw new AppError(
+        "Superadmin access required",
+        "SUPERADMIN_REQUIRED",
+        403,
+      );
     }
 
     const userId = new mongoose.Types.ObjectId(req.user.userId);
     const planData = req.body;
-    
+
     const plan = await billingPlanService.createBillingPlan(planData, userId);
 
-    sendSuccess(res, {
-      message: "Billing plan created successfully",
-      data: plan,
-    }, 201);
+    sendSuccess(
+      res,
+      {
+        message: "Billing plan created successfully",
+        data: plan,
+      },
+      201,
+    );
   } catch (error) {
     next(error);
   }
@@ -48,7 +56,7 @@ export const createBillingPlan = async (
 export const updateBillingPlan = async (
   req: AuthenticatedRequest<{ id: string }, {}, UpdateBillingPlanInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -56,14 +64,22 @@ export const updateBillingPlan = async (
     }
 
     if (req.user.role !== "superadmin") {
-      throw new AppError("Superadmin access required", "SUPERADMIN_REQUIRED", 403);
+      throw new AppError(
+        "Superadmin access required",
+        "SUPERADMIN_REQUIRED",
+        403,
+      );
     }
 
     const { id } = req.params;
     const userId = new mongoose.Types.ObjectId(req.user.userId);
-    
-    const plan = await billingPlanService.updateBillingPlan(id, req.body, userId);
-    
+
+    const plan = await billingPlanService.updateBillingPlan(
+      id,
+      req.body,
+      userId,
+    );
+
     sendSuccess(res, {
       message: "Billing plan updated successfully",
       data: plan,
@@ -79,14 +95,13 @@ export const updateBillingPlan = async (
 export const getBillingPlan = async (
   req: AuthenticatedRequest<{ id: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
-
     const { id } = req.params;
-    
+
     const plan = await billingPlanService.getBillingPlanById(id);
-    
+
     sendSuccess(res, {
       data: plan,
     });
@@ -102,7 +117,7 @@ export const getBillingPlan = async (
 export const deleteBillingPlan = async (
   req: AuthenticatedRequest<{ id: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -116,9 +131,9 @@ export const deleteBillingPlan = async (
 
     const { id } = req.params;
     const userId = new mongoose.Types.ObjectId(req.user.userId);
-    
+
     await billingPlanService.deleteBillingPlan(id, userId);
-    
+
     sendSuccess(res, {
       message: "Billing plan deleted successfully",
     });
@@ -133,21 +148,21 @@ export const deleteBillingPlan = async (
 export const listBillingPlans = async (
   req: AuthenticatedRequest<{}, {}, {}, { page?: string; limit?: string }>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const page = req.query.page ? parseInt(req.query.page, 10) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
-    
+
     const result = await billingPlanService.listBillingPlans({
       page,
       limit,
     });
-    
+
     sendSuccess(res, {
       data: result,
     });
   } catch (error) {
     next(error);
   }
-}; 
+};

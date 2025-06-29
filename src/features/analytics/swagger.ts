@@ -65,7 +65,7 @@
  *                 change:
  *                   type: number
  *                   example: -2
- *                   
+ *
  *     PerformanceTimeline:
  *       type: object
  *       properties:

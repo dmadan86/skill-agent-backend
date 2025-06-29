@@ -129,7 +129,7 @@
  *         previousSessionSummary:
  *           type: string
  *           description: Optional summary of previous session
- * 
+ *
  * @swagger
  * tags:
  *   name: Agents
@@ -174,7 +174,7 @@
  *         description: Unauthorized
  *       500:
  *         description: Server error
- * 
+ *
  *   get:
  *     summary: Get all agents (paginated and filtered)
  *     tags: [Agents]
@@ -272,7 +272,7 @@
  *         description: Agent not found
  *       500:
  *         description: Server error
- * 
+ *
  *   put:
  *     summary: Update an agent
  *     tags: [Agents]
@@ -317,7 +317,7 @@
  *         description: Agent not found
  *       500:
  *         description: Server error
- * 
+ *
  *   delete:
  *     summary: Delete an agent
  *     tags: [Agents]
@@ -359,7 +359,7 @@
  * /agents/start-web-call:
  *   post:
  *     summary: Start a web call with an agent
- *     tags: [Agents]   
+ *     tags: [Agents]
  *     security:
  *       - bearerAuth: []
  *     requestBody:

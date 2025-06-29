@@ -1,5 +1,5 @@
 // src/shared/models/TrainingProgress.ts
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface ISessionSummary {
   content: string;
@@ -16,7 +16,7 @@ export interface IEvaluation {
 
 export interface ITopicCovered {
   name: string;
-  comprehensionLevel: 'basic' | 'intermediate' | 'advanced';
+  comprehensionLevel: "basic" | "intermediate" | "advanced";
   evidence: string;
 }
 
@@ -35,7 +35,11 @@ export interface ILearningGap {
 export interface INextLearningStep {
   title: string;
   description: string;
-  type: 'concept_reinforcement' | 'practical_application' | 'knowledge_extension' | 'assessment';
+  type:
+    | "concept_reinforcement"
+    | "practical_application"
+    | "knowledge_extension"
+    | "assessment";
   priority: number;
 }
 
@@ -44,7 +48,7 @@ export interface ITrainingProgress extends Document {
   userId: mongoose.Types.ObjectId;
   summaries: ISessionSummary[];
   progress: number;
-  status: 'Not Started' | 'In Progress' | 'Completed';
+  status: "Not Started" | "In Progress" | "Completed";
   timeSpent: number;
   lastAccessDate: Date;
   evaluations: IEvaluation[];
@@ -94,81 +98,98 @@ const EvaluationSchema = new Schema<IEvaluation>({
   },
 });
 
-const TopicCoveredSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
+const TopicCoveredSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    comprehensionLevel: {
+      type: String,
+      enum: ["basic", "intermediate", "advanced"],
+      default: "basic",
+    },
+    evidence: {
+      type: String,
+    },
   },
-  comprehensionLevel: {
-    type: String,
-    enum: ['basic', 'intermediate', 'advanced'],
-    default: 'basic',
-  },
-  evidence: {
-    type: String,
-  },
-}, { _id: false, strict: false }); // Use strict: false for backward compatibility
+  { _id: false, strict: false },
+); // Use strict: false for backward compatibility
 
-const ConceptUnderstoodSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
+const ConceptUnderstoodSchema = new Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    evidence: {
+      type: String,
+    },
+    applicationContext: {
+      type: String,
+    },
   },
-  evidence: {
-    type: String,
-  },
-  applicationContext: {
-    type: String,
-  },
-}, { _id: false, strict: false }); // Use strict: false for backward compatibility
+  { _id: false, strict: false },
+); // Use strict: false for backward compatibility
 
-const LearningGapSchema = new Schema<ILearningGap>({
-  topic: {
-    type: String,
-    required: true,
+const LearningGapSchema = new Schema<ILearningGap>(
+  {
+    topic: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    recommendedAction: {
+      type: String,
+      required: true,
+    },
   },
-  description: {
-    type: String,
-    required: true,
-  },
-  recommendedAction: {
-    type: String,
-    required: true,
-  },
-}, { _id: false });
+  { _id: false },
+);
 
-const NextLearningStepSchema = new Schema<INextLearningStep>({
-  title: {
-    type: String,
-    required: true,
+const NextLearningStepSchema = new Schema<INextLearningStep>(
+  {
+    title: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      enum: [
+        "concept_reinforcement",
+        "practical_application",
+        "knowledge_extension",
+        "assessment",
+      ],
+      required: true,
+    },
+    priority: {
+      type: Number,
+      min: 1,
+      max: 3,
+      default: 2,
+    },
   },
-  description: {
-    type: String,
-    required: true,
-  },
-  type: {
-    type: String,
-    enum: ['concept_reinforcement', 'practical_application', 'knowledge_extension', 'assessment'],
-    required: true,
-  },
-  priority: {
-    type: Number,
-    min: 1,
-    max: 3,
-    default: 2,
-  },
-}, { _id: false });
+  { _id: false },
+);
 
 const TrainingProgressSchema = new Schema<ITrainingProgress>(
   {
     sessionId: {
       type: Schema.Types.ObjectId,
-      ref: 'TrainingSession',
+      ref: "TrainingSession",
       required: true,
     },
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     summaries: [SessionSummarySchema],
@@ -180,8 +201,8 @@ const TrainingProgressSchema = new Schema<ITrainingProgress>(
     },
     status: {
       type: String,
-      enum: ['Not Started', 'In Progress', 'Completed'],
-      default: 'Not Started',
+      enum: ["Not Started", "In Progress", "Completed"],
+      default: "Not Started",
     },
     timeSpent: {
       type: Number,
@@ -190,7 +211,7 @@ const TrainingProgressSchema = new Schema<ITrainingProgress>(
     },
     chatSessionId: {
       type: Schema.Types.ObjectId,
-      ref: 'ChatSession'
+      ref: "ChatSession",
     },
     lastAccessDate: {
       type: Date,
@@ -215,11 +236,11 @@ const TrainingProgressSchema = new Schema<ITrainingProgress>(
     },
     assignedBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Create indexes for efficient queries
@@ -228,4 +249,7 @@ TrainingProgressSchema.index({ userId: 1 });
 TrainingProgressSchema.index({ status: 1 });
 TrainingProgressSchema.index({ updatedAt: -1 });
 
-export const TrainingProgress = mongoose.model<ITrainingProgress>('TrainingProgress', TrainingProgressSchema);
+export const TrainingProgress = mongoose.model<ITrainingProgress>(
+  "TrainingProgress",
+  TrainingProgressSchema,
+);

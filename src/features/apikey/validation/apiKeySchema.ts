@@ -2,11 +2,12 @@ import { z } from "zod";
 
 // Create API Key Schema
 const createApiKeySchema = z.object({
-  name: z.string({
-    required_error: "Name is required",
-  })
-  .min(3, "Name must be at least 3 characters")
-  .max(50, "Name must be at most 50 characters"),
+  name: z
+    .string({
+      required_error: "Name is required",
+    })
+    .min(3, "Name must be at least 3 characters")
+    .max(50, "Name must be at most 50 characters"),
 });
 
 // Revoke API Key Schema
@@ -33,4 +34,4 @@ export type RevokeApiKeyRequestParams = {
 export const apiKeySchemas = {
   createApiKeySchema: { body: createApiKeySchema },
   revokeApiKeySchema: { params: revokeApiKeySchema },
-}; 
+};

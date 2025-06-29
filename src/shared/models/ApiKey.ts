@@ -39,7 +39,7 @@ const ApiKeySchema = new Schema<IApiKey>(
       default: () => new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 ApiKeySchema.index({ userId: 1 });
@@ -53,4 +53,4 @@ ApiKeySchema.pre("save", function (next) {
   next();
 });
 
-export const ApiKey = mongoose.model<IApiKey>("ApiKey", ApiKeySchema); 
+export const ApiKey = mongoose.model<IApiKey>("ApiKey", ApiKeySchema);

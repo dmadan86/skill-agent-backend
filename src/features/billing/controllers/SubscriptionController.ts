@@ -13,7 +13,7 @@ import { CreateCheckoutSessionInput } from "../validation/SubscriptionSchema";
 export const createCheckoutSession = async (
   req: AuthenticatedRequest<{}, {}, CreateCheckoutSessionInput>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -31,10 +31,14 @@ export const createCheckoutSession = async (
       plan_id,
     });
 
-    sendSuccess(res, {
-      message: result?.message,
-      ...result,
-    }, 201);
+    sendSuccess(
+      res,
+      {
+        message: result?.message,
+        ...result,
+      },
+      201,
+    );
   } catch (error) {
     next(error);
   }
@@ -46,7 +50,7 @@ export const createCheckoutSession = async (
 export const stripeWebhookController = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const sig = req.headers["stripe-signature"] as string;
@@ -57,7 +61,7 @@ export const stripeWebhookController = async (
       throw new AppError(
         "Missing Stripe signature",
         "MISSING_STRIPE_SIGNATURE",
-        400
+        400,
       );
     }
 
@@ -76,7 +80,7 @@ export const stripeWebhookController = async (
 export const getUserBillingDetails = async (
   req: AuthenticatedRequest,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -84,7 +88,8 @@ export const getUserBillingDetails = async (
     }
 
     const userId = req.user.userId;
-    const billingDetails = await subscriptionService.getUserBillingDetails(userId);
+    const billingDetails =
+      await subscriptionService.getUserBillingDetails(userId);
 
     sendSuccess(res, {
       message: "User billing details fetched successfully",
@@ -102,7 +107,7 @@ export const getUserBillingDetails = async (
 export const cancelSubscriptionController = async (
   req: AuthenticatedRequest<{ stripe_subscription_id: string }, {}, {}>,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.user) {
@@ -111,11 +116,15 @@ export const cancelSubscriptionController = async (
 
     const subscriptionId = req.params.stripe_subscription_id;
     const cancelAtPeriodEnd = true;
-    
-    const result = await subscriptionService.cancelSubscription(subscriptionId, cancelAtPeriodEnd, req.user.userId);
+
+    const result = await subscriptionService.cancelSubscription(
+      subscriptionId,
+      cancelAtPeriodEnd,
+      req.user.userId,
+    );
 
     sendSuccess(res, {
-      message: cancelAtPeriodEnd 
+      message: cancelAtPeriodEnd
         ? "Subscription will be canceled at the end of the current billing period"
         : "Subscription canceled immediately",
       subscription: result,

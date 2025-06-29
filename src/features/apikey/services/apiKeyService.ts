@@ -8,7 +8,7 @@ export const getApiKeys = async (userId: string): Promise<IApiKey[]> => {
 
 export const createApiKey = async (
   userId: string,
-  name: string
+  name: string,
 ): Promise<IApiKey> => {
   const apiKey = new ApiKey({
     key: generateApiKey(),
@@ -22,11 +22,11 @@ export const createApiKey = async (
 
 export const revokeApiKey = async (
   id: string,
-  userId: string
+  userId: string,
 ): Promise<void> => {
   const apiKey = await ApiKey.findOneAndDelete({ _id: id, userId });
 
   if (!apiKey) {
     throw new AppError("API key not found", "NOT_FOUND", 404);
   }
-}; 
+};

@@ -43,7 +43,7 @@
  *         owner: 60d21b4667d0d8992e610c80
  *         createdAt: 2023-01-01T00:00:00.000Z
  *         updatedAt: 2023-01-01T00:00:00.000Z
- *     
+ *
  *     TeamInvite:
  *       type: object
  *       required:
@@ -95,7 +95,7 @@
  *         expiresAt: 2023-01-08T00:00:00.000Z
  *         createdAt: 2023-01-01T00:00:00.000Z
  *         updatedAt: 2023-01-01T00:00:00.000Z
- *     
+ *
  *     CreateTeamRequest:
  *       type: object
  *       required:
@@ -110,7 +110,7 @@
  *       example:
  *         name: Product Development
  *         description: Team responsible for core product features
- *     
+ *
  *     UpdateTeamRequest:
  *       type: object
  *       properties:
@@ -123,7 +123,7 @@
  *       example:
  *         name: Product Development Team
  *         description: Team responsible for core product features and innovation
- *     
+ *
  *     AddTeamMembersRequest:
  *       type: object
  *       required:
@@ -136,7 +136,7 @@
  *           description: Array of user IDs to add to the team
  *       example:
  *         userIds: [60d21b4667d0d8992e610c81, 60d21b4667d0d8992e610c82]
- *     
+ *
  *     RemoveTeamMembersRequest:
  *       type: object
  *       required:
@@ -149,7 +149,7 @@
  *           description: Array of user IDs to remove from the team
  *       example:
  *         userIds: [60d21b4667d0d8992e610c81, 60d21b4667d0d8992e610c82]
- *     
+ *
  *     InviteToTeamRequest:
  *       type: object
  *       required:
@@ -163,7 +163,7 @@
  *           description: Array of email addresses to invite
  *       example:
  *         emails: [user1@example.com, user2@example.com]
- *     
+ *
  *     AcceptInviteRequest:
  *       type: object
  *       required:
@@ -174,7 +174,7 @@
  *           description: The invitation token
  *       example:
  *         token: a1b2c3d4e5f6
- *     
+ *
  *     SuccessItem:
  *       type: object
  *       properties:
@@ -285,7 +285,7 @@
  *           failure:
  *             - email: user2@example.com
  *               error: An invitation has already been sent to this email
- *     
+ *
  *     BulkImportResult:
  *       type: object
  *       properties:
@@ -341,7 +341,7 @@
  *             }
  *           ]
  *         }
- *     
+ *
  *     ErrorResponse:
  *       type: object
  *       properties:

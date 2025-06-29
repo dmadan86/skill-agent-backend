@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IEvaluationSummary {
   content: string;
@@ -29,7 +29,11 @@ export interface IImprovementArea {
 export interface INextStep {
   title: string;
   description: string;
-  type: 'skill_development' | 'knowledge_acquisition' | 'practical_application' | 'assessment';
+  type:
+    | "skill_development"
+    | "knowledge_acquisition"
+    | "practical_application"
+    | "assessment";
   priority: number; // Added priority field
 }
 
@@ -38,7 +42,7 @@ export interface IEvaluationProgress extends Document {
   userId: mongoose.Types.ObjectId;
   summaries: IEvaluationSummary[];
   progress: number;
-  status: 'Not Started' | 'In Progress' | 'Completed';
+  status: "Not Started" | "In Progress" | "Completed";
   timeSpent: number;
   lastAccessDate: Date;
   overallScore?: number;
@@ -136,7 +140,12 @@ const NextStepSchema = new Schema<INextStep>({
   },
   type: {
     type: String,
-    enum: ['skill_development', 'knowledge_acquisition', 'practical_application', 'assessment'],
+    enum: [
+      "skill_development",
+      "knowledge_acquisition",
+      "practical_application",
+      "assessment",
+    ],
     required: true,
   },
   priority: {
@@ -152,12 +161,12 @@ const EvaluationProgressSchema = new Schema<IEvaluationProgress>(
   {
     evaluationId: {
       type: Schema.Types.ObjectId,
-      ref: 'Evaluation',
+      ref: "Evaluation",
       required: true,
     },
     userId: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
     summaries: [EvaluationSummarySchema],
@@ -169,8 +178,8 @@ const EvaluationProgressSchema = new Schema<IEvaluationProgress>(
     },
     status: {
       type: String,
-      enum: ['Not Started', 'In Progress', 'Completed'],
-      default: 'Not Started',
+      enum: ["Not Started", "In Progress", "Completed"],
+      default: "Not Started",
     },
     timeSpent: {
       type: Number,
@@ -190,16 +199,16 @@ const EvaluationProgressSchema = new Schema<IEvaluationProgress>(
     strengths: [StrengthItemSchema], // Using structured schema
     improvementAreas: [ImprovementAreaSchema], // Using structured schema
     recommendation: {
-      type: String
+      type: String,
     },
     nextSteps: [NextStepSchema],
     assignedBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Add compound index to efficiently query progress by user and status
@@ -207,4 +216,7 @@ EvaluationProgressSchema.index({ userId: 1, status: 1 });
 // Add index for efficiently finding recent evaluations
 EvaluationProgressSchema.index({ updatedAt: -1 });
 
-export const EvaluationProgress = mongoose.model<IEvaluationProgress>('EvaluationProgress', EvaluationProgressSchema);
+export const EvaluationProgress = mongoose.model<IEvaluationProgress>(
+  "EvaluationProgress",
+  EvaluationProgressSchema,
+);

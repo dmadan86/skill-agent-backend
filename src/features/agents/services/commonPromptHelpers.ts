@@ -1,5 +1,5 @@
 // src/features/agents/services/commonPromptHelpers.ts
-import { IAgent } from '../../../shared/models/Agent';
+import { IAgent } from "../../../shared/models/Agent";
 
 /**
  * Common conversational style guidelines for all voice agents
@@ -20,9 +20,12 @@ export const commonConversationStyle = `
 /**
  * Type-specific content for PROCESS agents
  */
-export const getProcessTypeContent = (agentType: string, industry: string): string => {
+export const getProcessTypeContent = (
+  agentType: string,
+  industry: string,
+): string => {
   switch (agentType) {
-    case 'TRAINING':
+    case "TRAINING":
       return `
 ## PROCESS Training Guidelines
 **You are a highly engaging PROCESS training specialist for ${industry}.**
@@ -36,7 +39,7 @@ export const getProcessTypeContent = (agentType: string, industry: string): stri
 - Connect each step to measurable outcomes and business impact
 - Emphasize critical decision points and quality checks within the process`;
 
-    case 'EVALUATION':
+    case "EVALUATION":
       return `
 ## PROCESS Evaluation Guidelines
 **You are a thorough PROCESS evaluation specialist for ${industry}.**
@@ -50,7 +53,7 @@ export const getProcessTypeContent = (agentType: string, industry: string): stri
 - Assess compliance awareness and regulation adherence specific to the process
 - Evaluate the ability to explain the process clearly to others`;
 
-    case 'QUICK_PREP':
+    case "QUICK_PREP":
       return `
 ## PROCESS Quick Prep Guidelines
 **You are a highly efficient PROCESS quick prep specialist for ${industry}.**
@@ -65,16 +68,19 @@ export const getProcessTypeContent = (agentType: string, industry: string): stri
 - Supply brief "cheat sheets" for process execution in different scenarios`;
 
     default:
-      return '';
+      return "";
   }
 };
 
 /**
  * Type-specific content for PRODUCT agents
  */
-export const getProductTypeContent = (agentType: string, industry: string): string => {
+export const getProductTypeContent = (
+  agentType: string,
+  industry: string,
+): string => {
   switch (agentType) {
-    case 'TRAINING':
+    case "TRAINING":
       return `
 ## PRODUCT Training Guidelines
 **You are a highly knowledgeable PRODUCT training specialist for ${industry}.**
@@ -88,7 +94,7 @@ export const getProductTypeContent = (agentType: string, industry: string): stri
 - Explain maintenance, troubleshooting, and best practices for optimal use
 - Connect product knowledge to measurable business outcomes and customer satisfaction`;
 
-    case 'EVALUATION':
+    case "EVALUATION":
       return `
 ## PRODUCT Evaluation Guidelines
 **You are a comprehensive PRODUCT evaluation specialist for ${industry}.**
@@ -102,7 +108,7 @@ export const getProductTypeContent = (agentType: string, industry: string): stri
 - Assess ability to connect product features to customer benefits
 - Evaluate understanding of complementary products and cross-selling opportunities`;
 
-    case 'QUICK_PREP':
+    case "QUICK_PREP":
       return `
 ## PRODUCT Quick Prep Guidelines
 **You are a highly responsive PRODUCT quick prep specialist for ${industry}.**
@@ -117,16 +123,19 @@ export const getProductTypeContent = (agentType: string, industry: string): stri
 - Supply brief use case scenarios that highlight product value`;
 
     default:
-      return '';
+      return "";
   }
 };
 
 /**
  * Type-specific content for SERVICE agents
  */
-export const getServiceTypeContent = (agentType: string, industry: string): string => {
+export const getServiceTypeContent = (
+  agentType: string,
+  industry: string,
+): string => {
   switch (agentType) {
-    case 'TRAINING':
+    case "TRAINING":
       return `
 ## SERVICE Training Guidelines
 **You are a highly effective SERVICE training specialist for ${industry}.**
@@ -140,7 +149,7 @@ export const getServiceTypeContent = (agentType: string, industry: string): stri
 - Connect service quality to business metrics and customer satisfaction
 - Role-play service delivery scenarios to practice critical customer interactions`;
 
-    case 'EVALUATION':
+    case "EVALUATION":
       return `
 ## SERVICE Evaluation Guidelines
 **You are a meticulous SERVICE evaluation specialist for ${industry}.**
@@ -154,7 +163,7 @@ export const getServiceTypeContent = (agentType: string, industry: string): stri
 - Assess ability to explain service value and benefits clearly
 - Evaluate knowledge of related services and appropriate recommendations`;
 
-    case 'QUICK_PREP':
+    case "QUICK_PREP":
       return `
 ## SERVICE Quick Prep Guidelines
 **You are a highly agile SERVICE quick prep specialist for ${industry}.**
@@ -169,16 +178,19 @@ export const getServiceTypeContent = (agentType: string, industry: string): stri
 - Supply brief scenario responses for common service situations`;
 
     default:
-      return '';
+      return "";
   }
 };
 
 /**
  * Type-specific content for JOB agents
  */
-export const getJobTypeContent = (agentType: string, industry: string): string => {
+export const getJobTypeContent = (
+  agentType: string,
+  industry: string,
+): string => {
   switch (agentType) {
-    case 'TRAINING':
+    case "TRAINING":
       return `
 ## JOB ROLE Training Guidelines
 **You are a highly experienced JOB training specialist for ${industry}.**
@@ -192,7 +204,7 @@ export const getJobTypeContent = (agentType: string, industry: string): string =
 - Connect daily tasks to broader business objectives and outcomes
 - Incorporate real-world scenarios that illustrate effective performance`;
 
-    case 'EVALUATION':
+    case "EVALUATION":
       return `
 ## JOB ROLE Evaluation Guidelines
 **You are a precise JOB evaluation specialist for ${industry}.**
@@ -206,7 +218,7 @@ export const getJobTypeContent = (agentType: string, industry: string): string =
 - Assess knowledge of industry best practices relevant to the position
 - Evaluate professional development awareness and growth mindset`;
 
-    case 'QUICK_PREP':
+    case "QUICK_PREP":
       return `
 ## JOB ROLE Quick Prep Guidelines
 **You are a highly focused JOB quick prep specialist for ${industry}.**
@@ -221,16 +233,19 @@ export const getJobTypeContent = (agentType: string, industry: string): string =
 - Supply brief best practice reminders for specific job activities`;
 
     default:
-      return '';
+      return "";
   }
 };
 
 /**
  * Type-specific content for CERTIFICATE agents
  */
-export const getCertificateTypeContent = (agentType: string, industry: string): string => {
+export const getCertificateTypeContent = (
+  agentType: string,
+  industry: string,
+): string => {
   switch (agentType) {
-    case 'TRAINING':
+    case "TRAINING":
       return `
 ## CERTIFICATE Training Guidelines
 **You are a highly qualified CERTIFICATE training specialist for ${industry}.**
@@ -244,7 +259,7 @@ export const getCertificateTypeContent = (agentType: string, industry: string): 
 - Explain recertification requirements and continuous education
 - Connect certification to career advancement and professional development`;
 
-    case 'EVALUATION':
+    case "EVALUATION":
       return `
 ## CERTIFICATE Evaluation Guidelines
 **You are an exacting CERTIFICATE evaluation specialist for ${industry}.**
@@ -258,7 +273,7 @@ export const getCertificateTypeContent = (agentType: string, industry: string): 
 - Assess ability to explain certified concepts clearly to others
 - Evaluate readiness for certification examination with targeted questions`;
 
-    case 'QUICK_PREP':
+    case "QUICK_PREP":
       return `
 ## CERTIFICATE Quick Prep Guidelines
 **You are a highly precise CERTIFICATE quick prep specialist for ${industry}.**
@@ -273,26 +288,29 @@ export const getCertificateTypeContent = (agentType: string, industry: string): 
 - Supply brief reference guides for important formulas, processes, or frameworks`;
 
     default:
-      return '';
+      return "";
   }
 };
 
 /**
  * Get type-specific content based on knowledge type and agent type
  */
-export const getTypeSpecificContent = (agent: IAgent, agentType: 'TRAINING' | 'EVALUATION' | 'QUICK_PREP'): string => {
+export const getTypeSpecificContent = (
+  agent: IAgent,
+  agentType: "TRAINING" | "EVALUATION" | "QUICK_PREP",
+): string => {
   switch (agent.type) {
-    case 'PROCESS':
+    case "PROCESS":
       return getProcessTypeContent(agentType, agent.industry);
-    case 'PRODUCT':
+    case "PRODUCT":
       return getProductTypeContent(agentType, agent.industry);
-    case 'SERVICE':
+    case "SERVICE":
       return getServiceTypeContent(agentType, agent.industry);
-    case 'JOB':
+    case "JOB":
       return getJobTypeContent(agentType, agent.industry);
-    case 'CERTIFICATE':
+    case "CERTIFICATE":
       return getCertificateTypeContent(agentType, agent.industry);
     default:
-      throw new Error('Invalid knowledge type');
+      throw new Error("Invalid knowledge type");
   }
 };

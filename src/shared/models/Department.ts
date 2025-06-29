@@ -1,5 +1,5 @@
 // src/shared/models/Department.ts
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface IDepartment extends Document {
   name: string;
@@ -21,17 +21,19 @@ const DepartmentSchema = new Schema<IDepartment>(
       type: String,
       trim: true,
     },
-    members: [{
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-    }],
+    members: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     manager: {
       type: Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 DepartmentSchema.index({ name: 1, manager: 1 }); // no unique
@@ -39,4 +41,7 @@ DepartmentSchema.index({ name: 1, manager: 1 }); // no unique
 DepartmentSchema.index({ manager: 1 });
 DepartmentSchema.index({ members: 1 });
 
-export const Department = mongoose.model<IDepartment>('Department', DepartmentSchema);
+export const Department = mongoose.model<IDepartment>(
+  "Department",
+  DepartmentSchema,
+);

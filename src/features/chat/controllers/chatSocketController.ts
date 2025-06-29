@@ -85,8 +85,8 @@ export const initializeSocketServer = (httpServer: HttpServer): Server => {
           new AppError(
             "Authentication required",
             "AUTHENTICATION_REQUIRED",
-            401
-          )
+            401,
+          ),
         );
       }
 
@@ -99,7 +99,7 @@ export const initializeSocketServer = (httpServer: HttpServer): Server => {
     } catch (error) {
       console.error("Error authenticating socket:", error);
       next(
-        new AppError("Invalid authentication token", "INVALID_AUTH_TOKEN", 401)
+        new AppError("Invalid authentication token", "INVALID_AUTH_TOKEN", 401),
       );
     }
   });
@@ -116,8 +116,8 @@ export const initializeSocketServer = (httpServer: HttpServer): Server => {
           new AppError(
             "Authentication required",
             "AUTHENTICATION_REQUIRED",
-            401
-          )
+            401,
+          ),
         );
       }
 
@@ -130,7 +130,7 @@ export const initializeSocketServer = (httpServer: HttpServer): Server => {
     } catch (error) {
       console.error("Error authenticating socket:", error);
       next(
-        new AppError("Invalid authentication token", "INVALID_AUTH_TOKEN", 401)
+        new AppError("Invalid authentication token", "INVALID_AUTH_TOKEN", 401),
       );
     }
   });
@@ -150,7 +150,7 @@ export const initializeSocketServer = (httpServer: HttpServer): Server => {
             throw new AppError(
               "Authentication required",
               "AUTHENTICATION_REQUIRED",
-              401
+              401,
             );
           }
 
@@ -184,7 +184,7 @@ export const initializeSocketServer = (httpServer: HttpServer): Server => {
                 messageId: greeting.messageId,
               });
               logger.info(
-                `stream object ${Object.getOwnPropertyNames(greeting.stream)}`
+                `stream object ${Object.getOwnPropertyNames(greeting.stream)}`,
               );
 
               let greetingContent = "";
@@ -205,7 +205,7 @@ export const initializeSocketServer = (httpServer: HttpServer): Server => {
                   logger.debug(`message: ${fullMessage}`);
                   await chatService.saveAssistantMessage(
                     sessionId,
-                    fullMessage
+                    fullMessage,
                   );
                   socket.emit("greeting-stream-complete", {
                     sessionId,
@@ -269,7 +269,7 @@ export const initializeSocketServer = (httpServer: HttpServer): Server => {
               error instanceof Error ? error.message : "Failed to join session",
           });
         }
-      }
+      },
     );
 
     // Handle incoming messages
@@ -282,7 +282,7 @@ export const initializeSocketServer = (httpServer: HttpServer): Server => {
         // Save user message
         const { messageId } = await chatService.processChatMessage(
           data.sessionId,
-          data.content
+          data.content,
         );
         const sessionId = data.sessionId;
 
@@ -291,7 +291,7 @@ export const initializeSocketServer = (httpServer: HttpServer): Server => {
 
         // Generate and stream AI response
         const responseStream = await chatService.generateAssistantResponse(
-          data.sessionId
+          data.sessionId,
         );
 
         let assistantResponse = "";
@@ -318,7 +318,7 @@ export const initializeSocketServer = (httpServer: HttpServer): Server => {
               const fullMessage = event.part.text;
               const { messageId } = await chatService.saveAssistantMessage(
                 data.sessionId,
-                fullMessage
+                fullMessage,
               );
               socket.emit("assistant-stream-complete", {
                 sessionId,
@@ -417,7 +417,9 @@ export const initializeSocketServer = (httpServer: HttpServer): Server => {
 
     // Handle disconnection
     socket.on("disconnect", async () => {
-      logger.debug(`User disconnected from chat namespace: ${socket.userId} and session id: ${socket.sessionId}`);
+      logger.debug(
+        `User disconnected from chat namespace: ${socket.userId} and session id: ${socket.sessionId}`,
+      );
 
       // Auto-end session if user disconnects while in an active session
       if (socket.sessionId) {

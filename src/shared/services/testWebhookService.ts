@@ -3,7 +3,11 @@ import crypto from "crypto";
 
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET as string;
 
-export const verifyAgentWebhook = (req: Request, res: Response, next: NextFunction): void => {
+export const verifyAgentWebhook = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
   const signature = req.headers["x-signature"] as string;
 
   if (!signature) {

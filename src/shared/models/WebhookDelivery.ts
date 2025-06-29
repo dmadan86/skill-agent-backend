@@ -62,7 +62,7 @@ const WebhookDeliverySchema = new Schema<IWebhookDelivery>(
       type: Date,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 WebhookDeliverySchema.index({ webhookId: 1 });
@@ -73,5 +73,5 @@ WebhookDeliverySchema.index({ nextRetry: 1 }, { sparse: true });
 
 export const WebhookDelivery = mongoose.model<IWebhookDelivery>(
   "WebhookDelivery",
-  WebhookDeliverySchema
-); 
+  WebhookDeliverySchema,
+);

@@ -33,7 +33,7 @@
  *           type: string
  *           format: date-time
  *           description: When the department was last updated
- * 
+ *
  * @swagger
  * tags:
  *   name: Departments

@@ -47,7 +47,7 @@
  *           type: string
  *           format: date-time
  *           description: Timestamp when the session was last updated
- *     
+ *
  *     CreateChatSessionRequest:
  *       type: object
  *       required:
@@ -61,7 +61,7 @@
  *           type: string
  *           enum: [TRAINING, EVALUATION, QUICK_PREP]
  *           description: Type of chat session
- *     
+ *
  *     ChatSessionResponse:
  *       type: object
  *       properties:
@@ -350,4 +350,4 @@
  *                 'message-received':
  *                   type: object
  *                   description: Message has been received and processed
- */ 
+ */

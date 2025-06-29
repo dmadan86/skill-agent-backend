@@ -1,4 +1,7 @@
-import { UserMetricActivity, IUserMetricActivity } from "../models/UserMetricActivity";
+import {
+  UserMetricActivity,
+  IUserMetricActivity,
+} from "../models/UserMetricActivity";
 
 export class UserMetricActivityService {
   /**
@@ -6,20 +9,20 @@ export class UserMetricActivityService {
    */
   static async createActivity(data: {
     userId: string;
-    activityType: IUserMetricActivity['activityType'];
-    feature: IUserMetricActivity['feature'];
+    activityType: IUserMetricActivity["activityType"];
+    feature: IUserMetricActivity["feature"];
     metadata?: Record<string, any>;
-    status?: 'success' | 'failed';
+    status?: "success" | "failed";
     duration?: number;
   }): Promise<IUserMetricActivity> {
     try {
       const activity = new UserMetricActivity({
         ...data,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
       return await activity.save();
     } catch (error) {
-      console.error('Error creating user metric activity:', error);
+      console.error("Error creating user metric activity:", error);
       throw error;
     }
   }
@@ -27,16 +30,18 @@ export class UserMetricActivityService {
   /**
    * Get feature usage statistics for analytics
    */
-  static async getFeatureUsageStats(timeframe: 'day' | 'week' | 'month' = 'week') {
+  static async getFeatureUsageStats(
+    timeframe: "day" | "week" | "month" = "week",
+  ) {
     const startDate = new Date();
     switch (timeframe) {
-      case 'day':
+      case "day":
         startDate.setDate(startDate.getDate() - 1);
         break;
-      case 'week':
+      case "week":
         startDate.setDate(startDate.getDate() - 7);
         break;
-      case 'month':
+      case "month":
         startDate.setMonth(startDate.getMonth() - 1);
         break;
     }
@@ -46,49 +51,57 @@ export class UserMetricActivityService {
         {
           $match: {
             timestamp: { $gte: startDate },
-            status: 'success'
-          }
+            status: "success",
+          },
         },
         {
           $group: {
             _id: {
-              feature: '$feature',
-              activityType: '$activityType'
+              feature: "$feature",
+              activityType: "$activityType",
             },
             count: { $sum: 1 },
-            uniqueUsers: { $addToSet: '$userId' }
-          }
+            uniqueUsers: { $addToSet: "$userId" },
+          },
         },
         {
           $group: {
-            _id: '$_id.feature',
+            _id: "$_id.feature",
             activities: {
               $push: {
-                activityType: '$_id.activityType',
-                count: '$count',
-                uniqueUsers: { $size: '$uniqueUsers' }
-              }
+                activityType: "$_id.activityType",
+                count: "$count",
+                uniqueUsers: { $size: "$uniqueUsers" },
+              },
             },
-            totalUsage: { $sum: '$count' },
-            totalUniqueUsers: { $addToSet: '$uniqueUsers' }
-          }
+            totalUsage: { $sum: "$count" },
+            totalUniqueUsers: { $addToSet: "$uniqueUsers" },
+          },
         },
         {
           $project: {
-            feature: '$_id',
+            feature: "$_id",
             activities: 1,
             totalUsage: 1,
-            totalUniqueUsers: { $size: { $reduce: { input: '$totalUniqueUsers', initialValue: [], in: { $concatArrays: ['$$value', '$$this'] } } } }
-          }
+            totalUniqueUsers: {
+              $size: {
+                $reduce: {
+                  input: "$totalUniqueUsers",
+                  initialValue: [],
+                  in: { $concatArrays: ["$$value", "$$this"] },
+                },
+              },
+            },
+          },
         },
         {
-          $sort: { totalUsage: -1 }
-        }
+          $sort: { totalUsage: -1 },
+        },
       ]);
 
       return stats;
     } catch (error) {
-      console.error('Error getting feature usage stats:', error);
+      console.error("Error getting feature usage stats:", error);
       throw error;
     }
   }
@@ -102,7 +115,7 @@ export class UserMetricActivityService {
         .sort({ timestamp: -1 })
         .limit(limit);
     } catch (error) {
-      console.error('Error getting user activity timeline:', error);
+      console.error("Error getting user activity timeline:", error);
       throw error;
     }
   }
@@ -118,47 +131,49 @@ export class UserMetricActivityService {
       const stats = await UserMetricActivity.aggregate([
         {
           $match: {
-            timestamp: { $gte: startDate }
-          }
+            timestamp: { $gte: startDate },
+          },
         },
         {
           $group: {
             _id: {
-              date: { $dateToString: { format: '%Y-%m-%d', date: '$timestamp' } },
-              activityType: '$activityType'
+              date: {
+                $dateToString: { format: "%Y-%m-%d", date: "$timestamp" },
+              },
+              activityType: "$activityType",
             },
             count: { $sum: 1 },
             successCount: {
-              $sum: { $cond: [{ $eq: ['$status', 'success'] }, 1, 0] }
+              $sum: { $cond: [{ $eq: ["$status", "success"] }, 1, 0] },
             },
             failedCount: {
-              $sum: { $cond: [{ $eq: ['$status', 'failed'] }, 1, 0] }
-            }
-          }
+              $sum: { $cond: [{ $eq: ["$status", "failed"] }, 1, 0] },
+            },
+          },
         },
         {
           $group: {
-            _id: '$_id.date',
+            _id: "$_id.date",
             activities: {
               $push: {
-                activityType: '$_id.activityType',
-                count: '$count',
-                successCount: '$successCount',
-                failedCount: '$failedCount'
-              }
+                activityType: "$_id.activityType",
+                count: "$count",
+                successCount: "$successCount",
+                failedCount: "$failedCount",
+              },
             },
-            totalActivities: { $sum: '$count' }
-          }
+            totalActivities: { $sum: "$count" },
+          },
         },
         {
-          $sort: { _id: -1 }
-        }
+          $sort: { _id: -1 },
+        },
       ]);
 
       return stats;
     } catch (error) {
-      console.error('Error getting system activity stats:', error);
+      console.error("Error getting system activity stats:", error);
       throw error;
     }
   }
-} 
+}

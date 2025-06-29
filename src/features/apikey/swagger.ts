@@ -55,7 +55,7 @@
  *           example: "API key created successfully"
  *         data:
  *           $ref: '#/components/schemas/ApiKey'
- * 
+ *
  * @swagger
  * tags:
  *   name: API Keys
