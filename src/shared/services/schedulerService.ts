@@ -159,7 +159,7 @@ export function scheduleDelayedRepeatingJob(
   taskFn: () => void,
 ) {
   setTimeout(() => {
-    const job = cron.schedule(cronExpr, taskFn, { scheduled: true });
+    const job = cron.schedule(cronExpr, taskFn);
     jobs.set(jobId, job);
     console.log(`[${jobId}] repeating job started`);
     taskFn(); // Optional: also run immediately on first schedule

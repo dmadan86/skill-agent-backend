@@ -98,7 +98,7 @@ export const processWebhookDelivery = async (
         "Content-Type": "application/json",
         "X-Webhook-Signature": signature,
         "X-Webhook-Event": delivery.event,
-        "X-Webhook-Id": delivery._id,
+        "X-Webhook-Id": String(delivery._id),
       },
       timeout: 10000, // 10 second timeout
     });
