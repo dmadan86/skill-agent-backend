@@ -106,6 +106,7 @@ app.use(
       "http://localhost:3001",
       "https://skill-agent-backend.onrender.com",
       "https://skillagent.dmadan.com",
+      "https://agent.skillsmentor.net",
     ],
     credentials: true,
   }),
