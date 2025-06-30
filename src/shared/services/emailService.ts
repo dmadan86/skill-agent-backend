@@ -25,13 +25,13 @@ const nodemailerTransport = nodemailer.createTransport({
 
 // Company and product branding info
 const COMPANY_INFO = {
-  name: "Jobready",
+  name: "Skill Agent",
   email: config.email.from || "support@digitalagents.io",
-  senderName: "Jobready",
-  websiteUrl: "https://jobready.co",
+  senderName: "SkillAgent",
+  websiteUrl: "https://agent.skill.co",
   logo: {
-    src: "https://placehold.co/600x150?text=Jobready",
-    altText: "jobready.co",
+    src: "https://placehold.co/600x150?text=Skill%20Agent",
+    altText: "Skill Agent",
     width: 150,
     height: 40,
   },
@@ -44,11 +44,6 @@ const COMPANY_INFO = {
     textPrimary: "#111827",
     textSecondary: "#4B5563",
     border: "#E5E7EB",
-  },
-  socialLinks: {
-    twitter: "https://twitter.com/digitalagents",
-    linkedin: "https://www.linkedin.com/company/job-readyai",
-    github: "https://github.com/digitalagents",
   },
 };
 
