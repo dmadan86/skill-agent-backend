@@ -26,7 +26,7 @@ const nodemailerTransport = nodemailer.createTransport({
 // Company and product branding info
 const COMPANY_INFO = {
   name: "Skill Agent",
-  email: config.email.from || "support@digitalagents.io",
+  email: config.email.from || "support@dmadan.com",
   senderName: "SkillAgent",
   websiteUrl: "https://agent.skill.co",
   logo: {
@@ -176,8 +176,8 @@ export const getEmailTemplate = (
     const enhancedData = {
       ...data,
       // Replace appName or add product name if not present
-      appName: "Jobready",
-      productName: "Jobready",
+      appName: "SkillAgent",
+      productName: "SkillAgent",
       companyName: COMPANY_INFO.name,
       branding: COMPANY_INFO,
       year: new Date().getFullYear(),
@@ -260,7 +260,7 @@ export const sendTeamInviteEmail = async (
 
     return await sendEmail({
       to: email,
-      subject: `Join ${teamName} on Jobready`,
+      subject: `Join ${teamName} on SkillAgent`,
       html,
     });
   } catch (error) {
@@ -409,7 +409,7 @@ export const sendPasswordResetEmail = async (
 
     const sent = await sendEmail({
       to: email,
-      subject: "Reset Your Jobready Password",
+      subject: "Reset Your SkillAgent Password",
       html,
     });
 
@@ -451,7 +451,7 @@ export const sendTemporaryPasswordEmail = async (
 
     const sent = await sendEmail({
       to: email,
-      subject: "Your Temporary Jobready Password",
+      subject: "Your Temporary SkillAgent Password",
       html,
     });
 
@@ -499,7 +499,7 @@ export const sendAccountLockEmail = async (
 
     const sent = await sendEmail({
       to: email,
-      subject: "Your Jobready account Has Been Locked",
+      subject: "Your SkillAgent account Has Been Locked",
       html,
     });
 
@@ -591,7 +591,7 @@ export const sendMagicLinkSetupEmail = async (
 
     const sent = await sendEmail({
       to: email,
-      subject: "Set Up Your Jobready Account",
+      subject: "Set Up Your SkillAgent Account",
       html,
     });
 
