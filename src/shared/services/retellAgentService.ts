@@ -35,6 +35,7 @@ export const createRetellAgent = async (
     const llmParams: Retell.Llm.LlmCreateParams = {
       model: config.retell.defaultLlmModel,
       general_prompt: generalPrompt,
+      start_speaker: "agent",
     };
 
     const llm = await retellClient.llm.create(llmParams);
@@ -73,6 +74,7 @@ export const updateRetellAgent = async (
     const llmParams: Retell.Llm.LlmUpdateParams = {
       model: config.retell.defaultLlmModel,
       general_prompt: generalPrompt,
+      start_speaker: "agent",
     };
 
     const llm = await retellClient.llm.update(llmId, llmParams);

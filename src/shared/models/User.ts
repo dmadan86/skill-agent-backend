@@ -65,7 +65,7 @@ const UserSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: function () {
+      required: function (): boolean {
         return !this.googleId && !this.facebookId;
       },
       minlength: 8,
