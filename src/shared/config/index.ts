@@ -65,7 +65,7 @@ const config = {
   frontendUrl: process.env.FRONTEND_URL ?? "http://localhost:3000",
   email: {
     provider: process.env.EMAIL_PROVIDER ?? "nodemailer", // 'nodemailer' or 'resend'
-    from: process.env.EMAIL_FROM ?? "noreply@dmadan.com",
+    from: process.env.EMAIL_FROM ?? "noreply@skillsmentor.net",
     // Nodemailer settings
     host: process.env.EMAIL_HOST ?? "",
     port: process.env.EMAIL_PORT ? parseInt(process.env.EMAIL_PORT) : 587,

@@ -26,9 +26,9 @@ const nodemailerTransport = nodemailer.createTransport({
 // Company and product branding info
 const COMPANY_INFO = {
   name: "Skill Agent",
-  email: config.email.from || "support@dmadan.com",
+  email: config.email.from || "support@skillsmentors.net",
   senderName: "SkillAgent",
-  websiteUrl: "https://agent.skill.co",
+  websiteUrl: "https://agent.skillsmentors.net",
   logo: {
     src: "https://placehold.co/600x150?text=Skill%20Agent",
     altText: "Skill Agent",
